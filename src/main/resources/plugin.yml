@@ -1,0 +1,11 @@
+name: SuperSpleef
+author: SpleefLeague
+main: net.spleefleague.superspleef.SuperSpleef
+version: 1.0
+depend: [SpleefLeagueCore]
+commands:    
+    spleef:
+        description: SuperSpleef queue command
+        aliases: [s]
+        usage: |
+          /<command> [arena]

@@ -10,6 +10,8 @@ import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.player.PlayerManager;
 import net.spleefleague.core.plugin.CorePlugin;
 import net.spleefleague.superspleef.game.BattleManager;
+import net.spleefleague.superspleef.listener.ConnectionListener;
+import net.spleefleague.superspleef.listener.GameListener;
 import net.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
 
@@ -32,6 +34,8 @@ public class SuperSpleef extends CorePlugin {
         instance = this;
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
         this.battleManager = new BattleManager();
+        ConnectionListener.init();
+        GameListener.init();
     }
 
     @Override

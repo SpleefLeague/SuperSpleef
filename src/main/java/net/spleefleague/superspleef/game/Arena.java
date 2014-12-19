@@ -43,6 +43,8 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     private boolean queued;
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
+    @DBLoad(fieldName = "maxRating")
+    private int maxRating = 5;
     private boolean occupied = false;
     
     public Arena() {
@@ -85,6 +87,10 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     
     public boolean isQueued() {
         return queued;
+    }
+    
+    public int getMaxRating() {
+        return maxRating;
     }
     
     @Override

@@ -7,8 +7,13 @@ package net.spleefleague.superspleef;
 
 import com.mongodb.DB;
 import net.spleefleague.core.SpleefLeague;
+import net.spleefleague.core.chat.ChatChannel;
+import net.spleefleague.core.chat.ChatManager;
+import net.spleefleague.core.command.CommandLoader;
 import net.spleefleague.core.player.PlayerManager;
+import net.spleefleague.core.player.Rank;
 import net.spleefleague.core.plugin.CorePlugin;
+import net.spleefleague.superspleef.game.Arena;
 import net.spleefleague.superspleef.game.BattleManager;
 import net.spleefleague.superspleef.listener.ConnectionListener;
 import net.spleefleague.superspleef.listener.GameListener;
@@ -32,10 +37,13 @@ public class SuperSpleef extends CorePlugin {
     @Override
     public void start() {
         instance = this;
+        Arena.initialize();
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
         this.battleManager = new BattleManager();
+        ChatManager.registerPublicChannel(new ChatChannel("GAME_MESSAGE_SPLEEF", Rank.DEFAULT, true));
         ConnectionListener.init();
         GameListener.init();
+        CommandLoader.loadCommands(this, "net.spleefleague.superspleef.commands");
     }
 
     @Override

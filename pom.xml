@@ -5,6 +5,9 @@
     <artifactId>SuperSpleef</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+    <build>
+        <finalName>${project.artifactId}</finalName>
+    </build>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

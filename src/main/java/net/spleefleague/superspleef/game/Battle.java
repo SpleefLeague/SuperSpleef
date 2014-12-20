@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import net.spleefleague.core.SpleefLeague;
+import net.spleefleague.core.chat.ChatManager;
 import net.spleefleague.core.chat.Theme;
 import net.spleefleague.core.player.PlayerState;
 import net.spleefleague.superspleef.SuperSpleef;
@@ -40,6 +41,7 @@ public class Battle {
     private int ticksPassed = 0;
     private BukkitRunnable clock;
     private Scoreboard scoreboard;
+    private boolean inCountdown = false;
     
     protected Battle(Arena arena, List<SpleefPlayer> players) {
         this.arena = arena;
@@ -104,7 +106,6 @@ public class Battle {
     }
 
     public void end(SpleefPlayer winner, boolean rated) {
-        Bukkit.broadcastMessage("winner: " + winner.getName());
         clock.cancel();
         if (rated) {
             applyRatingChange();
@@ -132,32 +133,37 @@ public class Battle {
     }
     
     public void onArenaLeave(SpleefPlayer player) {
-        //Normal 1v1 Spleef
-        //Game will end when a player has >= arena.getMaxRating()
-        if(isNormalSpleef()) {
-            for(SpleefPlayer sp : getActivePlayers()) {
-                if(sp != player) {
-                    PlayerData playerdata = this.data.get(sp);
-                    playerdata.increasePoints();
-                    scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
-                    if(playerdata.getPoints() < arena.getMaxRating()) {
-                        startRound();
-                    }
-                    else {
-                        end(sp);
+        if(inCountdown) {
+            player.getPlayer().teleport(data.get(player).getSpawn());
+        }
+        else {
+            //Normal 1v1 Spleef
+            //Game will end when a player has >= arena.getMaxRating()
+            if(isNormalSpleef()) {
+                for(SpleefPlayer sp : getActivePlayers()) {
+                    if(sp != player) {
+                        PlayerData playerdata = this.data.get(sp);
+                        playerdata.increasePoints();
+                        scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
+                        if(playerdata.getPoints() < arena.getMaxRating()) {
+                            startRound();
+                        }
+                        else {
+                            end(sp);
+                        }
                     }
                 }
             }
-        }
-        //More MultiSpleef like
-        //Game will end when only one player is left
-        else {
-            removePlayer(player);
-            for(SpleefPlayer sp : getActivePlayers()) {
-                if(sp != player) {
-                    PlayerData playerdata = this.data.get(sp);
-                    playerdata.increasePoints();
-                    scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
+            //More MultiSpleef like
+            //Game will end when only one player is left
+            else {
+                removePlayer(player);
+                for(SpleefPlayer sp : getActivePlayers()) {
+                    if(sp != player) {
+                        PlayerData playerdata = this.data.get(sp);
+                        playerdata.increasePoints();
+                        scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
+                    }
                 }
             }
         }
@@ -184,6 +190,7 @@ public class Battle {
     }
 
     public void startRound() {
+        inCountdown = true;
         for(SpleefPlayer sp : getActivePlayers()) {
             Location spawn = this.data.get(sp).getSpawn();
             createSpawnCage(spawn);
@@ -215,6 +222,7 @@ public class Battle {
                     removeSpawnCage(data.get(sp).getSpawn());
                     sp.setFrozen(false);
                 }
+                inCountdown = false;
             }
         };
         br.runTaskTimer(SuperSpleef.getInstance(), 20, 20);
@@ -227,7 +235,7 @@ public class Battle {
         Objective objective = scoreboard.getObjective("rounds");
         if (objective != null) {
             String s = DurationFormatUtils.formatDuration(ticksPassed * 50, "H:m:s", true);
-            objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Times Fallen:");
+            objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
         }
     }
 
@@ -264,60 +272,10 @@ public class Battle {
             }
         }
     }
-    
-    public static void main(String[] args) {
-        ArrayList<SpleefPlayer> players = new ArrayList<>();
-        FakePlayer p1,p2,p3,p4,p5;
-        p1 = new FakePlayer("A", 1000);
-        p2 = new FakePlayer("B", 1200);
-        p3 = new FakePlayer("C", 1400);
-        p4 = new FakePlayer("D", 1600);
-        p5 = new FakePlayer("E", 1800);
-        players.add(p1);
-        players.add(p2);
-        players.add(p3);
-        players.add(p4);
-        players.add(p5);
-        PlayerData pd1 = new PlayerData(p1, null);
-        pd1.points = 2;
-        PlayerData pd2 = new PlayerData(p2, null);
-        pd2.points = 3;
-        PlayerData pd3 = new PlayerData(p3, null);
-        pd3.points = 5;
-        PlayerData pd4 = new PlayerData(p4, null);
-        pd4.points = 3;
-        PlayerData pd5 = new PlayerData(p5, null);
-        pd5.points = 1;
-        Battle battle = new Battle(null, players);
-        battle.data.put(p1, pd1);
-        battle.data.put(p2, pd2);
-        battle.data.put(p3, pd3);
-        battle.data.put(p4, pd4);
-        battle.data.put(p5, pd5);
-        battle.applyRatingChange();
-        for(SpleefPlayer p : battle.getPlayers()) {
-            System.out.println(p.getName() + ": " + p.getRating());
-        }
-    }
-    
-    private static class FakePlayer extends SpleefPlayer {
-        
-        private final String name;
-        
-        public FakePlayer(String name, int rating) {
-            super();
-            this.name = name;
-            this.setRating(rating);
-        }
-        
-        @Override
-        public String getName() {
-            return name;
-        }
-    }
 
     private void applyRatingChange() {
         final int MIN_RATING = 1, MAX_RATING = 20;
+        String playerList = "";
         for (SpleefPlayer sp1 : players) {
             int newRating = sp1.getRating();
             for(SpleefPlayer sp2 : players) {
@@ -344,8 +302,11 @@ public class Battle {
                     newRating += ratingChange;
                 }
             }
+            int totalChange = newRating - sp1.getRating();
             sp1.setRating(newRating);
+            playerList += ChatColor.RED + sp1.getName() + ChatColor.WHITE + " (" + sp1.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + totalChange + ChatColor.WHITE + " points. ";
         }
+        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF");
     }
 
     private static class PlayerData {

@@ -47,19 +47,6 @@ public class GameListener implements Listener {
         
     }
     
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onBreak(BlockBreakEvent event) {
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        if(sp.isIngame()) {
-            if (event.getBlock().getType() == Material.SNOW_BLOCK && !event.isCancelled()) {
-                sp.getCurrentBattle().addDestroyedBlock(event.getBlock());
-            }
-            else {
-                event.setCancelled(true);
-            }
-        }
-    }
-    
     @EventHandler
     public void onLeaveRequest(PlayerDequeueEvent event) {
         if(!event.wasSuccessful()) {    
@@ -73,7 +60,7 @@ public class GameListener implements Listener {
     
     @EventHandler
     public void onQueueRequest(PlayerQueueEvent event) {
-        if(!event.wasSuccessful()) {    
+        if(event.wasSuccessful()) {    
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer().getPlayer());
             if(SuperSpleef.getInstance().getBattleManager().isQueued(sp)) {
                 event.setSuccessful(false);
@@ -105,7 +92,7 @@ public class GameListener implements Listener {
             from.setPitch(to.getPitch());
             event.setTo(from);
         }
-        else if(!sp.isIngame()) {
+        if(!sp.isIngame()) {
             for(Arena arena : Arena.getAll()) {
                 if(arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
                     Location loc = arena.getSpectatorSpawn();
@@ -120,10 +107,7 @@ public class GameListener implements Listener {
         else {
             Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
             Arena arena = battle.getArena();
-            if(!arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
-                battle.onArenaLeave(sp);
-            }
-            else if((PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer()))) {
+            if(!arena.getBorder().isInArea(sp.getPlayer().getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
                 battle.onArenaLeave(sp);
             }
         }
@@ -137,11 +121,11 @@ public class GameListener implements Listener {
         }
     }
     
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            event.setCancelled(event.getBlock().getType() != Material.SNOW_BLOCK);
+            event.setCancelled(!sp.getCurrentBattle().isInCountdown() && event.getBlock().getType() != Material.SNOW_BLOCK);
         }
     }
     
@@ -152,11 +136,6 @@ public class GameListener implements Listener {
             event.setCancelled(true);
         }
     }
-    //TODO
-    //Allow ingame blockbreaking
-    //Block blockbreaking in countdown
-    //Fix glitching + tp back
-    //Stop clock during countdown
     public void onDrop(PlayerDropItemEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {

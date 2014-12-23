@@ -5,11 +5,15 @@
  */
 package net.spleefleague.superspleef.game;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import net.minecraft.server.v1_8_R1.NBTTagCompound;
+import net.minecraft.server.v1_8_R1.NBTTagList;
 import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.chat.ChatManager;
 import net.spleefleague.core.chat.Theme;
@@ -19,10 +23,14 @@ import net.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -93,12 +101,13 @@ public class Battle {
         return active;
     }
 
-    private void resetPlayer(SpleefPlayer sjp) {
-        sjp.getPlayer().teleport(SpleefLeague.DEFAULT_WORLD.getSpawnLocation());
-        sjp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-        sjp.setIngame(false);
-        sjp.setFrozen(false);
-        SpleefLeague.getInstance().getPlayerManager().get(sjp.getPlayer()).setState(PlayerState.IDLE);
+    private void resetPlayer(SpleefPlayer sp) {
+        sp.getPlayer().teleport(SpleefLeague.DEFAULT_WORLD.getSpawnLocation());
+        sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        sp.setIngame(false);
+        sp.setFrozen(false);
+        data.get(sp).restoreOldData();
+        SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer()).setState(PlayerState.IDLE);
     }
 
     public void end(SpleefPlayer winner) {
@@ -133,7 +142,7 @@ public class Battle {
     }
     
     public void onArenaLeave(SpleefPlayer player) {
-        if(inCountdown) {
+            if(isInCountdown()) {
             player.getPlayer().teleport(data.get(player).getSpawn());
         }
         else {
@@ -177,11 +186,17 @@ public class Battle {
         objective.setDisplayName(ChatColor.GRAY + "0:0:0 | " + ChatColor.RED + "Score:");
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
+            Player p = sp.getPlayer();
             sp.setIngame(true);
             sp.setFrozen(true);
-            sp.getPlayer().teleport(arena.getSpawns()[i]);
+            p.teleport(arena.getSpawns()[i]);
             this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
-            sp.getPlayer().setScoreboard(scoreboard);
+            p.setScoreboard(scoreboard);
+            p.setGameMode(GameMode.ADVENTURE);
+            p.getInventory().clear();
+            p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
+            p.setFlying(false);
+            p.setAllowFlight(false);
             scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
             SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer()).setState(PlayerState.INGAME);
         }
@@ -243,8 +258,10 @@ public class Battle {
         clock = new BukkitRunnable() {
             @Override
             public void run() {
-                ticksPassed++;
-                updateScoreboardTime();
+                if(!isInCountdown()) {
+                    ticksPassed++;
+                    updateScoreboardTime();
+                }
             }
         };
         clock.runTaskTimer(SuperSpleef.getInstance(), 0, 1);
@@ -271,6 +288,10 @@ public class Battle {
                 }
             }
         }
+    }
+    
+    public boolean isInCountdown() {
+        return inCountdown;
     }
 
     private void applyRatingChange() {
@@ -314,11 +335,19 @@ public class Battle {
         private int points;
         private final Location spawn;
         private final SpleefPlayer sp;
-
-        public PlayerData(SpleefPlayer sjp, Location spawn) {
-            this.sp = sjp;
+        private final GameMode oldGamemode;
+        private final boolean oldFlying, oldAllowFlight;
+        private final ItemStack[] oldInventory;
+        
+        public PlayerData(SpleefPlayer sp, Location spawn) {
+            this.sp = sp;
             this.spawn = spawn;
             this.points = 0;
+            Player p = sp.getPlayer();
+            oldGamemode = p.getGameMode();
+            oldFlying = p.isFlying();
+            oldAllowFlight = p.getAllowFlight();
+            oldInventory = p.getInventory().getContents();
         }
 
         public Location getSpawn() {
@@ -335,6 +364,14 @@ public class Battle {
 
         public SpleefPlayer getPlayer() {
             return sp;
+        }
+        
+        public void restoreOldData() {
+            Player p = sp.getPlayer();
+            p.setGameMode(oldGamemode);
+            p.setFlying(oldFlying);
+            p.setAllowFlight(oldAllowFlight);
+            p.getInventory().setContents(oldInventory);
         }
     }
 }

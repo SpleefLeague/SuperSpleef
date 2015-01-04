@@ -40,7 +40,8 @@ public class SuperSpleef extends CorePlugin {
         Arena.initialize();
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
         this.battleManager = new BattleManager();
-        ChatManager.registerPublicChannel(new ChatChannel("GAME_MESSAGE_SPLEEF", Rank.DEFAULT, true));
+        ChatManager.registerPublicChannel(new ChatChannel("GAME_MESSAGE_SPLEEF_END", "Spleef game start notifications", Rank.DEFAULT, true));
+        ChatManager.registerPublicChannel(new ChatChannel("GAME_MESSAGE_SPLEEF_START", "Spleef game result messages", Rank.DEFAULT, true));
         ConnectionListener.init();
         GameListener.init();
         CommandLoader.loadCommands(this, "net.spleefleague.superspleef.commands");

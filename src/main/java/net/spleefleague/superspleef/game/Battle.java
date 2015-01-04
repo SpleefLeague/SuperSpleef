@@ -5,18 +5,15 @@
  */
 package net.spleefleague.superspleef.game;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import net.minecraft.server.v1_8_R1.NBTTagCompound;
-import net.minecraft.server.v1_8_R1.NBTTagList;
 import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.chat.ChatManager;
 import net.spleefleague.core.chat.Theme;
+import net.spleefleague.core.io.EntityBuilder;
 import net.spleefleague.core.player.PlayerState;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.player.SpleefPlayer;
@@ -28,7 +25,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -116,6 +112,7 @@ public class Battle {
 
     public void end(SpleefPlayer winner, boolean rated) {
         clock.cancel();
+        saveGameHistory(winner);
         if (rated) {
             applyRatingChange();
         }
@@ -133,6 +130,7 @@ public class Battle {
     }
 
     public void cancel() {
+        saveGameHistory(null);
         for (SpleefPlayer sp : getActivePlayers()) {
             sp.getPlayer().sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.INCOGNITO.buildTheme(false) + "Your battle has been cancelled by a moderator.");
             if (sp.isIngame()) {
@@ -327,10 +325,23 @@ public class Battle {
             sp1.setRating(newRating);
             playerList += ChatColor.RED + sp1.getName() + ChatColor.WHITE + " (" + sp1.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + totalChange + ChatColor.WHITE + " points. ";
         }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF");
+        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF_END");
+    }
+    
+    private void saveGameHistory(SpleefPlayer winner) {
+        GameHistory gh = new GameHistory(this, winner);
+        EntityBuilder.save(gh, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory"));
+    }
+    
+    public PlayerData getData(SpleefPlayer sp) {
+        return data.get(sp);
+    }
+    
+    public int getDuration() {
+        return ticksPassed;
     }
 
-    private static class PlayerData {
+    public static class PlayerData {
 
         private int points;
         private final Location spawn;

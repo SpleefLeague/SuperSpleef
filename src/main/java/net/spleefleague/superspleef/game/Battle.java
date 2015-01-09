@@ -102,6 +102,7 @@ public class Battle {
         sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         sp.setIngame(false);
         sp.setFrozen(false);
+        sp.setRequestingReset(false);
         data.get(sp).restoreOldData();
         SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer()).setState(PlayerState.IDLE);
     }
@@ -123,7 +124,7 @@ public class Battle {
         SuperSpleef.getInstance().getBattleManager().remove(this);
     }
     
-    private void resetField() {
+    public void resetField() {
         for(Block block : destroyedBlocks) {
             block.setType(Material.SNOW);
         }
@@ -187,6 +188,7 @@ public class Battle {
             Player p = sp.getPlayer();
             sp.setIngame(true);
             sp.setFrozen(true);
+            sp.setRequestingReset(false);
             p.teleport(arena.getSpawns()[i]);
             this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
             p.setScoreboard(scoreboard);

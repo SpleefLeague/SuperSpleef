@@ -17,10 +17,12 @@ import net.spleefleague.core.io.DBLoad;
 import net.spleefleague.core.io.DBLoadable;
 import net.spleefleague.core.io.EntityBuilder;
 import net.spleefleague.core.io.TypeConverter;
+import net.spleefleague.core.player.GeneralPlayer;
 import net.spleefleague.core.queue.Queue;
 import net.spleefleague.core.utils.Area;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.player.SpleefPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 /**
@@ -96,6 +98,45 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     @Override
     public int getSize() {
         return spawns.length;
+    }
+
+    @Override
+    public int getQueueLength() {
+        return SuperSpleef.getInstance().getBattleManager().getGameQueue().getQueueLength(this);
+    }
+
+    @Override
+    public int getQueuePosition(GeneralPlayer gp) {
+        return SuperSpleef.getInstance().getBattleManager().getGameQueue().getQueuePosition(this, (SpleefPlayer)gp);
+    }
+
+    @Override
+    public String getCurrentState() {
+        if(occupied) {
+            Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(this);
+            if(battle.isNormalSpleef()) {
+                return ChatColor.GOLD + battle.getActivePlayers().get(0).getName() + ChatColor.GRAY + ChatColor.ITALIC + " vs. " + ChatColor.RESET + ChatColor.GOLD + battle.getActivePlayers().get(1).getName();
+            }
+            else {
+                StringBuilder sb = new StringBuilder();
+                sb.append(ChatColor.GRAY).append("Currently playing: ");
+                for(SpleefPlayer sp : battle.getActivePlayers()) {
+                    if(sb.length() > 0) {
+                        sb.append(ChatColor.GRAY).append(", ");
+                    }
+                    sb.append(ChatColor.GOLD).append(sp.getName());
+                }
+                return sb.toString();
+            }
+        }
+        else {
+            return ChatColor.BLUE + "Empty";
+        }
+    }
+
+    @Override
+    public boolean isQueued(GeneralPlayer gp) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     private static Map<String, Arena> arenas;

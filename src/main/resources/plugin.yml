@@ -9,3 +9,7 @@ commands:
         aliases: [s]
         usage: |
           /<command> [arena]
+    reset:
+        description: Resets the current spleef field
+        usage:
+            /<command> [player]

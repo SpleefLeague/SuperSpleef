@@ -17,12 +17,12 @@ import net.spleefleague.superspleef.game.Battle;
  */
 public class SpleefPlayer extends GeneralPlayer {
     
+    private int rating;
+    private boolean ingame, frozen, requestingReset;
+    
     public SpleefPlayer() {
         super();
     }
-    
-    private int rating;
-    private boolean ingame, frozen;
     
     @DBLoad(fieldName = "rating")
     public void setRating(int rating) {
@@ -48,6 +48,14 @@ public class SpleefPlayer extends GeneralPlayer {
     
     public boolean isFrozen() {
         return frozen;
+    }
+    
+    public void setRequestingReset(boolean requestingReset) {
+        this.requestingReset = requestingReset;
+    }
+    
+    public boolean isRequestingReset() {
+        return requestingReset;
     }
     
     public Battle getCurrentBattle() {

@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 public class reset extends BasicCommand {
 
     public reset(CorePlugin plugin, String name, String usage) {
-        super(plugin, name, usage);
+        super(SuperSpleef.getInstance(), name, usage);
     }
 
     @Override

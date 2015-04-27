@@ -25,7 +25,7 @@ import org.bukkit.entity.Player;
 public class spleef extends BasicCommand {
 
     public spleef(CorePlugin plugin, String name, String usage) {
-        super(plugin, name, usage);
+        super(SuperSpleef.getInstance(), name, usage);
     }
 
     @Override

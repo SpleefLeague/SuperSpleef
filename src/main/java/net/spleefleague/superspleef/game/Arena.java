@@ -40,9 +40,9 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     @DBLoad(fieldName = "name")
     private String name;
     @DBLoad(fieldName = "rated")
-    private boolean rated;
+    private boolean rated = true;
     @DBLoad(fieldName = "queued")
-    private boolean queued;
+    private boolean queued = true;
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
     @DBLoad(fieldName = "maxRating")

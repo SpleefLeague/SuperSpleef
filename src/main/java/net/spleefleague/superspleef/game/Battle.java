@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import net.minecraft.server.v1_8_R2.NBTBase;
+import net.minecraft.server.v1_8_R2.NBTTagCompound;
 import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.chat.ChatManager;
 import net.spleefleague.core.chat.Theme;
@@ -25,6 +27,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -192,7 +195,7 @@ public class Battle {
             p.teleport(arena.getSpawns()[i]);
             this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
             p.setScoreboard(scoreboard);
-            p.setGameMode(GameMode.ADVENTURE);
+            p.setGameMode(GameMode.SURVIVAL);
             p.getInventory().clear();
             p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
             p.setFlying(false);
@@ -203,7 +206,7 @@ public class Battle {
         startClock();
         startRound();
     }
-
+    
     public void startRound() {
         inCountdown = true;
         for(SpleefPlayer sp : getActivePlayers()) {

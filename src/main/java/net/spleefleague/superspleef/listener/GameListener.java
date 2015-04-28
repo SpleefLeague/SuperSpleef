@@ -8,9 +8,6 @@ package net.spleefleague.superspleef.listener;
 import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.chat.ChatManager;
 import net.spleefleague.core.chat.Theme;
-import net.spleefleague.core.events.BattleCancelEvent;
-import net.spleefleague.core.events.PlayerDequeueEvent;
-import net.spleefleague.core.events.PlayerQueueEvent;
 import net.spleefleague.core.utils.PlayerUtil;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.Arena;
@@ -45,40 +42,6 @@ public class GameListener implements Listener {
     
     private GameListener() {
         
-    }
-    
-    @EventHandler
-    public void onLeaveRequest(PlayerDequeueEvent event) {
-        if(!event.wasSuccessful()) {    
-            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer().getPlayer());
-            if(SuperSpleef.getInstance().getBattleManager().isQueued(sp)) {
-                SuperSpleef.getInstance().getBattleManager().dequeue(sp);
-                event.setSuccessful(true);
-            }
-        }
-    }
-    
-    @EventHandler
-    public void onQueueRequest(PlayerQueueEvent event) {
-        if(event.wasSuccessful()) {    
-            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer().getPlayer());
-            if(SuperSpleef.getInstance().getBattleManager().isQueued(sp)) {
-                event.setSuccessful(false);
-            }
-        }
-    }
-    
-    @EventHandler
-    public void onCancelRequest(BattleCancelEvent event) {
-        if(!event.wasSuccessful()) {
-            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer().getPlayer());
-            if(sp.isIngame()) {
-                Battle b = sp.getCurrentBattle();
-                b.cancel();
-                event.setSuccessful(true);
-                ChatManager.sendMessage(Theme.SUPER_SECRET + " The battle on " + b.getArena().getName() + " has been cancelled.", "STAFF");
-            }
-        }
     }
     
     @EventHandler
@@ -123,10 +86,12 @@ public class GameListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
+        Bukkit.broadcastMessage("SS: " + event.isCancelled());
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            event.setCancelled(!sp.getCurrentBattle().isInCountdown() && event.getBlock().getType() != Material.SNOW_BLOCK);
+            event.setCancelled(sp.getCurrentBattle().isInCountdown() || event.getBlock().getType() != Material.SNOW_BLOCK);
         }
+        Bukkit.broadcastMessage("SS: " + event.isCancelled());
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -136,6 +101,8 @@ public class GameListener implements Listener {
             event.setCancelled(true);
         }
     }
+    
+    @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {

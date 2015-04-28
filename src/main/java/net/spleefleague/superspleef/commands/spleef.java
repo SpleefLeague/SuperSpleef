@@ -6,9 +6,9 @@
 package net.spleefleague.superspleef.commands;
 
 import net.spleefleague.core.command.BasicCommand;
-import net.spleefleague.core.events.PlayerQueueEvent;
 import net.spleefleague.core.player.SLPlayer;
 import net.spleefleague.core.plugin.CorePlugin;
+import net.spleefleague.core.plugin.GamePlugin;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.Arena;
 import net.spleefleague.superspleef.game.BattleManager;
@@ -33,10 +33,7 @@ public class spleef extends BasicCommand {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
         BattleManager bm = SuperSpleef.getInstance().getBattleManager();
         if(args.length == 0) {
-            PlayerQueueEvent event = new PlayerQueueEvent(sp);
-            event.setSuccessful(true);
-            Bukkit.getPluginManager().callEvent(event);
-            if(event.wasSuccessful()) {
+            if(!GamePlugin.isQueuedAll(p)) {
                 bm.queue(sp);
                 success(p, "You have been added to the queue.");
             }

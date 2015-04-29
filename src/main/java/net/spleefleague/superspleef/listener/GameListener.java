@@ -86,12 +86,10 @@ public class GameListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
-        Bukkit.broadcastMessage("SS: " + event.isCancelled());
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
             event.setCancelled(sp.getCurrentBattle().isInCountdown() || event.getBlock().getType() != Material.SNOW_BLOCK);
         }
-        Bukkit.broadcastMessage("SS: " + event.isCancelled());
     }
     
     @EventHandler(priority = EventPriority.HIGH)

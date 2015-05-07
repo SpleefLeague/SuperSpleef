@@ -86,7 +86,13 @@ public class GameListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            event.setCancelled(sp.getCurrentBattle().isInCountdown() || event.getBlock().getType() != Material.SNOW_BLOCK);
+            if(sp.getCurrentBattle().isInCountdown() || event.getBlock().getType() != Material.SNOW_BLOCK) {
+                event.setCancelled(true);
+            }
+            else {
+                event.setCancelled(false);
+                sp.getCurrentBattle().addDestroyedBlock(event.getBlock());
+            }
         }
     }
     

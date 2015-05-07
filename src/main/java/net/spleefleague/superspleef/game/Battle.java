@@ -100,6 +100,7 @@ public class Battle {
     private void resetPlayer(SpleefPlayer sp) {
         sp.getPlayer().teleport(SpleefLeague.DEFAULT_WORLD.getSpawnLocation());
         sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        removeSpawnCage(this.getData(sp).getSpawn());
         sp.setIngame(false);
         sp.setFrozen(false);
         sp.setRequestingReset(false);
@@ -117,8 +118,8 @@ public class Battle {
         if (rated) {
             applyRatingChange();
         }
-        for (SpleefPlayer sjp : getActivePlayers()) {
-            resetPlayer(sjp);
+        for (SpleefPlayer sp : getActivePlayers()) {
+            resetPlayer(sp);
         }
         resetField();
         SuperSpleef.getInstance().getBattleManager().remove(this);
@@ -126,8 +127,9 @@ public class Battle {
     
     public void resetField() {
         for(Block block : destroyedBlocks) {
-            block.setType(Material.SNOW);
+            block.setType(Material.SNOW_BLOCK);
         }
+        destroyedBlocks.clear();
     }
 
     public void cancel() {
@@ -208,6 +210,7 @@ public class Battle {
     
     public void startRound() {
         inCountdown = true;
+        resetField();
         for(SpleefPlayer sp : getActivePlayers()) {
             Location spawn = this.data.get(sp).getSpawn();
             createSpawnCage(spawn);

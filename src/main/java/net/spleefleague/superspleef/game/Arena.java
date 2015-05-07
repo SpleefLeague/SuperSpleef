@@ -142,7 +142,15 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     private static Map<String, Arena> arenas;
     
     public static Arena byName(String name) {
-        return arenas.get(name);
+        Arena arena = arenas.get(name);
+        if(arena == null) {
+            for(Arena a : arenas.values()) {
+                if(a.getName().equalsIgnoreCase(name)) {
+                    arena = a;
+                }
+            }
+        }
+        return arena;
     }
     
     public static Collection<Arena> getAll() {

@@ -6,8 +6,6 @@
 package net.spleefleague.superspleef.listener;
 
 import net.spleefleague.core.SpleefLeague;
-import net.spleefleague.core.chat.ChatManager;
-import net.spleefleague.core.chat.Theme;
 import net.spleefleague.core.utils.PlayerUtil;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.Arena;
@@ -21,6 +19,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -48,12 +48,10 @@ public class GameListener implements Listener {
     public void onMove(PlayerMoveEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isFrozen()) {
-            Location from = event.getFrom();
-            Location to = event.getTo();
-            from.setY(to.getY());
-            from.setYaw(to.getYaw());
-            from.setPitch(to.getPitch());
-            event.setTo(from);
+            Location spawn = sp.getCurrentBattle().getData(sp).getSpawn();
+            if(spawn.distanceSquared(sp.getPlayer().getLocation()) > 2) {
+                sp.getPlayer().teleport(spawn);
+            }
         }
         if(!sp.isIngame()) {
             for(Arena arena : Arena.getAll()) {
@@ -80,11 +78,11 @@ public class GameListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            event.setCancelled(true);
+            event.setCancelled(event.getClickedBlock() != null && event.getClickedBlock().getType() != Material.SNOW_BLOCK);
         }
     }
     
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
@@ -106,5 +104,15 @@ public class GameListener implements Listener {
         if(sp.isIngame()) {
             event.setCancelled(event.getItemDrop().getItemStack().getType() == Material.DIAMOND_SPADE);
         }
+    }
+    
+    @EventHandler
+    public void onDamage(EntityDamageEvent event) {
+        event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onDamage(FoodLevelChangeEvent event) {
+        event.setCancelled(true);
     }
 }

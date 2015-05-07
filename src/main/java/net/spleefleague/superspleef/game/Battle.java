@@ -10,8 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import net.minecraft.server.v1_8_R2.NBTBase;
-import net.minecraft.server.v1_8_R2.NBTTagCompound;
 import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.chat.ChatManager;
 import net.spleefleague.core.chat.Theme;
@@ -27,7 +25,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -189,6 +186,8 @@ public class Battle {
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
             Player p = sp.getPlayer();
+            p.setHealth(p.getMaxHealth());
+            p.setFoodLevel(20);
             sp.setIngame(true);
             sp.setFrozen(true);
             sp.setRequestingReset(false);
@@ -282,9 +281,12 @@ public class Battle {
         World w = s.getWorld();
         for (int x = s.getBlockX() - 1; x <= s.getBlockX() + 1; x++) {
             for (int z = s.getBlockZ() - 1; z <= s.getBlockZ() + 1; z++) {
-                if (x == s.getX() && z == s.getZ()) {
+                if (x == s.getBlockX() && z == s.getBlockZ()) {
+                    w.getBlockAt(x, s.getBlockY(), z).setType(Material.AIR); //Just in case
+                    w.getBlockAt(x, s.getBlockY() + 1, z).setType(Material.AIR);
                     w.getBlockAt(x, s.getBlockY() + 2, z).setType(type);
-                } else {
+                } 
+                else {
                     for (int y = s.getBlockY(); y <= s.getBlockY() + 2; y++) {
                         w.getBlockAt(x, y, z).setType(type);
                     }

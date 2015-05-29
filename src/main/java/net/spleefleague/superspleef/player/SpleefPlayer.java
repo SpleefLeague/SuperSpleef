@@ -17,8 +17,8 @@ import net.spleefleague.superspleef.game.Battle;
  */
 public class SpleefPlayer extends GeneralPlayer {
     
-    private int rating;
-    private boolean ingame, frozen, requestingReset;
+    private int rating, swcRating;
+    private boolean ingame, frozen, requestingReset, joinedSWC;
     
     public SpleefPlayer() {
         super();
@@ -32,6 +32,26 @@ public class SpleefPlayer extends GeneralPlayer {
     @DBSave(fieldName = "rating")
     public int getRating() {
         return rating;
+    }
+    
+    @DBLoad(fieldName = "joinedSWC")
+    public void setJoinedSWC(boolean joinedSWC) {
+        this.joinedSWC = joinedSWC;
+    }
+    
+    @DBSave(fieldName = "joinedSWC")
+    public boolean joinedSWC() {
+        return joinedSWC;
+    }
+    
+    @DBLoad(fieldName = "swcRating")
+    public void setSwcRating(int swcRating) {
+        this.swcRating = (swcRating > 0) ? swcRating : 0;
+    }
+    
+    @DBSave(fieldName = "swcRating")
+    public int getSwcRating() {
+        return swcRating;
     }
     
     public void setIngame(boolean ingame) {
@@ -66,7 +86,9 @@ public class SpleefPlayer extends GeneralPlayer {
     public void setDefaults() {
         super.setDefaults();
         this.rating = 1000;
+        this.swcRating = 1000;
         this.frozen = false;
         this.ingame = false;
+        this.joinedSWC = false;
     }
 }

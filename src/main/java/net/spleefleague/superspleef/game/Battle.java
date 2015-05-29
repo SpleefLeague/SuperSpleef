@@ -357,6 +357,7 @@ public class Battle {
 
     private void applyRatingChange(SpleefPlayer winner) {
         int winnerPoints = 0;
+        int winnerSWCPoints = 0;
         final int MIN_RATING = 1, MAX_RATING = 40;
         String playerList = "";
         for(SpleefPlayer sjp : players) {
@@ -369,9 +370,21 @@ public class Battle {
                 winnerPoints += rating;
                 sjp.setRating(sjp.getRating() - rating);
                 playerList += ChatColor.RED + sjp.getName() + ChatColor.WHITE + " (" + sjp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
+                if(winner.joinedSWC() && sjp.joinedSWC()) {
+                    float swcElo = (float) (1f / (1f + Math.pow(2f, ((sjp.getSwcRating() - winner.getSwcRating()) / 400f))));
+                    int swcRating = (int) Math.round(MAX_RATING * (1f - elo));
+                    if (swcRating < MIN_RATING) {
+                        swcRating = MIN_RATING;
+                    }
+                    winnerSWCPoints += swcRating;
+                    sjp.setSwcRating(sjp.getSwcRating() - swcRating);
+                    playerList += ChatColor.RED + sjp.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
+                }
             }
         }
         winner.setRating(winner.getRating() + winnerPoints);
+        if(winner.joinedSWC())
+            winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF_END");
     }
     

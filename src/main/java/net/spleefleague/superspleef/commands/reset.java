@@ -51,7 +51,7 @@ public class reset extends BasicCommand {
             else {
                 for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if(!spleefplayer.isRequestingReset()) {
-                        spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to reset the field. To agree enter " + ChatColor.YELLOW + "/reset.");
+                        spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to reset the field. To agree enter " + ChatColor.YELLOW + "/reset.");
                     }
                 }
             }

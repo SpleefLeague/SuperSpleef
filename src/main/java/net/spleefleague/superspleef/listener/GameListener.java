@@ -6,6 +6,8 @@
 package net.spleefleague.superspleef.listener;
 
 import net.spleefleague.core.SpleefLeague;
+import net.spleefleague.core.player.PlayerState;
+import net.spleefleague.core.player.SLPlayer;
 import net.spleefleague.core.utils.PlayerUtil;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.Arena;
@@ -53,11 +55,11 @@ public class GameListener implements Listener {
                 sp.getPlayer().teleport(spawn);
             }
         }
-        if(!sp.isIngame()) {
-            for(Arena arena : Arena.getAll()) {
-                if(arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
+        if (!sp.isIngame()) {
+            for (Arena arena : Arena.getAll()) {
+                if (arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
                     Location loc = arena.getSpectatorSpawn();
-                    if(loc == null) {
+                    if (loc == null) {
                         loc = SpleefLeague.DEFAULT_WORLD.getSpawnLocation();
                     }
                     sp.getPlayer().teleport(loc);

@@ -76,21 +76,9 @@ public class Battle {
     public void addSpectator(SpleefPlayer sp) {
         spectators.add(sp);
         Location spawn = arena.getSpectatorSpawn();
-        if(spawn == null) {
-            int i = 0;
-            for(SpleefPlayer s : getActivePlayers()) {
-                i++;
-                if(spawn == null) {
-                    spawn = s.getPlayer().getLocation();
-                }
-                else {
-                    spawn = spawn.add(s.getPlayer().getLocation());
-                }
-                spawn.add(0, 1, 0);
-            }
-            spawn.multiply(1.0 / (double)i);
+        if(spawn != null) {
+            sp.getPlayer().teleport(spawn);
         }
-        sp.getPlayer().teleport(spawn);
         sp.getPlayer().setScoreboard(scoreboard);
         sp.getPlayer().setAllowFlight(true);
         SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer()).setState(PlayerState.SPECTATING);
@@ -112,7 +100,7 @@ public class Battle {
         resetPlayer(sp);
         ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
         if(activePlayers.size() == 1) {
-            end(players.get(0));
+            end(activePlayers.get(0));
         }
         else if(activePlayers.size() > 1) {   
             for(SpleefPlayer pl : activePlayers) {
@@ -354,7 +342,7 @@ public class Battle {
     public boolean isInCountdown() {
         return inCountdown;
     }
-
+    
     private void applyRatingChange(SpleefPlayer winner) {
         int winnerPoints = 0;
         int winnerSWCPoints = 0;
@@ -368,11 +356,11 @@ public class Battle {
                     rating = MIN_RATING;
                 }
                 winnerPoints += rating;
-                sjp.setRating(sjp.getRating() - rating);
                 playerList += ChatColor.RED + sjp.getName() + ChatColor.WHITE + " (" + sjp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
+                sjp.setRating(sjp.getRating() - rating);
                 if(winner.joinedSWC() && sjp.joinedSWC()) {
                     float swcElo = (float) (1f / (1f + Math.pow(2f, ((sjp.getSwcRating() - winner.getSwcRating()) / 400f))));
-                    int swcRating = (int) Math.round(MAX_RATING * (1f - elo));
+                    int swcRating = (int) Math.round(MAX_RATING * (1f - swcElo));
                     if (swcRating < MIN_RATING) {
                         swcRating = MIN_RATING;
                     }
@@ -382,6 +370,8 @@ public class Battle {
                 }
             }
         }
+        playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
+        playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.GREEN + " SWC points. ";        
         winner.setRating(winner.getRating() + winnerPoints);
         if(winner.joinedSWC())
             winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);

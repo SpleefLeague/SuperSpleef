@@ -150,7 +150,10 @@ public class Battle {
         if (rated) {
             applyRatingChange(winner);
         }
-        for (SpleefPlayer sp : getActivePlayers()) {
+        for(SpleefPlayer sp : getActivePlayers()) {
+            resetPlayer(sp);
+        }
+        for(SpleefPlayer sp : spectators) {
             resetPlayer(sp);
         }
         cleanup();
@@ -366,15 +369,17 @@ public class Battle {
                     }
                     winnerSWCPoints += swcRating;
                     sjp.setSwcRating(sjp.getSwcRating() - swcRating);
+                    sjp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sjp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
                     playerList += ChatColor.RED + sjp.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
                 }
             }
         }
         playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
-        playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.GREEN + " SWC points. ";        
         winner.setRating(winner.getRating() + winnerPoints);
-        if(winner.joinedSWC())
+        if(winner.joinedSWC()) {
             winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
+            winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");        
+        }
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF_END");
     }
     

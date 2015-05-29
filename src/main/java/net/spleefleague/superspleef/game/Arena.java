@@ -5,9 +5,7 @@
  */
 package net.spleefleague.superspleef.game;
 
-import com.mongodb.BasicDBList;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCursor;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +20,7 @@ import net.spleefleague.core.queue.Queue;
 import net.spleefleague.core.utils.Area;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.player.SpleefPlayer;
+import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
@@ -168,32 +167,11 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     
     public static void initialize(){
         arenas = new HashMap<>();
-        DBCursor dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find();
+        MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find().iterator();
         while(dbc.hasNext()) {
             Arena arena = EntityBuilder.load(dbc.next(), Arena.class);
             arenas.put(arena.getName(), arena);
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
-    }
-    
-    public static class AreaArrayConverter extends TypeConverter<BasicDBList, Area[]> {
-
-        @Override
-        public Area[] convertLoad(BasicDBList t) {
-            Area[] areas = new Area[t.size()];
-            for(int i = 0; i < areas.length; i++) {
-                areas[i] = EntityBuilder.load((DBObject)t.get(i), Area.class);
-            }
-            return areas;
-        }
-
-        @Override
-        public BasicDBList convertSave(Area[] v) {
-            BasicDBList bdbl = new BasicDBList();
-            for(Area area : v) {
-                bdbl.add(EntityBuilder.serialize(area));
-            }
-            return bdbl;
-        }   
     }
 }

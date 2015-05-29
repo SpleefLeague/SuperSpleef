@@ -5,7 +5,7 @@
  */
 package net.spleefleague.superspleef;
 
-import com.mongodb.DB;
+import com.mongodb.client.MongoDatabase;
 import net.spleefleague.core.SpleefLeague;
 import net.spleefleague.core.chat.ChatChannel;
 import net.spleefleague.core.chat.ChatManager;
@@ -51,8 +51,8 @@ public class SuperSpleef extends GamePlugin {
     }
 
     @Override
-    public DB getPluginDB() {
-        return SpleefLeague.getInstance().getMongo().getDB("SuperSpleef");
+    public MongoDatabase getPluginDB() {
+        return SpleefLeague.getInstance().getMongo().getDatabase("SuperSpleef");
     }   
     
     public PlayerManager<SpleefPlayer> getPlayerManager() {
@@ -66,10 +66,33 @@ public class SuperSpleef extends GamePlugin {
     public static SuperSpleef getInstance() {
         return instance;
     }
-
+    
     @Override
-    public void spectate(Player p) {
-        SpleefPlayer sp = getPlayerManager().get(p);
+    public void spectate(Player target, Player p) {
+        SpleefPlayer tsjp = getPlayerManager().get(target);
+        SpleefPlayer sjp = getPlayerManager().get(p);
+        tsjp.getCurrentBattle().addSpectator(sjp);
+    }
+    
+    @Override
+    public void unspectate(Player p) {
+        SpleefPlayer sjp = getPlayerManager().get(p);
+        for(Battle battle : getBattleManager().getAll()) {
+            if(battle.isSpectating(sjp)) {
+                battle.removeSpectator(sjp);
+            }
+        }
+    }
+    
+    @Override
+    public boolean isSpectating(Player p) {
+        SpleefPlayer sjp = getPlayerManager().get(p);
+        for(Battle battle : getBattleManager().getAll()) {
+            if(battle.isSpectating(sjp)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

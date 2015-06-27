@@ -19,6 +19,7 @@ import net.spleefleague.core.player.PlayerState;
 import net.spleefleague.core.player.Rank;
 import net.spleefleague.core.player.SLPlayer;
 import net.spleefleague.superspleef.SuperSpleef;
+import net.spleefleague.superspleef.game.signs.GameSign;
 import net.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
@@ -30,6 +31,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -162,8 +164,10 @@ public class Battle {
     private void cleanup() {
         clock.cancel();
         resetField();
+        arena.setOccupied(false);
         SuperSpleef.getInstance().getBattleManager().remove(this);
         ChatManager.unregisterChannel(cc);
+        GameSign.updateGameSigns(arena);
     }
     
     public void resetField() {
@@ -223,6 +227,8 @@ public class Battle {
     }
 
     public void start() {
+        arena.setOccupied(true);
+        GameSign.updateGameSigns(arena);
         ChatManager.registerChannel(cc);
         SuperSpleef.getInstance().getBattleManager().add(this);
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -233,22 +239,30 @@ public class Battle {
             SpleefPlayer sp = players.get(i);
             Player p = sp.getPlayer();
             SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
+            this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
             p.setHealth(p.getMaxHealth());
             p.setFoodLevel(20);
             sp.setIngame(true);
             sp.setFrozen(true);
             sp.setRequestingReset(false);
-            p.teleport(arena.getSpawns()[i]);
-            this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
             p.setScoreboard(scoreboard);
             p.setGameMode(GameMode.SURVIVAL);
             p.getInventory().clear();
             p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
+            for(PotionEffect effect : p.getActivePotionEffects()) {
+                p.removePotionEffect(effect.getType());
+            }
+            for(SpleefPlayer sp1 : players) {
+                if(sp != sp1) {
+                    p.showPlayer(sp1.getPlayer());
+                }
+            }
             p.setFlying(false);
             p.setAllowFlight(false);
             slp.addChatChannel(cc.getName());
             scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
             slp.setState(PlayerState.INGAME);
+            p.teleport(arena.getSpawns()[i]);
         }
         startClock();
         startRound();

@@ -17,8 +17,10 @@ import net.spleefleague.core.plugin.GamePlugin;
 import net.spleefleague.superspleef.game.Arena;
 import net.spleefleague.superspleef.game.Battle;
 import net.spleefleague.superspleef.game.BattleManager;
+import net.spleefleague.superspleef.game.signs.GameSign;
 import net.spleefleague.superspleef.listener.ConnectionListener;
 import net.spleefleague.superspleef.listener.GameListener;
+import net.spleefleague.superspleef.listener.SignListener;
 import net.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -47,6 +49,8 @@ public class SuperSpleef extends GamePlugin {
         ChatManager.registerChannel(new ChatChannel("GAME_MESSAGE_SPLEEF_START", "Spleef game result messages", Rank.DEFAULT, true));
         ConnectionListener.init();
         GameListener.init();
+        SignListener.init();
+        GameSign.initialize();
         CommandLoader.loadCommands(this, "net.spleefleague.superspleef.commands");
     }
 

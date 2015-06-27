@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import net.spleefleague.core.queue.GameQueue;
 import net.spleefleague.superspleef.SuperSpleef;
+import net.spleefleague.superspleef.game.signs.GameSign;
 import net.spleefleague.superspleef.player.SpleefPlayer;
 
 /**
@@ -44,12 +45,13 @@ public class BattleManager {
     
     public void queue(SpleefPlayer player, Arena queue) {
         gameQueue.queue(player, queue, queue.isQueued());
-        if(!queue.isOccupied()) {
+        if(!queue.isPaused() && !queue.isOccupied()) {
             Collection<SpleefPlayer> players = gameQueue.request(queue);
             if(players != null) {
                 queue.startBattle(new ArrayList<>(players));
             }
         }
+        GameSign.updateGameSigns();
     }
     
     public void queue(SpleefPlayer player) {
@@ -58,10 +60,12 @@ public class BattleManager {
         for(Arena arena : requested.keySet()) {
             arena.startBattle(new ArrayList<>(requested.get(arena)));
         }
+        GameSign.updateGameSigns();
     }
     
     public void dequeue(SpleefPlayer sp) {
         gameQueue.dequeue(sp);
+        GameSign.updateGameSigns();
     }
 
     public boolean isQueued(SpleefPlayer sp) {

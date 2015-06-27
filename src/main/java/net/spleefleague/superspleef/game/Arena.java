@@ -42,6 +42,8 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     private boolean rated = true;
     @DBLoad(fieldName = "queued")
     private boolean queued = true;
+    @DBLoad(fieldName = "paused")
+    private boolean paused = false;
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
     @DBLoad(fieldName = "maxRating")
@@ -87,7 +89,11 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     }
     
     public boolean isQueued() {
-        return queued;
+        return queued && !paused;
+    }
+    
+    public boolean isPaused() {
+        return paused;
     }
     
     public int getMaxRating() {
@@ -157,7 +163,7 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     }
     
     public Battle startBattle(List<SpleefPlayer> players) {
-        if(!isOccupied()) {
+        if(!isOccupied()) { //Shouldn't be necessary
             Battle battle = new Battle(this, players);
             battle.start();
             return battle;

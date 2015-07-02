@@ -240,6 +240,7 @@ public class Battle {
             Player p = sp.getPlayer();
             SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
             this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
+            p.teleport(arena.getSpawns()[i]);
             p.setHealth(p.getMaxHealth());
             p.setFoodLevel(20);
             sp.setIngame(true);
@@ -262,7 +263,10 @@ public class Battle {
             slp.addChatChannel(cc.getName());
             scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
             slp.setState(PlayerState.INGAME);
-            p.teleport(arena.getSpawns()[i]);
+        }
+        for (int i = 0; i < players.size(); i++) {
+            SpleefPlayer sp = players.get(i);
+            sp.getPlayer().teleport(arena.getSpawns()[i]);
         }
         startClock();
         startRound();

@@ -94,7 +94,8 @@ public class GameSign extends DBEntity implements  DBLoadable{
     }
     
     public static HashSet<GameSign> getGameSigns(Arena arena) {
-        return signs.get(arena);
+        HashSet<GameSign> set = signs.get(arena);
+        return set != null ? set : new HashSet<GameSign>();
     }
     
     public static void updateGameSigns(Arena arena) {

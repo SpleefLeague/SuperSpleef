@@ -5,10 +5,16 @@
  */
 package net.spleefleague.superspleef.player;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import net.spleefleague.core.io.DBLoad;
 import net.spleefleague.core.io.DBSave;
+import net.spleefleague.core.io.Settings;
 import net.spleefleague.core.player.GeneralPlayer;
 import net.spleefleague.superspleef.SuperSpleef;
+import net.spleefleague.superspleef.game.Arena;
 import net.spleefleague.superspleef.game.Battle;
 
 /**
@@ -19,9 +25,10 @@ public class SpleefPlayer extends GeneralPlayer {
     
     private int rating, swcRating;
     private boolean ingame, frozen, requestingReset, joinedSWC;
+    private Set<Arena> visitedArenas;
     
     public SpleefPlayer() {
-        super();
+        setDefaults();
     }
     
     @DBLoad(fieldName = "rating")
@@ -54,6 +61,22 @@ public class SpleefPlayer extends GeneralPlayer {
         return swcRating;
     }
     
+    @DBSave(fieldName = "visitedArenas")
+    private List<String> saveVisitedArenas() {
+        List<String> arenaNames = new ArrayList<>();
+        for(Arena arena : visitedArenas) {
+            arenaNames.add(arena.getName());
+        }
+        return arenaNames;
+    }
+    
+    @DBLoad(fieldName = "visitedArenas")
+    private void loadVisitedArenas(List<String> arenaNames) {
+        for(String name : arenaNames) {
+            visitedArenas.add(Arena.byName(name));
+        }
+    }
+    
     public void setIngame(boolean ingame) {
         this.ingame = ingame;
     }
@@ -82,6 +105,10 @@ public class SpleefPlayer extends GeneralPlayer {
         return SuperSpleef.getInstance().getBattleManager().getBattle(this);
     }
     
+    public Set<Arena> getVisitedArenas() {
+        return visitedArenas;
+    }
+    
     @Override
     public void setDefaults() {
         super.setDefaults();
@@ -90,5 +117,9 @@ public class SpleefPlayer extends GeneralPlayer {
         this.frozen = false;
         this.ingame = false;
         this.joinedSWC = false;
+        visitedArenas = new HashSet<>();
+        for(String name : (List<String>)Settings.getList("default_arenas_spleef")) {
+            visitedArenas.add(Arena.byName(name));
+        }
     }
 }

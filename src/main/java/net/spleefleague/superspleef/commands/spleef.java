@@ -45,8 +45,13 @@ public class spleef extends BasicCommand {
             Arena arena = Arena.byName(args[0]);
             if(arena != null) {
                 if (!arena.isPaused()) {
-                    bm.queue(sp, arena);
-                    success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
+                    if(sp.getVisitedArenas().contains(arena)) {
+                        bm.queue(sp, arena);
+                        success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
+                    }
+                    else {
+                        error(p, "You have not visited this arena yet!");
+                    }
                 } else {
                     error(p, "This arena is currently paused.");
                 }

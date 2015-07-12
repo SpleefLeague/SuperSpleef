@@ -82,7 +82,7 @@ public class Battle {
             sp.getPlayer().teleport(spawn);
         }
         sp.getPlayer().setScoreboard(scoreboard);
-        sp.getPlayer().setAllowFlight(true);
+        sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
         SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer()).setState(PlayerState.SPECTATING);
     }
     
@@ -279,6 +279,8 @@ public class Battle {
             Location spawn = this.data.get(sp).getSpawn();
             createSpawnCage(spawn);
             sp.setFrozen(true);
+            sp.setRequestingReset(false);
+            sp.getPlayer().setFireTicks(0);
             sp.getPlayer().teleport(this.data.get(sp).getSpawn());
         }
         BukkitRunnable br = new BukkitRunnable() {
@@ -369,32 +371,33 @@ public class Battle {
         int winnerSWCPoints = 0;
         final int MIN_RATING = 1, MAX_RATING = 40;
         String playerList = "";
-        for(SpleefPlayer sjp : players) {
-            if(sjp != winner) {
-                float elo = (float) (1f / (1f + Math.pow(2f, ((sjp.getRating() - winner.getRating()) / 400f))));
+        for(SpleefPlayer sp : players) {
+            if(sp != winner) {
+                float elo = (float) (1f / (1f + Math.pow(2f, ((sp.getRating() - winner.getRating()) / 400f))));
                 int rating = (int) Math.round(MAX_RATING * (1f - elo));
                 if (rating < MIN_RATING) {
                     rating = MIN_RATING;
                 }
                 winnerPoints += rating;
-                playerList += ChatColor.RED + sjp.getName() + ChatColor.WHITE + " (" + sjp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
-                sjp.setRating(sjp.getRating() - rating);
-                if(winner.joinedSWC() && sjp.joinedSWC()) {
-                    float swcElo = (float) (1f / (1f + Math.pow(2f, ((sjp.getSwcRating() - winner.getSwcRating()) / 400f))));
+                playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
+                sp.setRating(sp.getRating() - rating);
+                if(winner.joinedSWC() && sp.joinedSWC()) {
+                    float swcElo = (float) (1f / (1f + Math.pow(2f, ((sp.getSwcRating() - winner.getSwcRating()) / 400f))));
                     int swcRating = (int) Math.round(MAX_RATING * (1f - swcElo));
                     if (swcRating < MIN_RATING) {
                         swcRating = MIN_RATING;
                     }
                     winnerSWCPoints += swcRating;
-                    sjp.setSwcRating(sjp.getSwcRating() - swcRating);
-                    sjp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sjp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
-                    playerList += ChatColor.RED + sjp.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
+                    sp.setSwcRating(sp.getSwcRating() - swcRating);
+                    sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
+                    playerList += ChatColor.RED + sp.getName() + ChatColor.GREEN + " also lost " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
                 }
             }
         }
         playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
         winner.setRating(winner.getRating() + winnerPoints);
         if(winner.joinedSWC()) {
+            playerList += ChatColor.RED + winner.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.WHITE + " SWC points. ";
             winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
             winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");        
         }

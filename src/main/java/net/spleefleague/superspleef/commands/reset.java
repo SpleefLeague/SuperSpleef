@@ -54,6 +54,7 @@ public class reset extends BasicCommand {
                         spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to reset the field. To agree enter " + ChatColor.YELLOW + "/reset.");
                     }
                 }
+                slp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "You requested a reset of the field.");
             }
         }
         else if(slp.getRank().hasPermission(Rank.MODERATOR)) {

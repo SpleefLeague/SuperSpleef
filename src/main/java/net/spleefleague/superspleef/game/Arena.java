@@ -42,12 +42,16 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     private boolean rated = true;
     @DBLoad(fieldName = "queued")
     private boolean queued = true;
+    @DBLoad(fieldName = "tpBackSpectators")
+    private boolean tpBackSpectators = true;
     @DBLoad(fieldName = "paused")
     private boolean paused = false;
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
     @DBLoad(fieldName = "maxRating")
     private int maxRating = 5;
+    @DBLoad(fieldName = "area")
+    private Area area;
     private boolean occupied = false;
     
     public Arena() {
@@ -80,12 +84,20 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
         return occupied;
     }
     
+    public Area getArea() {
+        return area;
+    }
+    
     public void setOccupied(boolean occupied) {
         this.occupied = occupied;
     }
     
     public boolean isRated() {
         return rated;
+    }
+    
+    public boolean isTpBackSpectators() {
+        return tpBackSpectators;
     }
     
     public boolean isQueued() {
@@ -142,6 +154,11 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     @Override
     public boolean isQueued(GeneralPlayer gp) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean isAvailable(GeneralPlayer gp) {
+        return SuperSpleef.getInstance().getPlayerManager().get(gp.getPlayer()).getVisitedArenas().contains(this);
     }
     
     private static Map<String, Arena> arenas;

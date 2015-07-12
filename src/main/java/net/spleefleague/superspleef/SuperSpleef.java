@@ -19,6 +19,7 @@ import net.spleefleague.superspleef.game.Battle;
 import net.spleefleague.superspleef.game.BattleManager;
 import net.spleefleague.superspleef.game.signs.GameSign;
 import net.spleefleague.superspleef.listener.ConnectionListener;
+import net.spleefleague.superspleef.listener.EnvironmentListener;
 import net.spleefleague.superspleef.listener.GameListener;
 import net.spleefleague.superspleef.listener.SignListener;
 import net.spleefleague.superspleef.player.SpleefPlayer;
@@ -50,6 +51,7 @@ public class SuperSpleef extends GamePlugin {
         ConnectionListener.init();
         GameListener.init();
         SignListener.init();
+        EnvironmentListener.init();
         GameSign.initialize();
         CommandLoader.loadCommands(this, "net.spleefleague.superspleef.commands");
     }
@@ -72,10 +74,17 @@ public class SuperSpleef extends GamePlugin {
     }
     
     @Override
-    public void spectate(Player target, Player p) {
+    public boolean spectate(Player target, Player p) {
         SpleefPlayer tsjp = getPlayerManager().get(target);
         SpleefPlayer sjp = getPlayerManager().get(p);
-        tsjp.getCurrentBattle().addSpectator(sjp);
+        if(sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
+            tsjp.getCurrentBattle().addSpectator(sjp);
+            return true;
+        }
+        else {
+            p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You can only spectate arenas you have already visited!");
+            return false;
+        }
     }
     
     @Override

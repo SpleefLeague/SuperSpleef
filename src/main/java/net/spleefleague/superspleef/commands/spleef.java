@@ -32,33 +32,38 @@ public class spleef extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
         BattleManager bm = SuperSpleef.getInstance().getBattleManager();
-        if(args.length == 0) {
-            if(!GamePlugin.isQueuedAll(p)) {
-                bm.queue(sp);
-                success(p, "You have been added to the queue.");
-            }
-            else {
-                error(p, "You are already in a queue! Enter /leave to leave the queue.");
-            }
-        }
-        else if(args.length == 1) {
-            Arena arena = Arena.byName(args[0]);
-            if(arena != null) {
-                if (!arena.isPaused()) {
-                    if(sp.getVisitedArenas().contains(arena)) {
-                        bm.queue(sp, arena);
-                        success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
-                    }
-                    else {
-                        error(p, "You have not visited this arena yet!");
-                    }
-                } else {
-                    error(p, "This arena is currently paused.");
+        if(!GamePlugin.isIngameAll(p)) {
+            if(args.length == 0) {
+                if(!GamePlugin.isQueuedAll(p)) {
+                    bm.queue(sp);
+                    success(p, "You have been added to the queue.");
+                }
+                else {
+                    error(p, "You are already in a queue! Enter /leave to leave the queue.");
                 }
             }
-            else {
-                error(p, "This arena does not exist.");
+            else if(args.length == 1) {
+                Arena arena = Arena.byName(args[0]);
+                if(arena != null) {
+                    if (!arena.isPaused()) {
+                        if(sp.getVisitedArenas().contains(arena)) {
+                            bm.queue(sp, arena);
+                            success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
+                        }
+                        else {
+                            error(p, "You have not visited this arena yet!");
+                        }
+                    } else {
+                        error(p, "This arena is currently paused.");
+                    }
+                }
+                else {
+                    error(p, "This arena does not exist.");
+                }
             }
+        }
+        else {
+            error(p, "You are currently ingame!");
         }
     }
 }

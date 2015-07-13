@@ -83,7 +83,9 @@ public class Battle {
         }
         sp.getPlayer().setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
-        SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer()).setState(PlayerState.SPECTATING);
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
+        slp.setState(PlayerState.SPECTATING);
+        slp.addChatChannel(cc.getName());
     }
     
     public boolean isSpectating(SpleefPlayer sjp) {
@@ -155,7 +157,7 @@ public class Battle {
         for(SpleefPlayer sp : getActivePlayers()) {
             resetPlayer(sp);
         }
-        for(SpleefPlayer sp : spectators) {
+        for(SpleefPlayer sp : new ArrayList<>(spectators)) {
             resetPlayer(sp);
         }
         cleanup();
@@ -180,7 +182,7 @@ public class Battle {
     public void cancel() {
         saveGameHistory(null);
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", cc.getName());
-        for(SpleefPlayer sp : spectators) {
+        for(SpleefPlayer sp : new ArrayList<>(spectators)) {
             resetPlayer(sp);
         }
         for (SpleefPlayer sp : getActivePlayers()) {
@@ -379,8 +381,8 @@ public class Battle {
                     rating = MIN_RATING;
                 }
                 winnerPoints += rating;
-                playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
                 sp.setRating(sp.getRating() - rating);
+                playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
                 if(winner.joinedSWC() && sp.joinedSWC()) {
                     float swcElo = (float) (1f / (1f + Math.pow(2f, ((sp.getSwcRating() - winner.getSwcRating()) / 400f))));
                     int swcRating = (int) Math.round(MAX_RATING * (1f - swcElo));
@@ -390,14 +392,14 @@ public class Battle {
                     winnerSWCPoints += swcRating;
                     sp.setSwcRating(sp.getSwcRating() - swcRating);
                     sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
-                    playerList += ChatColor.RED + sp.getName() + ChatColor.GREEN + " also lost " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
+                    //playerList += ChatColor.RED + sp.getName() + ChatColor.GREEN + " also lost " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
                 }
             }
         }
-        playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
         winner.setRating(winner.getRating() + winnerPoints);
+        playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
         if(winner.joinedSWC()) {
-            playerList += ChatColor.RED + winner.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.WHITE + " SWC points. ";
+            //playerList += ChatColor.RED + winner.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.WHITE + " SWC points. ";
             winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
             winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");        
         }

@@ -55,6 +55,11 @@ public class SuperSpleef extends GamePlugin {
         GameSign.initialize();
         CommandLoader.loadCommands(this, "net.spleefleague.superspleef.commands");
     }
+    
+    @Override
+    public void stop() {
+        playerManager.saveAll();
+    }
 
     @Override
     public MongoDatabase getPluginDB() {

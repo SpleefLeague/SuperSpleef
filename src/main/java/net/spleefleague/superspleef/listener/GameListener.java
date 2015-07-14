@@ -24,6 +24,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
  *
@@ -58,7 +59,37 @@ public class GameListener implements Listener {
                 if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
                     Location loc = arena.getSpectatorSpawn();
                     if (loc == null) {
-                        loc = SpleefLeague.DEFAULT_WORLD.getSpawnLocation();
+                        loc = SpleefLeague.getInstance().getSpawnLocation();
+                    }
+                    sp.getPlayer().teleport(loc);
+                    break;
+                }
+            }
+        }
+        else {
+            Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
+            Arena arena = battle.getArena();
+            if(!arena.getBorder().isInArea(sp.getPlayer().getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
+                battle.onArenaLeave(sp);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onMove(PlayerTeleportEvent event) {
+        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
+        if(sp.isFrozen()) {
+            Location spawn = sp.getCurrentBattle().getData(sp).getSpawn();
+            if(spawn.distanceSquared(sp.getPlayer().getLocation()) > 2) {
+                sp.getPlayer().teleport(spawn);
+            }
+        }
+        if (!sp.isIngame()) {
+            for (Arena arena : Arena.getAll()) {
+                if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
+                    Location loc = arena.getSpectatorSpawn();
+                    if (loc == null) {
+                        loc = SpleefLeague.getInstance().getSpawnLocation();
                     }
                     sp.getPlayer().teleport(loc);
                     break;

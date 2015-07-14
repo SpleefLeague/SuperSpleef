@@ -140,7 +140,7 @@ public class Battle {
             data.get(sp).restoreOldData();
         }
         sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());    
-        sp.getPlayer().teleport(SpleefLeague.DEFAULT_WORLD.getSpawnLocation());
+        sp.getPlayer().teleport(SpleefLeague.getInstance().getSpawnLocation());
         slp.removeChatChannel(cc.getName());   
         slp.setState(PlayerState.IDLE);
     }
@@ -205,6 +205,11 @@ public class Battle {
                         playerdata.increasePoints();
                         scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
                         if(playerdata.getPoints() < arena.getMaxRating()) {
+                            int round = 0;
+                            for(PlayerData pd : data.values()) {
+                                round += pd.getPoints();
+                            }
+                            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + sp.getName() + " has won round " + round, cc.getName());
                             startRound();
                         }
                         else {

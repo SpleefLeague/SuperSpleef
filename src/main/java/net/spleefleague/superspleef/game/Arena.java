@@ -13,6 +13,8 @@ import java.util.Map;
 import net.spleefleague.core.io.DBEntity;
 import net.spleefleague.core.io.DBLoad;
 import net.spleefleague.core.io.DBLoadable;
+import net.spleefleague.core.io.DBSave;
+import net.spleefleague.core.io.DBSaveable;
 import net.spleefleague.core.io.EntityBuilder;
 import net.spleefleague.core.io.TypeConverter;
 import net.spleefleague.core.player.GeneralPlayer;
@@ -28,7 +30,7 @@ import org.bukkit.Location;
  *
  * @author Jonas
  */
-public class Arena  extends DBEntity implements DBLoadable, Queue{
+public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
     
     @DBLoad(fieldName = "border")
     private Area border;
@@ -45,6 +47,7 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     @DBLoad(fieldName = "tpBackSpectators")
     private boolean tpBackSpectators = true;
     @DBLoad(fieldName = "paused")
+    @DBSave(fieldName = "paused")
     private boolean paused = false;
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
@@ -106,6 +109,10 @@ public class Arena  extends DBEntity implements DBLoadable, Queue{
     
     public boolean isPaused() {
         return paused;
+    }
+    
+    public void setPaused(boolean paused) {
+        this.paused = paused;
     }
     
     public int getMaxRating() {

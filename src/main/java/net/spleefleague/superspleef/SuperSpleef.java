@@ -152,4 +152,11 @@ public class SuperSpleef extends GamePlugin {
         SpleefPlayer sp = getPlayerManager().get(p);
         return getBattleManager().isIngame(sp);
     }
+    
+    @Override
+    public void cancelAll() {
+        for(Battle battle : battleManager.getAll()) {
+            battle.cancel();
+        }
+    }
 }

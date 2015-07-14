@@ -6,6 +6,7 @@
 package net.spleefleague.superspleef.commands;
 
 import net.spleefleague.core.command.BasicCommand;
+import net.spleefleague.core.io.EntityBuilder;
 import net.spleefleague.core.player.SLPlayer;
 import net.spleefleague.core.plugin.CorePlugin;
 import net.spleefleague.core.plugin.GamePlugin;
@@ -32,9 +33,9 @@ public class spleef extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
         BattleManager bm = SuperSpleef.getInstance().getBattleManager();
-        if(!GamePlugin.isIngameAll(p)) {
+        if(!GamePlugin.isIngameGlobal(p)) {
             if(args.length == 0) {
-                if(!GamePlugin.isQueuedAll(p)) {
+                if(!GamePlugin.isQueuedGlobal(p)) {
                     bm.queue(sp);
                     success(p, "You have been added to the queue.");
                 }
@@ -60,6 +61,24 @@ public class spleef extends BasicCommand {
                 else {
                     error(p, "This arena does not exist.");
                 }
+            }
+            else if(args.length == 2) {
+                Arena arena = Arena.byName(args[2]);
+                if(arena != null) {
+                    if(args[1].equalsIgnoreCase("pause")) {
+                        arena.setPaused(true);
+                    }
+                    else if(args[1].equalsIgnoreCase("unpause")) {
+                        arena.setPaused(false);
+                    }
+                    EntityBuilder.save(arena, SuperSpleef.getInstance().getPluginDB().getCollection("Arenas"));
+                }
+                else {
+                    error(p, "This arena does not exist.");
+                }
+            }
+            else {
+                sendUsage(p);
             }
         }
         else {

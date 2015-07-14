@@ -90,7 +90,7 @@ public class BattleManager {
     
     public Battle getBattle(SpleefPlayer splayer) {
         for(Battle battle : activeBattles) {
-            for(SpleefPlayer sp : battle.getPlayers()) {
+            for(SpleefPlayer sp : battle.getActivePlayers()) {
                 if(sp == splayer) {
                     return battle;
                 }

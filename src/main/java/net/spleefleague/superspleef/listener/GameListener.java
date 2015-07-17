@@ -6,6 +6,7 @@
 package net.spleefleague.superspleef.listener;
 
 import net.spleefleague.core.SpleefLeague;
+import net.spleefleague.core.player.Rank;
 import net.spleefleague.core.utils.PlayerUtil;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.Arena;
@@ -54,45 +55,17 @@ public class GameListener implements Listener {
                 sp.getPlayer().teleport(spawn);
             }
         }
-        if (!sp.isIngame()) {
-            for (Arena arena : Arena.getAll()) {
-                if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
-                    Location loc = arena.getSpectatorSpawn();
-                    if (loc == null) {
-                        loc = SpleefLeague.getInstance().getSpawnLocation();
+        else if (!sp.isIngame()) {
+            if(!SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer()).getRank().hasPermission(Rank.MODERATOR)) {
+                for (Arena arena : Arena.getAll()) {
+                    if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
+                        Location loc = arena.getSpectatorSpawn();
+                        if (loc == null) {
+                            loc = SpleefLeague.getInstance().getSpawnLocation();
+                        }
+                        sp.getPlayer().teleport(loc);
+                        break;
                     }
-                    sp.getPlayer().teleport(loc);
-                    break;
-                }
-            }
-        }
-        else {
-            Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
-            Arena arena = battle.getArena();
-            if(!arena.getBorder().isInArea(sp.getPlayer().getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
-                battle.onArenaLeave(sp);
-            }
-        }
-    }
-    
-    @EventHandler
-    public void onMove(PlayerTeleportEvent event) {
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        if(sp.isFrozen()) {
-            Location spawn = sp.getCurrentBattle().getData(sp).getSpawn();
-            if(spawn.distanceSquared(sp.getPlayer().getLocation()) > 2) {
-                sp.getPlayer().teleport(spawn);
-            }
-        }
-        if (!sp.isIngame()) {
-            for (Arena arena : Arena.getAll()) {
-                if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
-                    Location loc = arena.getSpectatorSpawn();
-                    if (loc == null) {
-                        loc = SpleefLeague.getInstance().getSpawnLocation();
-                    }
-                    sp.getPlayer().teleport(loc);
-                    break;
                 }
             }
         }

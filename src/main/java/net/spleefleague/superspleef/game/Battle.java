@@ -178,10 +178,16 @@ public class Battle {
         }
         destroyedBlocks.clear();
     }
-
+    
     public void cancel() {
+        cancel(true);
+    }
+
+    public void cancel(boolean sendMessage) {
         saveGameHistory(null);
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", cc.getName());
+        if(sendMessage) {
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", cc.getName());
+        }
         for(SpleefPlayer sp : new ArrayList<>(spectators)) {
             resetPlayer(sp);
         }
@@ -242,8 +248,18 @@ public class Battle {
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
-        for (int i = 0; i < players.size(); i++) {
+        String playerNames = "";
+        for(int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
+            if(i == 0) {
+                playerNames = sp.getName();
+            }
+            else if(i == players.size() - 1) {
+                playerNames += " and " + sp.getName();
+            }
+            else {
+                playerNames += ", " + sp.getName();
+            }    
             Player p = sp.getPlayer();
             SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
             this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
@@ -271,6 +287,7 @@ public class Battle {
             scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
             slp.setState(PlayerState.INGAME);
         }
+        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + "!", "GAME_MESSAGE_SPLEEF_START");
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
             sp.getPlayer().teleport(arena.getSpawns()[i]);

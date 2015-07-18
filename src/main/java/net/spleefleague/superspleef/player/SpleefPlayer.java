@@ -24,7 +24,7 @@ import net.spleefleague.superspleef.game.Battle;
 public class SpleefPlayer extends GeneralPlayer {
     
     private int rating, swcRating;
-    private boolean ingame, frozen, requestingReset, joinedSWC;
+    private boolean ingame, frozen, requestingReset, requestingEndgame, joinedSWC;
     private Set<Arena> visitedArenas;
     
     public SpleefPlayer() {
@@ -99,6 +99,14 @@ public class SpleefPlayer extends GeneralPlayer {
     
     public boolean isRequestingReset() {
         return requestingReset;
+    }
+    
+    public void setRequestingEndgame(boolean requestingEndgame) {
+        this.requestingEndgame = requestingEndgame;
+    }
+    
+    public boolean isRequestingEndgame() {
+        return requestingEndgame;
     }
     
     public Battle getCurrentBattle() {

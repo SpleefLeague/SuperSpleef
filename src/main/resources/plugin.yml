@@ -13,6 +13,10 @@ commands:
         description: Resets the current spleef field
         usage:
             /<command> [player]
+    endgame:
+        description: Requests the current battle to be cancelled
+        usage:
+            /<command>
 #    joinswc:
 #        description: Join the SWC
 #        usage:

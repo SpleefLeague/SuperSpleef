@@ -18,6 +18,7 @@ import net.spleefleague.core.io.EntityBuilder;
 import net.spleefleague.core.player.PlayerState;
 import net.spleefleague.core.player.Rank;
 import net.spleefleague.core.player.SLPlayer;
+import net.spleefleague.core.plugin.GamePlugin;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.signs.GameSign;
 import net.spleefleague.superspleef.player.SpleefPlayer;
@@ -261,8 +262,11 @@ public class Battle {
                 playerNames += ", " + sp.getName();
             }    
             Player p = sp.getPlayer();
+            GamePlugin.unspectateGlobal(p);
+            GamePlugin.dequeueGlobal(p);
             SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
             this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
+            p.eject();
             p.teleport(arena.getSpawns()[i]);
             p.setHealth(p.getMaxHealth());
             p.setFoodLevel(20);

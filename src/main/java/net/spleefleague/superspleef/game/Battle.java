@@ -138,6 +138,7 @@ public class Battle {
             sp.setIngame(false);
             sp.setFrozen(false);
             sp.setRequestingReset(false);
+            sp.setRequestingEndgame(false);
             data.get(sp).restoreOldData();
         }
         sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());    
@@ -367,11 +368,11 @@ public class Battle {
     private void createSpawnCage(Location s) {
         modifySpawnCage(s, Material.GLASS);
     }
-
+    
     private void removeSpawnCage(Location s) {
         modifySpawnCage(s, Material.AIR);
     }
-
+    
     private void modifySpawnCage(Location s, Material type) {
         World w = s.getWorld();
         for (int x = s.getBlockX() - 1; x <= s.getBlockX() + 1; x++) {
@@ -451,7 +452,6 @@ public class Battle {
         private final Location spawn;
         private final SpleefPlayer sp;
         private final GameMode oldGamemode;
-        private final boolean oldFlying, oldAllowFlight;
         private final ItemStack[] oldInventory;
         
         public PlayerData(SpleefPlayer sp, Location spawn) {
@@ -460,8 +460,6 @@ public class Battle {
             this.points = 0;
             Player p = sp.getPlayer();
             oldGamemode = p.getGameMode();
-            oldFlying = p.isFlying();
-            oldAllowFlight = p.getAllowFlight();
             oldInventory = p.getInventory().getContents();
         }
 
@@ -484,8 +482,7 @@ public class Battle {
         public void restoreOldData() {
             Player p = sp.getPlayer();
             p.setGameMode(oldGamemode);
-            p.setFlying(oldFlying);
-            p.setAllowFlight(oldAllowFlight);
+            p.setFlying(false);
             p.getInventory().setContents(oldInventory);
         }
     }

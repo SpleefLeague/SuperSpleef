@@ -5,6 +5,7 @@
  */
 package net.spleefleague.superspleef.player;
 
+import com.mongodb.client.FindIterable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import net.spleefleague.core.player.GeneralPlayer;
 import net.spleefleague.superspleef.SuperSpleef;
 import net.spleefleague.superspleef.game.Arena;
 import net.spleefleague.superspleef.game.Battle;
+import org.bson.Document;
 
 /**
  *
@@ -39,6 +41,10 @@ public class SpleefPlayer extends GeneralPlayer {
     @DBSave(fieldName = "rating")
     public int getRating() {
         return rating;
+    }
+    
+    public int getRank() {
+        return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("rating", new Document("$gt", rating))) + 1;
     }
     
     @DBLoad(fieldName = "joinedSWC")

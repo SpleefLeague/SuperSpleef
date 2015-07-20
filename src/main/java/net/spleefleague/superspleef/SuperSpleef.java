@@ -35,6 +35,7 @@ public class SuperSpleef extends GamePlugin {
     private static SuperSpleef instance;
     private PlayerManager<SpleefPlayer> playerManager;
     private BattleManager battleManager;
+    private boolean queuesOpen = true;
     
     public SuperSpleef() {
         super("[SuperSpleef]", ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET);
@@ -58,6 +59,9 @@ public class SuperSpleef extends GamePlugin {
     
     @Override
     public void stop() {
+        for(Battle battle : battleManager.getAll()) {
+            battle.cancel(false);
+        }
         playerManager.saveAll();
     }
 
@@ -158,5 +162,49 @@ public class SuperSpleef extends GamePlugin {
         for(Battle battle : battleManager.getAll()) {
             battle.cancel();
         }
+    }
+
+    @Override
+    public void printStats(Player p) {
+        SpleefPlayer sjp = playerManager.get(p);
+        p.sendMessage(Theme.INFO + p.getName() + "'s Spleef stats");
+        p.sendMessage(Theme.INCOGNITO + "Rating: " + ChatColor.YELLOW + sjp.getRating());
+        p.sendMessage(Theme.INCOGNITO + "Rank: " + ChatColor.YELLOW + sjp.getRank());
+    }
+
+    @Override
+    public void requestEndgame(Player p) {
+        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
+        Battle battle = sp.getCurrentBattle();
+        if (battle != null) {
+            sp.setRequestingEndgame(true);
+            boolean shouldEnd = true;
+            for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
+                if (!spleefplayer.isRequestingEndgame()) {
+                    shouldEnd = false;
+                    break;
+                }
+            }
+            if (shouldEnd) {
+                battle.cancel(false);
+            }
+            else {
+                for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
+                    if (!spleefplayer.isRequestingEndgame()) {
+                        spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to end this game. To agree enter " + ChatColor.YELLOW + "/endgame.");
+                    }
+                }
+                sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "You requested this game to be cancelled.");
+            }
+        }
+    }
+
+    @Override
+    public void setQueueStatus(boolean open) {
+        queuesOpen = open;
+    }
+    
+    public boolean queuesOpen() {
+        return queuesOpen;
     }
 }

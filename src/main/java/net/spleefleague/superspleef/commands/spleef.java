@@ -5,8 +5,10 @@
  */
 package net.spleefleague.superspleef.commands;
 
+import java.util.ArrayList;
 import net.spleefleague.core.command.BasicCommand;
 import net.spleefleague.core.io.EntityBuilder;
+import net.spleefleague.core.player.Rank;
 import net.spleefleague.core.player.SLPlayer;
 import net.spleefleague.core.plugin.CorePlugin;
 import net.spleefleague.core.plugin.GamePlugin;
@@ -15,6 +17,7 @@ import net.spleefleague.superspleef.game.Arena;
 import net.spleefleague.superspleef.game.BattleManager;
 import net.spleefleague.superspleef.game.signs.GameSign;
 import net.spleefleague.superspleef.player.SpleefPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -60,22 +63,71 @@ public class spleef extends BasicCommand {
                         error(p, "This arena does not exist.");
                     }
                 }
-                else if (args.length == 2) {
-                    Arena arena = Arena.byName(args[1]);
-                    if (arena != null) {
-                        if (args[0].equalsIgnoreCase("pause")) {
-                            arena.setPaused(true);
-                            success(p, "You have paused the arena " + arena.getName());
+                else if (args.length >= 2 && args[0].equalsIgnoreCase("match")) {
+                    if(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
+                        Arena arena = Arena.byName(args[1]);
+                        if(arena != null) {
+                            if(!arena.isOccupied()) {
+                                p.sendMessage("test: " + arena.getQueueLength());
+                                if((args.length - 2) == /*arena.getQueueLength()*/ 2) {
+                                    ArrayList<SpleefPlayer> players = new ArrayList<>();
+                                    for(int i = 0; i < args.length - 2; i++) {
+                                        Player pl = Bukkit.getPlayerExact(args[i + 2]);
+                                        if(pl != null) {
+                                            players.add(SuperSpleef.getInstance().getPlayerManager().get(pl));
+                                        }
+                                        else {
+                                            error(p, "The player " + args[i + 2] + " is currently not online.");
+                                            return;
+                                        }
+                                    }
+                                    arena.startBattle(players);
+                                    success(p, "You started a battle on the arena " + arena.getName());
+                                }
+                                else {
+                                    error(p, "You need to list " + (args.length - 2) + " players for this arena.");
+                                    return;
+                                }
+                            }
+                            else {
+                                error(p, "This arena is currently occupied.");
+                                return;
+                            }
                         }
-                        else if (args[0].equalsIgnoreCase("unpause")) {
-                            arena.setPaused(false);
-                            success(p, "You have unpaused the arena " + arena.getName());
+                        else {
+                            error(p, "This arena does not exist.");
+                            return;
                         }
-                        GameSign.updateGameSigns(arena);
-                        EntityBuilder.save(arena, SuperSpleef.getInstance().getPluginDB().getCollection("Arenas"));
                     }
                     else {
-                        error(p, "This arena does not exist.");
+                        sendUsage(p);
+                        return;
+                    }
+                }
+                else if (args.length == 2) {
+                    if(slp.getRank().hasPermission(Rank.MODERATOR)) {
+                        Arena arena = Arena.byName(args[1]);
+                        if (arena != null) {
+                            if (args[0].equalsIgnoreCase("pause")) {
+                                arena.setPaused(true);
+                                success(p, "You have paused the arena " + arena.getName());
+                            }
+                            else if (args[0].equalsIgnoreCase("unpause")) {
+                                arena.setPaused(false);
+                                success(p, "You have unpaused the arena " + arena.getName());
+                            }
+                            else {
+                                sendUsage(p);
+                            }
+                            GameSign.updateGameSigns(arena);
+                            EntityBuilder.save(arena, SuperSpleef.getInstance().getPluginDB().getCollection("Arenas"));
+                        }
+                        else {
+                            error(p, "This arena does not exist.");
+                        }
+                    }
+                    else {
+                        sendUsage(p);
                     }
                 }
                 else {

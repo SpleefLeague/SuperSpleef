@@ -28,6 +28,10 @@ public class GameHistory extends DBEntity implements DBSaveable {
     private final int duration; //In ticks
     @DBSave(fieldName = "cancelled")
     private final boolean cancelled;
+    @DBSave(fieldName = "spleefMode")
+    private final SpleefMode spleefMode;
+    @DBSave(fieldName = "arena")
+    private final String arena;
 
     protected GameHistory(Battle battle, SpleefPlayer winner) {
         this.cancelled = winner == null;
@@ -39,6 +43,8 @@ public class GameHistory extends DBEntity implements DBSaveable {
         }
         this.duration = battle.getDuration();
         startDate = new Date(System.currentTimeMillis() - this.duration * 50);
+        this.arena = battle.getArena().getName();
+        this.spleefMode = battle.getArena().getSpleefMode();
     }
 
     public static class PlayerData extends DBEntity implements DBSaveable {

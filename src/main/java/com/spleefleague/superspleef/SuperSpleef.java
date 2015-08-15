@@ -54,7 +54,7 @@ public class SuperSpleef extends GamePlugin {
         SignListener.init();
         EnvironmentListener.init();
         GameSign.initialize();
-        CommandLoader.loadCommands(this, "net.spleefleague.superspleef.commands");
+        CommandLoader.loadCommands(this, "com.spleefleague.superspleef.commands");
     }
     
     @Override

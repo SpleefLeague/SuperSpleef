@@ -55,6 +55,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
     private int maxRating = 5;
     @DBLoad(fieldName = "area")
     private Area area;
+    @DBLoad(fieldName = "spleefMode")
+    private SpleefMode spleefMode = SpleefMode.NORMAL;
     private boolean occupied = false;
     
     public Arena() {
@@ -119,6 +121,10 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
         return maxRating;
     }
     
+    public SpleefMode getSpleefMode() {
+        return spleefMode;
+    }
+    
     @Override
     public int getSize() {
         return spawns.length;
@@ -138,7 +144,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
     public String getCurrentState() {
         if(occupied) {
             Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(this);
-            if(battle.isNormalSpleef()) {
+            if(getSpleefMode() == SpleefMode.NORMAL) {
                 return ChatColor.GOLD + battle.getActivePlayers().get(0).getName() + ChatColor.GRAY + ChatColor.ITALIC + " vs. " + ChatColor.RESET + ChatColor.GOLD + battle.getActivePlayers().get(1).getName();
             }
             else {
@@ -203,5 +209,10 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
             arenas.put(arena.getName(), arena);
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
+    }
+    
+    @Override
+    public boolean isInGeneral() {
+        return queued;
     }
 }

@@ -109,7 +109,10 @@ public class Battle {
         }
         else if(activePlayers.size() > 1) {   
             for(SpleefPlayer pl : activePlayers) {
-                pl.getPlayer().sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.ERROR.buildTheme(false) + message);
+                pl.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + message);
+            }
+            if(arena.getSpleefMode() == SpleefMode.MULTI) {
+                scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(activePlayers.size());
             }
         }
     }
@@ -204,9 +207,7 @@ public class Battle {
             player.getPlayer().teleport(data.get(player).getSpawn());
         }
         else {
-            //Normal 1v1 Spleef
-            //Game will end when a player has >= arena.getMaxRating()
-            if(isNormalSpleef()) {
+            if(arena.getSpleefMode() == SpleefMode.NORMAL) {
                 for(SpleefPlayer sp : getActivePlayers()) {
                     if(sp != player) {
                         PlayerData playerdata = this.data.get(sp);
@@ -226,17 +227,17 @@ public class Battle {
                     }
                 }
             }
-            //More MultiSpleef like
-            //Game will end when only one player is left
-            else {
+            else if(arena.getSpleefMode() == SpleefMode.MULTI) {
                 removePlayer(player);
                 for(SpleefPlayer sp : getActivePlayers()) {
                     if(sp != player) {
                         PlayerData playerdata = this.data.get(sp);
                         playerdata.increasePoints();
-                        scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
                     }
                 }
+            }
+            else {
+                this.cancel(false);
             }
         }
     }
@@ -249,19 +250,24 @@ public class Battle {
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
+        if(arena.getSpleefMode() == SpleefMode.MULTI) {
+            objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Players:");
+        }
+        else {
+            objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "MultiSpleef");
+        }
         String playerNames = "";
         for(int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
             if(i == 0) {
-                playerNames = sp.getName();
+                playerNames = ChatColor.RED + sp.getName();
             }
             else if(i == players.size() - 1) {
-                playerNames += " and " + sp.getName();
+                playerNames += ChatColor.GREEN + " and " + ChatColor.RED + sp.getName();
             }
             else {
-                playerNames += ", " + sp.getName();
-            }    
+                playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
+            }
             Player p = sp.getPlayer();
             GamePlugin.unspectateGlobal(p);
             GamePlugin.dequeueGlobal(p);
@@ -289,10 +295,15 @@ public class Battle {
             p.setFlying(false);
             p.setAllowFlight(false);
             slp.addChatChannel(cc.getName());
-            scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
+            if(arena.getSpleefMode() == SpleefMode.NORMAL) {
+                scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
+            }
             slp.setState(PlayerState.INGAME);
         }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + "!", "GAME_MESSAGE_SPLEEF_START");
+        if(arena.getSpleefMode() == SpleefMode.MULTI) {
+            scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(getActivePlayers().size());
+        }
+        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", "GAME_MESSAGE_SPLEEF_START");
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
             sp.getPlayer().teleport(arena.getSpawns()[i]);
@@ -309,6 +320,7 @@ public class Battle {
             createSpawnCage(spawn);
             sp.setFrozen(true);
             sp.setRequestingReset(false);
+            sp.setRequestingEndgame(false);
             sp.getPlayer().setFireTicks(0);
             sp.getPlayer().teleport(this.data.get(sp).getSpawn());
         }
@@ -348,7 +360,12 @@ public class Battle {
         Objective objective = scoreboard.getObjective("rounds");
         if (objective != null) {
             String s = DurationFormatUtils.formatDuration(ticksPassed * 50, "HH:mm:ss", true);
-            objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
+            if(arena.getSpleefMode() == SpleefMode.MULTI) {
+                objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "MultiSpleef");
+            }
+            else {
+                objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
+            }
         }
     }
 
@@ -396,41 +413,46 @@ public class Battle {
     }
     
     private void applyRatingChange(SpleefPlayer winner) {
-        int winnerPoints = 0;
-        int winnerSWCPoints = 0;
-        final int MIN_RATING = 1, MAX_RATING = 40;
-        String playerList = "";
-        for(SpleefPlayer sp : players) {
-            if(sp != winner) {
-                float elo = (float) (1f / (1f + Math.pow(2f, ((sp.getRating() - winner.getRating()) / 400f))));
-                int rating = (int) Math.round(MAX_RATING * (1f - elo));
-                if (rating < MIN_RATING) {
-                    rating = MIN_RATING;
-                }
-                winnerPoints += rating;
-                sp.setRating(sp.getRating() - rating);
-                playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
-                if(winner.joinedSWC() && sp.joinedSWC()) {
-                    float swcElo = (float) (1f / (1f + Math.pow(2f, ((sp.getSwcRating() - winner.getSwcRating()) / 400f))));
-                    int swcRating = (int) Math.round(MAX_RATING * (1f - swcElo));
-                    if (swcRating < MIN_RATING) {
-                        swcRating = MIN_RATING;
+        if (arena.getSpleefMode() == SpleefMode.NORMAL) {
+            int winnerPoints = 0;
+            int winnerSWCPoints = 0;
+            final int MIN_RATING = 1, MAX_RATING = 40;
+            String playerList = "";
+            for (SpleefPlayer sp : players) {
+                if (sp != winner) {
+                    float elo = (float) (1f / (1f + Math.pow(2f, ((sp.getRating() - winner.getRating()) / 400f))));
+                    int rating = (int) Math.round(MAX_RATING * (1f - elo));
+                    if (rating < MIN_RATING) {
+                        rating = MIN_RATING;
                     }
-                    winnerSWCPoints += swcRating;
-                    sp.setSwcRating(sp.getSwcRating() - swcRating);
-                    sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
-                    //playerList += ChatColor.RED + sp.getName() + ChatColor.GREEN + " also lost " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
+                    winnerPoints += rating;
+                    sp.setRating(sp.getRating() - rating);
+                    playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
+                    if (winner.joinedSWC() && sp.joinedSWC()) {
+                        float swcElo = (float) (1f / (1f + Math.pow(2f, ((sp.getSwcRating() - winner.getSwcRating()) / 400f))));
+                        int swcRating = (int) Math.round(MAX_RATING * (1f - swcElo));
+                        if (swcRating < MIN_RATING) {
+                            swcRating = MIN_RATING;
+                        }
+                        winnerSWCPoints += swcRating;
+                        sp.setSwcRating(sp.getSwcRating() - swcRating);
+                        sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
+                        //playerList += ChatColor.RED + sp.getName() + ChatColor.GREEN + " also lost " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
+                    }
                 }
             }
+            winner.setRating(winner.getRating() + winnerPoints);
+            playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
+            if (winner.joinedSWC()) {
+                //playerList += ChatColor.RED + winner.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.WHITE + " SWC points. ";
+                winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
+                winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
+            }
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF_END");
         }
-        winner.setRating(winner.getRating() + winnerPoints);
-        playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
-        if(winner.joinedSWC()) {
-            //playerList += ChatColor.RED + winner.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.WHITE + " SWC points. ";
-            winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
-            winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");        
+        else if(arena.getSpleefMode()== SpleefMode.MULTI) {
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + ChatColor.GREEN + " won the MultiSpleef battle on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + "!", "GAME_MESSAGE_SPLEEF_END");
         }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF_END");
     }
     
     private void saveGameHistory(SpleefPlayer winner) {

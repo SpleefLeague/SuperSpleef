@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.spleefleague.superspleef.listener;
+package com.spleefleague.superspleef.listener;
 
-import net.spleefleague.core.SpleefLeague;
-import net.spleefleague.core.player.Rank;
-import net.spleefleague.core.utils.PlayerUtil;
-import net.spleefleague.superspleef.SuperSpleef;
-import net.spleefleague.superspleef.game.Arena;
-import net.spleefleague.superspleef.game.Battle;
-import net.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.player.Rank;
+import com.spleefleague.core.utils.PlayerUtil;
+import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,7 +25,6 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 /**
  *

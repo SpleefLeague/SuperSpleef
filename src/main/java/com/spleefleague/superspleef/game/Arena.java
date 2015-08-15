@@ -3,25 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.spleefleague.superspleef.game;
+package com.spleefleague.superspleef.game;
 
 import com.mongodb.client.MongoCursor;
+import com.spleefleague.core.io.DBEntity;
+import com.spleefleague.core.io.DBLoad;
+import com.spleefleague.core.io.DBLoadable;
+import com.spleefleague.core.io.DBSave;
+import com.spleefleague.core.io.DBSaveable;
+import com.spleefleague.core.io.EntityBuilder;
+import com.spleefleague.core.io.TypeConverter;
+import com.spleefleague.core.player.GeneralPlayer;
+import com.spleefleague.core.queue.Queue;
+import com.spleefleague.core.utils.Area;
+import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.spleefleague.core.io.DBEntity;
-import net.spleefleague.core.io.DBLoad;
-import net.spleefleague.core.io.DBLoadable;
-import net.spleefleague.core.io.DBSave;
-import net.spleefleague.core.io.DBSaveable;
-import net.spleefleague.core.io.EntityBuilder;
-import net.spleefleague.core.io.TypeConverter;
-import net.spleefleague.core.player.GeneralPlayer;
-import net.spleefleague.core.queue.Queue;
-import net.spleefleague.core.utils.Area;
-import net.spleefleague.superspleef.SuperSpleef;
-import net.spleefleague.superspleef.player.SpleefPlayer;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

@@ -3,23 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.spleefleague.superspleef.game.signs;
+package com.spleefleague.superspleef.game.signs;
 
+import com.spleefleague.core.io.DBEntity;
+import com.spleefleague.core.io.DBLoad;
+import com.spleefleague.core.io.DBLoadable;
+import com.spleefleague.core.io.EntityBuilder;
+import com.spleefleague.core.io.TypeConverter;
+import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.Battle;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import net.md_5.bungee.api.ChatColor;
-import net.spleefleague.core.io.DBEntity;
-import net.spleefleague.core.io.DBLoad;
-import net.spleefleague.core.io.DBLoadable;
-import net.spleefleague.core.io.EntityBuilder;
-import net.spleefleague.core.io.TypeConverter;
-import net.spleefleague.superspleef.SuperSpleef;
-import net.spleefleague.superspleef.game.Arena;
-import net.spleefleague.superspleef.game.Battle;
 import org.bson.Document;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
+
 
 /**
  *

@@ -4,17 +4,17 @@
  * and open the template in the editor.
  */
 
-package net.spleefleague.superspleef.commands;
+package com.spleefleague.superspleef.commands;
 
-import net.spleefleague.core.command.BasicCommand;
-import net.spleefleague.core.player.SLPlayer;
-import net.spleefleague.core.plugin.CorePlugin;
-import net.spleefleague.superspleef.SuperSpleef;
-import net.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.core.command.BasicCommand;
+import com.spleefleague.core.player.SLPlayer;
+import com.spleefleague.core.plugin.CorePlugin;
+import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-/**
+/*
  *
  * @author Manuel
  */

@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.spleefleague.superspleef.listener;
+package com.spleefleague.superspleef.listener;
 
-import net.spleefleague.superspleef.SuperSpleef;
-import net.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

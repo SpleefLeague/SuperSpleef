@@ -3,24 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.spleefleague.superspleef.commands;
+package com.spleefleague.superspleef.commands;
 
+import com.spleefleague.core.command.BasicCommand;
+import com.spleefleague.core.io.EntityBuilder;
+import com.spleefleague.core.player.Rank;
+import com.spleefleague.core.player.SLPlayer;
+import com.spleefleague.core.plugin.CorePlugin;
+import com.spleefleague.core.plugin.GamePlugin;
+import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.BattleManager;
+import com.spleefleague.superspleef.game.signs.GameSign;
+import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
-import net.spleefleague.core.command.BasicCommand;
-import net.spleefleague.core.io.EntityBuilder;
-import net.spleefleague.core.player.Rank;
-import net.spleefleague.core.player.SLPlayer;
-import net.spleefleague.core.plugin.CorePlugin;
-import net.spleefleague.core.plugin.GamePlugin;
-import net.spleefleague.superspleef.SuperSpleef;
-import net.spleefleague.superspleef.game.Arena;
-import net.spleefleague.superspleef.game.BattleManager;
-import net.spleefleague.superspleef.game.signs.GameSign;
-import net.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+
 
 /**
  *
@@ -86,22 +87,18 @@ public class spleef extends BasicCommand {
                                 }
                                 else {
                                     error(p, "You need to list " + (args.length - 2) + " players for this arena.");
-                                    return;
                                 }
                             }
                             else {
                                 error(p, "This arena is currently occupied.");
-                                return;
                             }
                         }
                         else {
                             error(p, "This arena does not exist.");
-                            return;
                         }
                     }
                     else {
                         sendUsage(p);
-                        return;
                     }
                 }
                 else if (args.length == 2) {

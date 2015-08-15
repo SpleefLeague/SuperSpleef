@@ -3,26 +3,26 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.spleefleague.superspleef;
+package com.spleefleague.superspleef;
 
 import com.mongodb.client.MongoDatabase;
-import net.spleefleague.core.SpleefLeague;
-import net.spleefleague.core.chat.ChatChannel;
-import net.spleefleague.core.chat.ChatManager;
-import net.spleefleague.core.chat.Theme;
-import net.spleefleague.core.command.CommandLoader;
-import net.spleefleague.core.player.PlayerManager;
-import net.spleefleague.core.player.Rank;
-import net.spleefleague.core.plugin.GamePlugin;
-import net.spleefleague.superspleef.game.Arena;
-import net.spleefleague.superspleef.game.Battle;
-import net.spleefleague.superspleef.game.BattleManager;
-import net.spleefleague.superspleef.game.signs.GameSign;
-import net.spleefleague.superspleef.listener.ConnectionListener;
-import net.spleefleague.superspleef.listener.EnvironmentListener;
-import net.spleefleague.superspleef.listener.GameListener;
-import net.spleefleague.superspleef.listener.SignListener;
-import net.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.chat.ChatChannel;
+import com.spleefleague.core.chat.ChatManager;
+import com.spleefleague.core.chat.Theme;
+import com.spleefleague.core.command.CommandLoader;
+import com.spleefleague.core.player.PlayerManager;
+import com.spleefleague.core.player.Rank;
+import com.spleefleague.core.plugin.GamePlugin;
+import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.BattleManager;
+import com.spleefleague.superspleef.game.signs.GameSign;
+import com.spleefleague.superspleef.listener.ConnectionListener;
+import com.spleefleague.superspleef.listener.EnvironmentListener;
+import com.spleefleague.superspleef.listener.GameListener;
+import com.spleefleague.superspleef.listener.SignListener;
+import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

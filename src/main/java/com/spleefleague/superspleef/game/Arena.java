@@ -109,6 +109,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
         return queued && !paused;
     }
     
+    @Override
     public boolean isPaused() {
         return paused;
     }

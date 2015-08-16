@@ -254,7 +254,7 @@ public class Battle {
             objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Players:");
         }
         else {
-            objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "MultiSpleef");
+            objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
         }
         String playerNames = "";
         for(int i = 0; i < players.size(); i++) {

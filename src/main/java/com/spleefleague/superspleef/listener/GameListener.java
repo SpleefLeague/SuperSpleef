@@ -48,31 +48,33 @@ public class GameListener implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        if(sp.isFrozen()) {
-            Location spawn = sp.getCurrentBattle().getData(sp).getSpawn();
-            if(spawn.distanceSquared(sp.getPlayer().getLocation()) > 2) {
-                sp.getPlayer().teleport(spawn);
+        if(sp != null) {
+            if(sp.isFrozen()) {
+                Location spawn = sp.getCurrentBattle().getData(sp).getSpawn();
+                if(spawn.distanceSquared(sp.getPlayer().getLocation()) > 2) {
+                    sp.getPlayer().teleport(spawn);
+                }
             }
-        }
-        else if (!sp.isIngame()) {
-            if(!SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer()).getRank().hasPermission(Rank.MODERATOR)) {
-                for (Arena arena : Arena.getAll()) {
-                    if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
-                        Location loc = arena.getSpectatorSpawn();
-                        if (loc == null) {
-                            loc = SpleefLeague.getInstance().getSpawnLocation();
+            else if (!sp.isIngame()) {
+                if(!SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer()).getRank().hasPermission(Rank.MODERATOR)) {
+                    for (Arena arena : Arena.getAll()) {
+                        if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
+                            Location loc = arena.getSpectatorSpawn();
+                            if (loc == null) {
+                                loc = SpleefLeague.getInstance().getSpawnLocation();
+                            }
+                            sp.getPlayer().teleport(loc);
+                            break;
                         }
-                        sp.getPlayer().teleport(loc);
-                        break;
                     }
                 }
             }
-        }
-        else {
-            Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
-            Arena arena = battle.getArena();
-            if(!arena.getBorder().isInArea(sp.getPlayer().getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
-                battle.onArenaLeave(sp);
+            else {
+                Battle battle = SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(sp);
+                Arena arena = battle.getArena();
+                if(!arena.getBorder().isInArea(sp.getPlayer().getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
+                    battle.onArenaLeave(sp);
+                }
             }
         }
     }

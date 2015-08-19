@@ -116,7 +116,10 @@ public class SpleefPlayer extends GeneralPlayer {
     }
     
     public Battle getCurrentBattle() {
-        return SuperSpleef.getInstance().getBattleManager().getBattle(this);
+        if(SuperSpleef.getInstance().getBattleManagerSpleef().isIngame(this)) {  
+            return SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(this);
+        }
+        return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(this);
     }
     
     public Set<Arena> getVisitedArenas() {

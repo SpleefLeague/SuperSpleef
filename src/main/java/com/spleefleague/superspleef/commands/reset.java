@@ -43,7 +43,7 @@ public class reset extends BasicCommand {
                 }
                 total++;
             }
-            if((double)requesting / (double)total > 0.75) {
+            if((double)requesting / (double)total > 0.65) {
                 battle.resetField();
                 for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     spleefplayer.setRequestingReset(false);

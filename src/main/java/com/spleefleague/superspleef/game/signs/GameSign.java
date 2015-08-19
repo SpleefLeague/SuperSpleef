@@ -13,6 +13,7 @@ import com.spleefleague.core.io.TypeConverter;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefMode;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -62,7 +63,13 @@ public class GameSign extends DBEntity implements  DBLoadable{
     }
     
     public Battle getBattle() {
-        return SuperSpleef.getInstance().getBattleManager().getBattle(arena);
+        if(arena.getSpleefMode() == SpleefMode.NORMAL) {
+            return SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(arena);
+        }
+        else if(arena.getSpleefMode() == SpleefMode.MULTI) {
+            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(arena);
+        }
+        return null;
     }
     
     public void updateStatus() {
@@ -96,7 +103,7 @@ public class GameSign extends DBEntity implements  DBLoadable{
     
     public static HashSet<GameSign> getGameSigns(Arena arena) {
         HashSet<GameSign> set = signs.get(arena);
-        return set != null ? set : new HashSet<GameSign>();
+        return set != null ? set : new HashSet<>();
     }
     
     public static void updateGameSigns(Arena arena) {

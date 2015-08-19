@@ -28,9 +28,9 @@ import org.bukkit.entity.Player;
  *
  * @author Jonas
  */
-public class spleef extends BasicCommand {
+public class multispleef extends BasicCommand {
 
-    public spleef(CorePlugin plugin, String name, String usage) {
+    public multispleef(CorePlugin plugin, String name, String usage) {
         super(SuperSpleef.getInstance(), name, usage);
     }
 
@@ -38,7 +38,7 @@ public class spleef extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         if (SuperSpleef.getInstance().queuesOpen()) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
-            BattleManager bm = SuperSpleef.getInstance().getBattleManagerSpleef();
+            BattleManager bm = SuperSpleef.getInstance().getBattleManagerMultiSpleef();
             if (!GamePlugin.isIngameGlobal(p)) {
                 if (args.length == 0) {
                     GamePlugin.dequeueGlobal(p);
@@ -47,7 +47,7 @@ public class spleef extends BasicCommand {
                 }
                 else if (args.length == 1) {
                     Arena arena = Arena.byName(args[0]);
-                    if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
+                    if (arena != null && arena.getSpleefMode() == SpleefMode.MULTI) {
                         if (!arena.isPaused()) {
                             if (sp.getVisitedArenas().contains(arena)) {
                                 bm.queue(sp, arena);
@@ -68,7 +68,7 @@ public class spleef extends BasicCommand {
                 else if (args.length >= 2 && args[0].equalsIgnoreCase("match")) {
                     if(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
                         Arena arena = Arena.byName(args[1]);
-                        if(arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
+                        if(arena != null && arena.getSpleefMode() == SpleefMode.MULTI) {
                             if(!arena.isOccupied()) {
                                 p.sendMessage("test: " + arena.getQueueLength());
                                 if((args.length - 2) == /*arena.getQueueLength()*/ 2) {
@@ -105,7 +105,7 @@ public class spleef extends BasicCommand {
                 else if (args.length == 2) {
                     if(slp.getRank().hasPermission(Rank.MODERATOR)) {
                         Arena arena = Arena.byName(args[1]);
-                        if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
+                        if (arena != null && arena.getSpleefMode() == SpleefMode.MULTI) {
                             if (args[0].equalsIgnoreCase("pause")) {
                                 arena.setPaused(true);
                                 success(p, "You have paused the arena " + arena.getName());

@@ -14,7 +14,7 @@ import com.spleefleague.core.io.DBSaveable;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
 import com.spleefleague.core.player.GeneralPlayer;
-import com.spleefleague.core.queue.Queue;
+import com.spleefleague.core.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -30,7 +30,7 @@ import org.bukkit.Location;
  *
  * @author Jonas
  */
-public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
+public class Arena extends DBEntity implements DBLoadable, DBSaveable, QueueableArena{
     
     @DBLoad(fieldName = "border")
     private Area border;
@@ -105,10 +105,6 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
         return tpBackSpectators;
     }
     
-    public boolean isQueued() {
-        return queued && !paused;
-    }
-    
     @Override
     public boolean isPaused() {
         return paused;
@@ -133,18 +129,36 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
 
     @Override
     public int getQueueLength() {
-        return SuperSpleef.getInstance().getBattleManager().getGameQueue().getQueueLength(this);
+        if(getSpleefMode() == SpleefMode.NORMAL) {
+            return SuperSpleef.getInstance().getBattleManagerSpleef().getGameQueue().getQueueLength(this);
+        }
+        else if(getSpleefMode() == SpleefMode.MULTI) {
+            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getGameQueue().getQueueLength(this);
+        }
+        return -1;
     }
 
     @Override
     public int getQueuePosition(GeneralPlayer gp) {
-        return SuperSpleef.getInstance().getBattleManager().getGameQueue().getQueuePosition(this, (SpleefPlayer)gp);
+        if(getSpleefMode() == SpleefMode.NORMAL) {
+            return SuperSpleef.getInstance().getBattleManagerSpleef().getGameQueue().getQueuePosition(this, (SpleefPlayer)gp);
+        }
+        else if(getSpleefMode() == SpleefMode.MULTI) {
+            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getGameQueue().getQueuePosition(this, (SpleefPlayer)gp);
+        }
+        return -1;
     }
 
     @Override
     public String getCurrentState() {
         if(occupied) {
-            Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(this);
+            Battle battle = null;
+            if(getSpleefMode() == SpleefMode.NORMAL) {
+                battle = SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(this);
+            }
+            else if(getSpleefMode() == SpleefMode.MULTI) {
+                battle = SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(this);
+            }
             if(getSpleefMode() == SpleefMode.NORMAL) {
                 return ChatColor.GOLD + battle.getActivePlayers().get(0).getName() + ChatColor.GRAY + ChatColor.ITALIC + " vs. " + ChatColor.RESET + ChatColor.GOLD + battle.getActivePlayers().get(1).getName();
             }
@@ -163,11 +177,6 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queue{
         else {
             return ChatColor.BLUE + "Empty";
         }
-    }
-
-    @Override
-    public boolean isQueued(GeneralPlayer gp) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

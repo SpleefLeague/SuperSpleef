@@ -156,6 +156,9 @@ public class Battle {
 
     public void end(SpleefPlayer winner, boolean rated) {
         saveGameHistory(winner);
+        if(arena.getSpleefMode() == SpleefMode.MULTI) {
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + ChatColor.GREEN + " won the MultiSpleef battle on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + "!", "GAME_MESSAGE_SPLEEF_END");
+        }
         if (rated) {
             applyRatingChange(winner);
         }
@@ -172,7 +175,7 @@ public class Battle {
         clock.cancel();
         resetField();
         arena.setOccupied(false);
-        SuperSpleef.getInstance().getBattleManager().remove(this);
+        SuperSpleef.getInstance().getBattleManagerSpleef().remove(this);
         ChatManager.unregisterChannel(cc);
         GameSign.updateGameSigns(arena);
     }
@@ -246,7 +249,7 @@ public class Battle {
         arena.setOccupied(true);
         GameSign.updateGameSigns(arena);
         ChatManager.registerChannel(cc);
-        SuperSpleef.getInstance().getBattleManager().add(this);
+        SuperSpleef.getInstance().getBattleManagerSpleef().add(this);
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -451,7 +454,7 @@ public class Battle {
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, "GAME_MESSAGE_SPLEEF_END");
         }
         else if(arena.getSpleefMode()== SpleefMode.MULTI) {
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + ChatColor.GREEN + " won the MultiSpleef battle on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + "!", "GAME_MESSAGE_SPLEEF_END");
+            //Comming maybe later
         }
     }
     

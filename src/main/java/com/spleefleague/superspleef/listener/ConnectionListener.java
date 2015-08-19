@@ -35,10 +35,10 @@ public class ConnectionListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            SuperSpleef.getInstance().getBattleManager().getBattle(sp).removePlayer(sp);
+            SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(sp).removePlayer(sp);
         }
         else {
-            SuperSpleef.getInstance().getBattleManager().dequeue(sp);
+            SuperSpleef.getInstance().getBattleManagerSpleef().dequeue(sp);
         }
     }
 }

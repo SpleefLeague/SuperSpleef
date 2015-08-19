@@ -22,13 +22,21 @@ public class BattleManager {
     
     private final HashSet<Battle> activeBattles;
     private final GameQueue<SpleefPlayer, Arena> gameQueue;
+    private final SpleefMode mode;
     
-    public BattleManager() {
+    public BattleManager(SpleefMode mode) {
         this.activeBattles = new HashSet<>();
-        this.gameQueue = new GameQueue<>(SuperSpleef.getInstance(), SuperSpleef.getInstance().getPlayerManager());
+        this.gameQueue = new GameQueue<>();
+        this.mode = mode;
         for(Arena arena : Arena.getAll()) {
-            gameQueue.register(arena);
+            if(mode == arena.getSpleefMode()) {
+                gameQueue.register(arena);
+            }
         }
+    }
+    
+    public SpleefMode getMode() {
+        return mode;
     }
     
     public GameQueue<SpleefPlayer, Arena> getGameQueue() {
@@ -44,7 +52,7 @@ public class BattleManager {
     }
     
     public void queue(SpleefPlayer player, Arena queue) {
-        gameQueue.queue(player, queue, queue.isQueued());
+        gameQueue.queue(player, queue);
         if(!queue.isPaused() && !queue.isOccupied()) {
             Collection<SpleefPlayer> players = gameQueue.request(queue);
             if(players != null) {

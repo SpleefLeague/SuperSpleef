@@ -21,7 +21,7 @@ import com.spleefleague.superspleef.player.SpleefPlayer;
 public class BattleManager {
     
     private final HashSet<Battle> activeBattles;
-    private final GameQueue<SpleefPlayer, Arena> gameQueue;
+    private final GameQueue<Arena> gameQueue;
     private final SpleefMode mode;
     
     public BattleManager(SpleefMode mode) {
@@ -39,7 +39,7 @@ public class BattleManager {
         return mode;
     }
     
-    public GameQueue<SpleefPlayer, Arena> getGameQueue() {
+    public GameQueue<Arena> getGameQueue() {
         return gameQueue;
     }
     
@@ -52,9 +52,9 @@ public class BattleManager {
     }
     
     public void queue(SpleefPlayer player, Arena queue) {
-        gameQueue.queue(player, queue);
+        gameQueue.queue(player.getUUID(), queue);
         if(!queue.isPaused() && !queue.isOccupied()) {
-            Collection<SpleefPlayer> players = gameQueue.request(queue);
+            Collection<SpleefPlayer> players = gameQueue.request(queue, SuperSpleef.getInstance().getPlayerManager());
             if(players != null) {
                 queue.startBattle(new ArrayList<>(players));
             }
@@ -63,8 +63,8 @@ public class BattleManager {
     }
     
     public void queue(SpleefPlayer player) {
-        gameQueue.queue(player);
-        HashMap<Arena, Collection<SpleefPlayer>> requested = gameQueue.request();
+        gameQueue.queue(player.getUUID());
+        HashMap<Arena, Collection<SpleefPlayer>> requested = gameQueue.request(SuperSpleef.getInstance().getPlayerManager());
         for(Arena arena : requested.keySet()) {
             arena.startBattle(new ArrayList<>(requested.get(arena)));
         }
@@ -72,12 +72,12 @@ public class BattleManager {
     }
     
     public void dequeue(SpleefPlayer sp) {
-        gameQueue.dequeue(sp);
+        gameQueue.dequeue(sp.getUUID());
         GameSign.updateGameSigns();
     }
 
     public boolean isQueued(SpleefPlayer sp) {
-        return gameQueue.isQueued(sp);
+        return gameQueue.isQueued(sp.getUUID());
     }
     
     public void add(Battle battle) {
@@ -86,7 +86,7 @@ public class BattleManager {
     
     public void remove(Battle battle) {
         activeBattles.remove(battle);
-        Collection<SpleefPlayer> players = gameQueue.request(battle.getArena());
+        Collection<SpleefPlayer> players = gameQueue.request(battle.getArena(), SuperSpleef.getInstance().getPlayerManager());
         if(players != null) {
             battle.getArena().startBattle(new ArrayList<>(players));
         }

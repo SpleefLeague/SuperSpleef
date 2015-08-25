@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
@@ -39,7 +40,12 @@ public class SignListener implements Listener {
             if(event.getClickedBlock().getState() instanceof Sign) {
                 for(GameSign gameSign : GameSign.getAll()) {
                     if(gameSign.getLocation().equals(event.getClickedBlock().getLocation())) {
-                        event.getPlayer().performCommand("spleef " + gameSign.getArena().getName());
+                        if(gameSign.getArena().getSpleefMode() == SpleefMode.NORMAL) {
+                            event.getPlayer().performCommand("spleef " + gameSign.getArena().getName());
+                        }
+                        else if(gameSign.getArena().getSpleefMode() == SpleefMode.MULTI) {
+                            event.getPlayer().performCommand("multispleef " + gameSign.getArena().getName());
+                        }
                         break;
                     }
                 }

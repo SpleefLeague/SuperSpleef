@@ -35,5 +35,4 @@ public class joinswc extends BasicCommand{
             error(p, "You can't join the SWC twice.");
         }
     }
-    
 }

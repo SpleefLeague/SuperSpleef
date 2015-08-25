@@ -13,7 +13,6 @@ import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.DBSaveable;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
-import com.spleefleague.core.player.GeneralPlayer;
 import com.spleefleague.core.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.superspleef.SuperSpleef;
@@ -22,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -139,12 +139,12 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     }
 
     @Override
-    public int getQueuePosition(GeneralPlayer gp) {
+    public int getQueuePosition(UUID uuid) {
         if(getSpleefMode() == SpleefMode.NORMAL) {
-            return SuperSpleef.getInstance().getBattleManagerSpleef().getGameQueue().getQueuePosition(this, (SpleefPlayer)gp);
+            return SuperSpleef.getInstance().getBattleManagerSpleef().getGameQueue().getQueuePosition(this, uuid);
         }
         else if(getSpleefMode() == SpleefMode.MULTI) {
-            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getGameQueue().getQueuePosition(this, (SpleefPlayer)gp);
+            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getGameQueue().getQueuePosition(this, uuid);
         }
         return -1;
     }
@@ -180,8 +180,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     }
 
     @Override
-    public boolean isAvailable(GeneralPlayer gp) {
-        return SuperSpleef.getInstance().getPlayerManager().get(gp.getPlayer()).getVisitedArenas().contains(this);
+    public boolean isAvailable(UUID uuid) {
+        return SuperSpleef.getInstance().getPlayerManager().get(uuid).getVisitedArenas().contains(this);
     }
     
     private static Map<String, Arena> arenas;

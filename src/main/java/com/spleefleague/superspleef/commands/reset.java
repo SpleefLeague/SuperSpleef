@@ -59,7 +59,7 @@ public class reset extends BasicCommand {
                 slp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "You requested a reset of the field.");
             }
         }
-        else if(slp.getRank().hasPermission(Rank.MODERATOR)) {
+        else if(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
             if(args.length == 1) {
                 Player player = Bukkit.getPlayer(args[0]);
                 if(player != null) {

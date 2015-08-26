@@ -7,6 +7,7 @@ package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.Rank;
+import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
@@ -56,7 +57,8 @@ public class GameListener implements Listener {
                 }
             }
             else if (!sp.isIngame()) {
-                if(!SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer()).getRank().hasPermission(Rank.MODERATOR)) {
+                SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+                if(!(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER)) {
                     for (Arena arena : Arena.getAll()) {
                         if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
                             Location loc = arena.getSpectatorSpawn();

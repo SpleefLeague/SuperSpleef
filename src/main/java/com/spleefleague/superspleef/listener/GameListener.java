@@ -26,6 +26,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -98,6 +99,10 @@ public class GameListener implements Listener {
             }
             else {
                 event.setCancelled(false);
+                ItemStack is = event.getPlayer().getItemInHand();
+                if(is != null && is.getType() == Material.DIAMOND_SPADE) {
+                    is.setDurability((short)0);
+                }
                 sp.getCurrentBattle().addDestroyedBlock(event.getBlock());
             }
         }

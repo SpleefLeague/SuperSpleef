@@ -1,5 +1,6 @@
 name: SuperSpleef
 author: SpleefLeague
+authors: [Joba, Akaiyo, Manuman]
 main: com.spleefleague.superspleef.SuperSpleef
 version: 1.0
 depend: [SpleefLeagueCore]

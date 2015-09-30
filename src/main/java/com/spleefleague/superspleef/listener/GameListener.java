@@ -125,12 +125,7 @@ public class GameListener implements Listener {
     }
     
     @EventHandler
-    public void onDamage(EntityDamageEvent event) {
-        event.setCancelled(true);
-    }
-    
-    @EventHandler
-    public void onDamage(FoodLevelChangeEvent event) {
+    public void onFood(FoodLevelChangeEvent event) {
         event.setCancelled(true);
     }
 }

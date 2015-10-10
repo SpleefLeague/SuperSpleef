@@ -59,10 +59,6 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private SpleefMode spleefMode = SpleefMode.NORMAL;
     private boolean occupied = false;
     
-    public Arena() {
-        
-    }
-    
     public Location[] getSpawns() {
         return spawns;
     }

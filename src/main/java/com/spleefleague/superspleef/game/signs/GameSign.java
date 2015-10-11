@@ -20,6 +20,7 @@ import java.util.Map;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 
 
@@ -51,7 +52,13 @@ public class GameSign extends DBEntity implements  DBLoadable{
     }
     
     public Sign getSign() {
-        return (Sign)location.getBlock().getState();
+        BlockState bs = location.getBlock().getState();
+        if (bs instanceof Sign) {
+            return (Sign) bs;
+        }
+        else {
+            return null;
+        }
     }
     
     public Location getLocation() {

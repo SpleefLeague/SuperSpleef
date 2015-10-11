@@ -16,6 +16,7 @@ import com.spleefleague.core.io.TypeConverter;
 import com.spleefleague.core.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private boolean queued = true;
     @DBLoad(fieldName = "tpBackSpectators")
     private boolean tpBackSpectators = true;
+    @DBLoad(fieldName = "scoreboards")
+    private Scoreboard[] scoreboards;
     @DBLoad(fieldName = "paused")
     @DBSave(fieldName = "paused")
     private boolean paused = false;
@@ -73,6 +76,10 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     
     public String getCreator() {
         return creator;
+    }
+    
+    public Scoreboard[] getScoreboards() {
+        return scoreboards;
     }
     
     @Override
@@ -207,7 +214,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return null;
     }
     
-    public static void initialize(){
+    public static void init(){
         arenas = new HashMap<>();
         MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find().iterator();
         while(dbc.hasNext()) {

@@ -7,6 +7,7 @@ package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.PlayerState;
+import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
@@ -41,7 +42,8 @@ public class EnvironmentListener implements Listener {
     
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if(SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer()).getState() == PlayerState.IDLE) {
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+        if(slp != null && slp.getState() == PlayerState.IDLE) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
             for(Arena arena : Arena.getAll()) {
                 if(!sp.getVisitedArenas().contains(arena)) {

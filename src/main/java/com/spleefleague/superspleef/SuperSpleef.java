@@ -46,7 +46,7 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void start() {
         instance = this;
-        Arena.initialize();
+        Arena.init();
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
         this.battleManagerSpleef = new BattleManager(SpleefMode.NORMAL);
         this.battleManagerMultiSpleef = new BattleManager(SpleefMode.MULTI);

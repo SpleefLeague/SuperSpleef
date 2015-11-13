@@ -112,6 +112,7 @@ public class Battle {
                 pl.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + message);
             }
             if (arena.getSpleefMode() == SpleefMode.MULTI) {
+                players.remove(sp);
                 scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(activePlayers.size());
             }
         }
@@ -142,6 +143,7 @@ public class Battle {
             sp.setFrozen(false);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
+            sp.getPlayer().closeInventory();
             data.get(sp).restoreOldData();
         }
         sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
@@ -301,6 +303,7 @@ public class Battle {
             sp.setRequestingReset(false);
             p.setScoreboard(scoreboard);
             p.setGameMode(GameMode.SURVIVAL);
+            p.closeInventory();
             p.getInventory().clear();
             p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
             for (PotionEffect effect : p.getActivePotionEffects()) {

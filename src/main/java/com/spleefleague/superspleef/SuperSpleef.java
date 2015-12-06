@@ -11,9 +11,12 @@ import com.spleefleague.core.chat.ChatChannel;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.command.CommandLoader;
+import com.spleefleague.core.menus.InventoryMenuTemplateRepository;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.plugin.GamePlugin;
+import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
+import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Battle;
 import com.spleefleague.superspleef.game.BattleManager;
@@ -25,6 +28,7 @@ import com.spleefleague.superspleef.listener.GameListener;
 import com.spleefleague.superspleef.listener.SignListener;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 /**
@@ -47,6 +51,7 @@ public class SuperSpleef extends GamePlugin {
     public void start() {
         instance = this;
         Arena.init();
+        createGameMenu();
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
         this.battleManagerSpleef = new BattleManager(SpleefMode.NORMAL);
         this.battleManagerMultiSpleef = new BattleManager(SpleefMode.MULTI);
@@ -236,5 +241,36 @@ public class SuperSpleef extends GamePlugin {
     
     public boolean queuesOpen() {
         return queuesOpen;
+    }
+    
+    private void createGameMenu() {
+        InventoryMenuTemplateBuilder menu = InventoryMenuTemplateRepository.getNewGamemodeMenu();
+        menu
+                .displayName("Spleef")
+                .displayIcon(Material.SNOW_BLOCK)
+                .exitOnClickOutside(true)
+                .visibilityController((slp) -> (queuesOpen));
+        Arena.getAll().stream().forEach((arena) -> {
+            menu.component(item()
+                    .displayName(arena.getName())
+                    .description(arena.getDynamicDescription())
+                    .displayIcon((slp) -> (arena.isAvailable(slp.getUUID()) ? Material.MAP : Material.EMPTY_MAP))
+                    .onClick((event) -> {
+                        SpleefPlayer sp = getPlayerManager().get(event.getPlayer());
+                        BattleManager battleManager = arena.getSpleefMode() == SpleefMode.NORMAL ? getBattleManagerSpleef() : getBattleManagerMultiSpleef();
+                        if(arena.isAvailable(sp.getUUID())) {
+                            if(arena.isOccupied()) {
+                                battleManager.getBattle(arena).addSpectator(sp);
+                            }
+                            else {
+                                if(!arena.isPaused()) {
+                                    battleManager.queue(sp, arena);
+                                    event.getItem().getParent().update();
+                                }
+                            }
+                        }
+                    })
+            );
+        });
     }
 }

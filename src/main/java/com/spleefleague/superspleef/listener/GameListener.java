@@ -52,20 +52,20 @@ public class GameListener implements Listener {
         if(sp != null) {
             if(sp.isFrozen()) {
                 Location spawn = sp.getCurrentBattle().getData(sp).getSpawn();
-                if(spawn.distanceSquared(sp.getPlayer().getLocation()) > 2) {
-                    sp.getPlayer().teleport(spawn);
+                if(spawn.distanceSquared(sp.getLocation()) > 2) {
+                    sp.teleport(spawn);
                 }
             }
             else if (!sp.isIngame()) {
                 SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
                 if(!(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER)) {
                     for (Arena arena : Arena.getAll()) {
-                        if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getPlayer().getLocation())) {
+                        if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getLocation())) {
                             Location loc = arena.getSpectatorSpawn();
                             if (loc == null) {
                                 loc = SpleefLeague.getInstance().getSpawnLocation();
                             }
-                            sp.getPlayer().teleport(loc);
+                            sp.teleport(loc);
                             break;
                         }
                     }
@@ -74,7 +74,7 @@ public class GameListener implements Listener {
             else {
                 Battle battle = SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(sp);
                 Arena arena = battle.getArena();
-                if(!arena.getBorder().isInArea(sp.getPlayer().getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
+                if(!arena.getBorder().isInArea(sp.getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
                     battle.onArenaLeave(sp);
                 }
             }

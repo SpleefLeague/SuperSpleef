@@ -226,7 +226,7 @@ public class SuperSpleef extends GamePlugin {
             else {
                 for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if (!spleefplayer.isRequestingEndgame()) {
-                        spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to end this game. To agree enter " + ChatColor.YELLOW + "/endgame.");
+                        spleefplayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to end this game. To agree enter " + ChatColor.YELLOW + "/endgame.");
                     }
                 }
                 sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "You requested this game to be cancelled.");
@@ -254,11 +254,11 @@ public class SuperSpleef extends GamePlugin {
             menu.component(item()
                     .displayName(arena.getName())
                     .description(arena.getDynamicDescription())
-                    .displayIcon((slp) -> (arena.isAvailable(slp.getUUID()) ? Material.MAP : Material.EMPTY_MAP))
+                    .displayIcon((slp) -> (arena.isAvailable(slp.getUniqueId()) ? Material.MAP : Material.EMPTY_MAP))
                     .onClick((event) -> {
                         SpleefPlayer sp = getPlayerManager().get(event.getPlayer());
                         BattleManager battleManager = arena.getSpleefMode() == SpleefMode.NORMAL ? getBattleManagerSpleef() : getBattleManagerMultiSpleef();
-                        if(arena.isAvailable(sp.getUUID())) {
+                        if(arena.isAvailable(sp.getUniqueId())) {
                             if(arena.isOccupied()) {
                                 battleManager.getBattle(arena).addSpectator(sp);
                             }

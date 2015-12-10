@@ -47,13 +47,13 @@ public class reset extends BasicCommand {
                 battle.resetField();
                 for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     spleefplayer.setRequestingReset(false);
-                    spleefplayer.getPlayer().teleport(battle.getData(spleefplayer).getSpawn());
+                    spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());
                 }
             }
             else {
                 for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if(!spleefplayer.isRequestingReset()) {
-                        spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to reset the field. To agree enter " + ChatColor.YELLOW + "/reset.");
+                        spleefplayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to reset the field. To agree enter " + ChatColor.YELLOW + "/reset.");
                     }
                 }
                 slp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "You requested a reset of the field.");
@@ -68,8 +68,8 @@ public class reset extends BasicCommand {
                     if(battle != null) {
                         battle.resetField();
                         for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {
-                            spleefplayer.getPlayer().sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your battle has been reset by a moderator.");
-                            spleefplayer.getPlayer().teleport(battle.getData(spleefplayer).getSpawn());
+                            spleefplayer.sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your battle has been reset by a moderator.");
+                            spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());
                         }
                         success(p, "The battle has been reset.");
                     }

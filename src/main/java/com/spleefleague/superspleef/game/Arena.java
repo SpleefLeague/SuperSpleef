@@ -159,8 +159,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     public Dynamic<List<String>> getDynamicDescription() {
         return (SLPlayer slp) -> {
             List<String> description = new ArrayList<>();
-            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(slp.getUUID());
-            if(Arena.this.isAvailable(sp.getUUID())) {
+            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(slp.getUniqueId());
+            if(Arena.this.isAvailable(sp.getUniqueId())) {
                 if(Arena.this.isPaused()) {
                     description.add(ChatColor.RED + "This arena is");
                     description.add(ChatColor.RED + "currently paused.");

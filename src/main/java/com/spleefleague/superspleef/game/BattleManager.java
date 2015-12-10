@@ -52,7 +52,7 @@ public class BattleManager {
     }
     
     public void queue(SpleefPlayer player, Arena queue) {
-        gameQueue.queue(player.getUUID(), queue);
+        gameQueue.queue(player.getUniqueId(), queue);
         if(!queue.isPaused() && !queue.isOccupied()) {
             Collection<SpleefPlayer> players = gameQueue.request(queue, SuperSpleef.getInstance().getPlayerManager());
             if(players != null) {
@@ -63,7 +63,7 @@ public class BattleManager {
     }
     
     public void queue(SpleefPlayer player) {
-        gameQueue.queue(player.getUUID());
+        gameQueue.queue(player.getUniqueId());
         HashMap<Arena, Collection<SpleefPlayer>> requested = gameQueue.request(SuperSpleef.getInstance().getPlayerManager());
         for(Arena arena : requested.keySet()) {
             arena.startBattle(new ArrayList<>(requested.get(arena)));
@@ -72,12 +72,12 @@ public class BattleManager {
     }
     
     public void dequeue(SpleefPlayer sp) {
-        gameQueue.dequeue(sp.getUUID());
+        gameQueue.dequeue(sp.getUniqueId());
         GameSign.updateGameSigns();
     }
 
     public boolean isQueued(SpleefPlayer sp) {
-        return gameQueue.isQueued(sp.getUUID());
+        return gameQueue.isQueued(sp.getUniqueId());
     }
     
     public void add(Battle battle) {

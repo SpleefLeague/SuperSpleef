@@ -80,9 +80,9 @@ public class Battle {
         spectators.add(sp);
         Location spawn = arena.getSpectatorSpawn();
         if (spawn != null) {
-            sp.getPlayer().teleport(spawn);
+            sp.teleport(spawn);
         }
-        sp.getPlayer().setScoreboard(scoreboard);
+        sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
@@ -109,7 +109,7 @@ public class Battle {
         }
         else if (activePlayers.size() > 1) {
             for (SpleefPlayer pl : activePlayers) {
-                pl.getPlayer().sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + message);
+                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + message);
             }
             if (arena.getSpleefMode() == SpleefMode.MULTI) {
                 players.remove(sp);
@@ -143,11 +143,11 @@ public class Battle {
             sp.setFrozen(false);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
-            sp.getPlayer().closeInventory();
+            sp.closeInventory();
             data.get(sp).restoreOldData();
         }
-        sp.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-        sp.getPlayer().teleport(SpleefLeague.getInstance().getSpawnLocation());
+        sp.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        sp.teleport(SpleefLeague.getInstance().getSpawnLocation());
         slp.removeChatChannel(cc.getName());
         slp.setState(PlayerState.IDLE);
     }
@@ -209,7 +209,7 @@ public class Battle {
 
     public void onArenaLeave(SpleefPlayer player) {
         if (isInCountdown()) {
-            player.getPlayer().teleport(data.get(player).getSpawn());
+            player.teleport(data.get(player).getSpawn());
         }
         else {
             if (arena.getSpleefMode() == SpleefMode.NORMAL) {
@@ -328,7 +328,7 @@ public class Battle {
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", "GAME_MESSAGE_SPLEEF_START");
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
-            sp.getPlayer().teleport(arena.getSpawns()[i]);
+            sp.teleport(arena.getSpawns()[i]);
         }
         startClock();
         startRound();
@@ -343,8 +343,8 @@ public class Battle {
             sp.setFrozen(true);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
-            sp.getPlayer().setFireTicks(0);
-            sp.getPlayer().teleport(this.data.get(sp).getSpawn());
+            sp.setFireTicks(0);
+            sp.teleport(this.data.get(sp).getSpawn());
         }
         BukkitRunnable br = new BukkitRunnable() {
             private int secondsLeft = 3;

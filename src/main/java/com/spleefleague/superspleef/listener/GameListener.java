@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.events.FakeBlockBreakEvent;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
@@ -19,7 +20,6 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -90,7 +90,7 @@ public class GameListener implements Listener {
     }
     
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockBreak(BlockBreakEvent event) {
+    public void onBlockBreak(FakeBlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
             if(sp.getCurrentBattle().isInCountdown() || event.getBlock().getType() != Material.SNOW_BLOCK) {
@@ -102,16 +102,7 @@ public class GameListener implements Listener {
                 if(is != null && is.getType() == Material.DIAMOND_SPADE) {
                     is.setDurability((short)0);
                 }
-                sp.getCurrentBattle().addDestroyedBlock(event.getBlock());
             }
-        }
-    }
-    
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        if(sp.isIngame()) {
-            event.setCancelled(true);
         }
     }
     

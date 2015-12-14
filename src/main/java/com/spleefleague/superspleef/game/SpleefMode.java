@@ -12,5 +12,6 @@ package com.spleefleague.superspleef.game;
 public enum SpleefMode {
     NORMAL,
     TEAM,
-    MULTI;
+    MULTI,
+    SWC;
 }

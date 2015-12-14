@@ -13,14 +13,16 @@ import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.DBSaveable;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
+import com.spleefleague.core.listeners.FakeBlockHandler;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
+import com.spleefleague.core.utils.FakeArea;
+import com.spleefleague.core.utils.FakeBlock;
 import com.spleefleague.core.utils.function.Dynamic;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import com.sun.xml.internal.ws.api.server.Container;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,8 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bson.Document;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 /**
  *
@@ -39,6 +45,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     
     @DBLoad(fieldName = "border")
     private Area border;
+    private Area field;
     @DBLoad(fieldName = "spawns", typeConverter = TypeConverter.LocationConverter.class)
     private Location[] spawns;
     @DBLoad(fieldName = "creator")
@@ -65,6 +72,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.NORMAL;
     private boolean occupied = false;
+    private FakeArea defaultSnow;
     
     public Location[] getSpawns() {
         return spawns;
@@ -72,6 +80,24 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     
     public Area getBorder() {
         return border;
+    }
+    
+    public FakeArea getDefaultSnow() {
+        return defaultSnow;
+    }
+    
+    @DBLoad(fieldName = "field")
+    public void setField(Area field) {
+        this.field = field;
+        defaultSnow = new FakeArea();
+        for(Block block : field.getBlocks()) {
+            defaultSnow.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
+        }
+        FakeBlockHandler.addArea(defaultSnow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
+    }
+    
+    public Area getField() {
+        return field;
     }
     
     public Location getSpectatorSpawn() {
@@ -232,6 +258,20 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return SuperSpleef.getInstance().getPlayerManager().get(uuid).getVisitedArenas().contains(this);
     }
     
+    public Battle startBattle(List<SpleefPlayer> players) {
+        if(!isOccupied()) { //Shouldn't be necessary
+            Battle battle = new Battle(this, players);
+            battle.start();
+            return battle;
+        }
+        return null;
+    }
+    
+    @Override
+    public boolean isInGeneral() {
+        return queued;
+    }
+    
     private static Map<String, Arena> arenas;
     
     public static Arena byName(String name) {
@@ -250,27 +290,14 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return arenas.values();
     }
     
-    public Battle startBattle(List<SpleefPlayer> players) {
-        if(!isOccupied()) { //Shouldn't be necessary
-            Battle battle = new Battle(this, players);
-            battle.start();
-            return battle;
-        }
-        return null;
-    }
-    
     public static void init(){
         arenas = new HashMap<>();
         MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find().iterator();
         while(dbc.hasNext()) {
             Arena arena = EntityBuilder.load(dbc.next(), Arena.class);
             arenas.put(arena.getName(), arena);
+            
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
-    }
-    
-    @Override
-    public boolean isInGeneral() {
-        return queued;
     }
 }

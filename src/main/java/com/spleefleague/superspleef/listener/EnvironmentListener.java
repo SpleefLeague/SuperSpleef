@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.listeners.FakeBlockHandler;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
@@ -16,7 +17,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 
@@ -57,6 +60,13 @@ public class EnvironmentListener implements Listener {
                     }
                 }
             }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onJoin(PlayerJoinEvent event) {
+        for(Arena arena : Arena.getAll()) {
+            FakeBlockHandler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
         }
     }
 }

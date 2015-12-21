@@ -8,15 +8,11 @@ package com.spleefleague.superspleef.game.scoreboards;
 import com.spleefleague.core.io.DBEntity;
 import com.spleefleague.core.io.DBLoad;
 import com.spleefleague.core.io.DBLoadable;
-import com.spleefleague.core.io.DBSaveable;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.Document;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
 
 /**
  *
@@ -24,33 +20,11 @@ import org.bukkit.block.Block;
  */
 public class ScoreDefinition extends DBEntity implements DBLoadable {
 
-    @DBLoad(fieldName = "blockdata", typeConverter = BlockDataListConverter.class)
+    @DBLoad(fieldName = "blockdata")
     private List<List<BlockData>> blockdata;
     
     public List<List<BlockData>> getBlockData() {
         return blockdata;
-    }
-
-    public static class BlockData extends DBEntity implements DBLoadable, DBSaveable {
-
-        @DBLoad(fieldName = "material")
-        private Material material;
-        @DBLoad(fieldName = "data")
-        private int data;
-
-        public Material getType() {
-            return material;
-        }
-
-        public byte getData() {
-            return (byte) data;
-        }
-
-        public void setBlockAt(Location loc) {
-            Block b = loc.getBlock();
-            b.setType(getType());
-            b.setData(getData());
-        }
     }
     
     public static class BlockDataListConverter extends TypeConverter<List, List<List<BlockData>>> {

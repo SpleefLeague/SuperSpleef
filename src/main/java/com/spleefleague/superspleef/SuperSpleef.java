@@ -11,9 +11,8 @@ import com.spleefleague.core.chat.ChatChannel;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.command.CommandLoader;
-import com.spleefleague.core.menus.InventoryMenuTemplateRepository;
+import com.spleefleague.core.menus.SLMenu;
 import com.spleefleague.core.player.PlayerManager;
-import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.plugin.GamePlugin;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
@@ -42,6 +41,7 @@ public class SuperSpleef extends GamePlugin {
     private BattleManager battleManagerSpleef;
     private BattleManager battleManagerMultiSpleef;
     private boolean queuesOpen = true;
+    private ChatChannel start, end;
     
     public SuperSpleef() {
         super("[SuperSpleef]", ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET);
@@ -55,8 +55,8 @@ public class SuperSpleef extends GamePlugin {
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
         this.battleManagerSpleef = new BattleManager(SpleefMode.NORMAL);
         this.battleManagerMultiSpleef = new BattleManager(SpleefMode.MULTI);
-        ChatManager.registerChannel(new ChatChannel("GAME_MESSAGE_SPLEEF_END", "Spleef game start notifications", Rank.DEFAULT, true));
-        ChatManager.registerChannel(new ChatChannel("GAME_MESSAGE_SPLEEF_START", "Spleef game result messages", Rank.DEFAULT, true));
+        start = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_START");
+        end = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_END");
         ConnectionListener.init();
         GameListener.init();
         SignListener.init();
@@ -92,6 +92,14 @@ public class SuperSpleef extends GamePlugin {
     
     public static SuperSpleef getInstance() {
         return instance;
+    }
+    
+    public ChatChannel getStartMessageChannel() {
+        return start;
+    }
+    
+    public ChatChannel getEndMessageChannel() {
+        return end;
     }
     
     @Override
@@ -155,7 +163,7 @@ public class SuperSpleef extends GamePlugin {
         }
         if(battle != null) {
             battle.cancel();    
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " The battle on " + battle.getArena().getName() + " has been cancelled.", "STAFF");
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " The battle on " + battle.getArena().getName() + " has been cancelled.", ChatChannel.STAFF_NOTIFICATIONS);
         }
     }
     
@@ -244,7 +252,7 @@ public class SuperSpleef extends GamePlugin {
     }
     
     private void createGameMenu() {
-        InventoryMenuTemplateBuilder menu = InventoryMenuTemplateRepository.getNewGamemodeMenu();
+        InventoryMenuTemplateBuilder menu = SLMenu.getNewGamemodeMenu();
         menu
                 .displayName("Spleef")
                 .displayIcon(Material.SNOW_BLOCK)

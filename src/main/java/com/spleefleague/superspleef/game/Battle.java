@@ -32,7 +32,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -491,6 +490,10 @@ public class Battle {
 
     public boolean isInCountdown() {
         return inCountdown;
+    }
+    
+    public FakeArea getField() {
+        return field;
     }
 
     private void applyRatingChange(SpleefPlayer winner) {

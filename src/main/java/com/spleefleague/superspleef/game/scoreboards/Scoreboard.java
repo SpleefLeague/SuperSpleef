@@ -9,7 +9,6 @@ import com.spleefleague.core.io.DBEntity;
 import com.spleefleague.core.io.DBLoad;
 import com.spleefleague.core.io.DBLoadable;
 import com.spleefleague.core.io.TypeConverter;
-import com.spleefleague.superspleef.game.scoreboards.ScoreDefinition.BlockData;
 import java.util.HashMap;
 import java.util.List;
 import org.bson.types.ObjectId;

@@ -14,18 +14,17 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Battle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import java.util.Collection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.ItemStack;
 
 /**
  *
@@ -93,15 +92,11 @@ public class GameListener implements Listener {
     public void onBlockBreak(FakeBlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            if(sp.getCurrentBattle().isInCountdown() || event.getBlock().getType() != Material.SNOW_BLOCK) {
+            if(sp.getCurrentBattle().isInCountdown()) {
                 event.setCancelled(true);
             }
             else {
-                event.setCancelled(false);
-                ItemStack is = event.getPlayer().getItemInHand();
-                if(is != null && is.getType() == Material.DIAMOND_SPADE) {
-                    is.setDurability((short)0);
-                }
+                event.setCancelled(!strongContains(sp.getCurrentBattle().getField().getBlocks(), event.getBlock()));
             }
         }
     }
@@ -117,5 +112,14 @@ public class GameListener implements Listener {
     @EventHandler
     public void onFood(FoodLevelChangeEvent event) {
         event.setCancelled(true);
+    }
+    
+    private <T> boolean strongContains(Collection<T> col, T object) {
+        for(T t : col) {
+            if(t == object) {
+                return true;
+            }
+        }
+        return false;
     }
 }

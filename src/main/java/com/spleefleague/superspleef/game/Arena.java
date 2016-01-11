@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,7 +40,7 @@ import org.bukkit.entity.Player;
  *
  * @author Jonas
  */
-public class Arena extends DBEntity implements DBLoadable, DBSaveable, QueueableArena{
+public class Arena extends DBEntity implements DBLoadable, DBSaveable, QueueableArena<SpleefPlayer> {
     
     @DBLoad(fieldName = "border")
     private Area border;
@@ -71,8 +70,9 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private Area area;
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.NORMAL;
-    private boolean occupied = false;
+    private int runningGames = 0;
     private FakeArea defaultSnow;
+    
     
     public Location[] getSpawns() {
         return spawns;
@@ -119,15 +119,23 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     
     @Override
     public boolean isOccupied() {
-        return occupied;
+        return false;
+    }
+    
+    public int getRunningGamesCount() {
+        return runningGames;
+    }
+    
+    public void registerGameStart() {
+        runningGames++;
+    }
+    
+    public void registerGameEnd() {
+        runningGames--;
     }
     
     public Area getArea() {
         return area;
-    }
-    
-    public void setOccupied(boolean occupied) {
-        this.occupied = occupied;
     }
     
     public boolean isRated() {
@@ -159,59 +167,17 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     public int getSize() {
         return spawns.length;
     }
-
-    @Override
-    public int getQueueLength() {
-        if(getSpleefMode() == SpleefMode.NORMAL) {
-            return SuperSpleef.getInstance().getBattleManagerSpleef().getGameQueue().getQueueLength(this);
-        }
-        else if(getSpleefMode() == SpleefMode.MULTI) {
-            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getGameQueue().getQueueLength(this);
-        }
-        return -1;
-    }
-
-    @Override
-    public int getQueuePosition(UUID uuid) {
-        if(getSpleefMode() == SpleefMode.NORMAL) {
-            return SuperSpleef.getInstance().getBattleManagerSpleef().getGameQueue().getQueuePosition(this, uuid);
-        }
-        else if(getSpleefMode() == SpleefMode.MULTI) {
-            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getGameQueue().getQueuePosition(this, uuid);
-        }
-        return -1;
-    }
     
     public Dynamic<List<String>> getDynamicDescription() {
         return (SLPlayer slp) -> {
             List<String> description = new ArrayList<>();
-            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(slp.getUniqueId());
-            if(Arena.this.isAvailable(sp.getUniqueId())) {
+            SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(slp.getUniqueId());
+            if(Arena.this.isAvailable(sjp)) {
                 if(Arena.this.isPaused()) {
                     description.add(ChatColor.RED + "This arena is");
                     description.add(ChatColor.RED + "currently paused.");
                 }
-                else if(Arena.this.isOccupied()) {
-                    Battle battle;
-                    if(getSpleefMode() == SpleefMode.NORMAL) {
-                        battle = SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(Arena.this);
-                        description.add(ChatColor.GOLD + battle.getActivePlayers().get(0).getName() + ChatColor.GRAY + ChatColor.ITALIC + " vs. " + ChatColor.RESET + ChatColor.GOLD + battle.getActivePlayers().get(1).getName());
-                        description.add(ChatColor.GRAY + "" + ChatColor.ITALIC + "Click to spectate");
-                    }
-                    else if(getSpleefMode() == SpleefMode.MULTI) {
-                        description.add(ChatColor.GRAY + "Currently playing: ");
-                        battle = SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(Arena.this);
-                        battle.getActivePlayers().stream().forEach((player) -> {
-                            description.add(ChatColor.GOLD + player.getName());
-                        });
-                        description.add(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "Click to spectate");
-                    }
-                    else {
-                        description.add("PLACEHOLDER");
-                    }
-                }
-                else {
-                    description.add(ChatColor.GREEN + "" + Arena.this.getQueueLength() + ChatColor.GRAY + "/" + ChatColor.GREEN + Arena.this.getSize());
+                else if(getRunningGamesCount() == 0) {
                     description.add(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "Click to join the queue");
                 }
             }
@@ -222,40 +188,15 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
             return description;
         };
     }
-    
-    @Override
-    public String getCurrentState() {
-        if(occupied) {
-            Battle battle = null;
-            if(getSpleefMode() == SpleefMode.NORMAL) {
-                battle = SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(this);
-            }
-            else if(getSpleefMode() == SpleefMode.MULTI) {
-                battle = SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(this);
-            }
-            if(getSpleefMode() == SpleefMode.NORMAL) {
-                return ChatColor.GOLD + battle.getActivePlayers().get(0).getName() + ChatColor.GRAY + ChatColor.ITALIC + " vs. " + ChatColor.RESET + ChatColor.GOLD + battle.getActivePlayers().get(1).getName();
-            }
-            else {
-                StringBuilder sb = new StringBuilder();
-                sb.append(ChatColor.GRAY).append("Currently playing: ");
-                for(SpleefPlayer sp : battle.getActivePlayers()) {
-                    if(sb.length() > 0) {
-                        sb.append(ChatColor.GRAY).append(", ");
-                    }
-                    sb.append(ChatColor.GOLD).append(sp.getName());
-                }
-                return sb.toString();
-            }
-        }
-        else {
-            return ChatColor.BLUE + "Empty";
-        }
-    }
 
     @Override
-    public boolean isAvailable(UUID uuid) {
-        return SuperSpleef.getInstance().getPlayerManager().get(uuid).getVisitedArenas().contains(this);
+    public boolean isAvailable(SpleefPlayer sp) {
+        return sp.getVisitedArenas().contains(this);
+    }
+    
+    @Override
+    public boolean isQueued() {
+        return queued;
     }
     
     public Battle startBattle(List<SpleefPlayer> players) {
@@ -265,11 +206,6 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
             return battle;
         }
         return null;
-    }
-    
-    @Override
-    public boolean isInGeneral() {
-        return queued;
     }
     
     private static Map<String, Arena> arenas;
@@ -296,7 +232,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         while(dbc.hasNext()) {
             Arena arena = EntityBuilder.load(dbc.next(), Arena.class);
             arenas.put(arena.getName(), arena);
-            
+            SuperSpleef.getInstance().getBattleManager().registerArena(arena);
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
     }

@@ -14,19 +14,18 @@ import com.spleefleague.core.command.CommandLoader;
 import com.spleefleague.core.menus.SLMenu;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.GamePlugin;
-import com.spleefleague.core.queue.BattleManager;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.BattleManager;
+import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.listener.ConnectionListener;
 import com.spleefleague.superspleef.listener.EnvironmentListener;
 import com.spleefleague.superspleef.listener.GameListener;
 import com.spleefleague.superspleef.listener.SignListener;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -39,7 +38,8 @@ public class SuperSpleef extends GamePlugin {
 
     private static SuperSpleef instance;
     private PlayerManager<SpleefPlayer> playerManager;
-    private BattleManager<Arena, SpleefPlayer, Battle> battleManagerSpleef;
+    private BattleManager battleManagerSpleef;
+    private BattleManager battleManagerMultiSpleef;
     private boolean queuesOpen = true;
     private ChatChannel start, end;
     
@@ -50,15 +50,11 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void start() {
         instance = this;
-        this.playerManager = new PlayerManager(this, SpleefPlayer.class);
-        this.battleManagerSpleef = new BattleManager<Arena, SpleefPlayer, Battle>() {
-            @Override
-            public void startBattle(Arena queue, List<SpleefPlayer> players) {
-                queue.startBattle(players);
-            }
-        };
         Arena.init();
         createGameMenu();
+        this.playerManager = new PlayerManager(this, SpleefPlayer.class);
+        this.battleManagerSpleef = new BattleManager(SpleefMode.NORMAL);
+        this.battleManagerMultiSpleef = new BattleManager(SpleefMode.MULTI);
         start = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_START");
         end = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_END");
         ConnectionListener.init();
@@ -86,8 +82,12 @@ public class SuperSpleef extends GamePlugin {
         return playerManager;
     }
     
-    public BattleManager<Arena, SpleefPlayer, Battle> getBattleManager() {
+    public BattleManager getBattleManagerSpleef() {
         return battleManagerSpleef;
+    }
+    
+    public BattleManager getBattleManagerMultiSpleef() {
+        return battleManagerMultiSpleef;
     }
     
     public static SuperSpleef getInstance() {
@@ -119,48 +119,48 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void unspectate(Player p) {
         SpleefPlayer sjp = getPlayerManager().get(p);
-        for(Battle battle : getBattleManager().getAll()) {
+        for(Battle battle : getBattleManagerSpleef().getAll()) {
             if(battle.isSpectating(sjp)) {
                 battle.removeSpectator(sjp);
             }
         }
-//        for(Battle battle : getBattleManagerMultiSpleef().getAll()) {
-//            if(battle.isSpectating(sjp)) {
-//                battle.removeSpectator(sjp);
-//            }
-//        }
+        for(Battle battle : getBattleManagerMultiSpleef().getAll()) {
+            if(battle.isSpectating(sjp)) {
+                battle.removeSpectator(sjp);
+            }
+        }
     }
     
     @Override
     public boolean isSpectating(Player p) {
         SpleefPlayer sjp = getPlayerManager().get(p);
-        for(Battle battle : getBattleManager().getAll()) {
+        for(Battle battle : getBattleManagerSpleef().getAll()) {
             if(battle.isSpectating(sjp)) {
                 return true;
             }
         }
-//        for(Battle battle : getBattleManagerMultiSpleef().getAll()) {
-//            if(battle.isSpectating(sjp)) {
-//                return true;
-//            }
-//        }
+        for(Battle battle : getBattleManagerMultiSpleef().getAll()) {
+            if(battle.isSpectating(sjp)) {
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public void dequeue(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        getBattleManager().dequeue(sp);
-//        getBattleManagerMultiSpleef().dequeue(sp);
+        getBattleManagerSpleef().dequeue(sp);
+        getBattleManagerMultiSpleef().dequeue(sp);
     }
 
     @Override
     public void cancel(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        Battle battle = getBattleManager().getBattle(sp);
-//        if(battle == null) {
-//            battle = getBattleManagerMultiSpleef().getBattle(sp);
-//        }
+        Battle battle = getBattleManagerSpleef().getBattle(sp);
+        if(battle == null) {
+            battle = getBattleManagerMultiSpleef().getBattle(sp);
+        }
         if(battle != null) {
             battle.cancel();    
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " The battle on " + battle.getArena().getName() + " has been cancelled.", ChatChannel.STAFF_NOTIFICATIONS);
@@ -170,10 +170,10 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void surrender(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        Battle battle = getBattleManager().getBattle(sp);
-//        if(battle == null) {
-//            battle = getBattleManagerMultiSpleef().getBattle(sp);
-//        }
+        Battle battle = getBattleManagerSpleef().getBattle(sp);
+        if(battle == null) {
+            battle = getBattleManagerMultiSpleef().getBattle(sp);
+        }
         if(battle != null) {
             for(SpleefPlayer active : battle.getActivePlayers()) {
                 active.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " " + p.getName() + " has surrendered!");
@@ -185,18 +185,24 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public boolean isQueued(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        return getBattleManager().isQueued(sp);
+        if(!getBattleManagerSpleef().isQueued(sp)) {
+            return getBattleManagerMultiSpleef().isQueued(sp);
+        }
+        return true;
     }
 
     @Override
     public boolean isIngame(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        return getBattleManager().isIngame(sp);
+        if(!getBattleManagerSpleef().isIngame(sp)) {
+            return getBattleManagerMultiSpleef().isIngame(sp);
+        }
+        return true;
     }
     
     @Override
     public void cancelAll() {
-        for(Battle battle : new ArrayList<>(battleManagerSpleef.getAll())) {
+        for(Battle battle : battleManagerSpleef.getAll()) {
             battle.cancel();
         }
     }
@@ -245,9 +251,10 @@ public class SuperSpleef extends GamePlugin {
         return queuesOpen;
     }
     
-     private void createGameMenu() {
-        InventoryMenuTemplateBuilder menu = SLMenu.getNewGamemodeMenu()
-                .displayName("SuperSpleef")
+    private void createGameMenu() {
+        InventoryMenuTemplateBuilder menu = SLMenu.getNewGamemodeMenu();
+        menu
+                .displayName("Spleef")
                 .displayIcon(Material.SNOW_BLOCK)
                 .exitOnClickOutside(true)
                 .visibilityController((slp) -> (queuesOpen));
@@ -255,16 +262,17 @@ public class SuperSpleef extends GamePlugin {
             menu.component(item()
                     .displayName(arena.getName())
                     .description(arena.getDynamicDescription())
-                    .displayIcon((slp) -> (arena.isAvailable(playerManager.get(slp)) ? Material.MAP : Material.EMPTY_MAP))
+                    .displayIcon((slp) -> (arena.isAvailable(slp.getUniqueId()) ? Material.MAP : Material.EMPTY_MAP))
                     .onClick((event) -> {
                         SpleefPlayer sp = getPlayerManager().get(event.getPlayer());
-                        if (arena.isAvailable(sp)) {
-                            if (arena.isOccupied()) {
-                                battleManagerSpleef.getBattle(arena).addSpectator(sp);
+                        BattleManager battleManager = arena.getSpleefMode() == SpleefMode.NORMAL ? getBattleManagerSpleef() : getBattleManagerMultiSpleef();
+                        if(arena.isAvailable(sp.getUniqueId())) {
+                            if(arena.isOccupied()) {
+                                battleManager.getBattle(arena).addSpectator(sp);
                             }
                             else {
-                                if (!arena.isPaused()) {
-                                    battleManagerSpleef.queue(sp, arena);
+                                if(!arena.isPaused()) {
+                                    battleManager.queue(sp, arena);
                                     event.getItem().getParent().update();
                                 }
                             }

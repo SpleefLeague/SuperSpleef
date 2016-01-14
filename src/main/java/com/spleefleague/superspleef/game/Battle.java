@@ -45,7 +45,7 @@ import org.bukkit.scoreboard.Scoreboard;
  *
  * @author Jonas
  */
-public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefPlayer> {
+public class Battle {
 
     private final Arena arena;
     private final List<SpleefPlayer> players, spectators;
@@ -76,7 +76,6 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         this.cc = ChatChannel.createTemporaryChannel("GAMECHANNEL" + this.hashCode(), null, Rank.DEFAULT, false, false);
     }
 
-    @Override
     public Arena getArena() {
         return arena;
     }
@@ -103,12 +102,12 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);
         for(SpleefPlayer spl : getActivePlayers()) {
-            spl.showPlayer(sp.getPlayer());
-            sp.showPlayer(spl.getPlayer());
+            spl.showPlayerEntity(sp);
+            sp.showPlayerEntity(spl);
         }
         for(SpleefPlayer spl : spectators) {
-            spl.showPlayer(sp);
-            sp.showPlayer(spl);
+            spl.showPlayerEntity(sp);
+            sp.showPlayerEntity(spl);
         }
         spectators.add(sp);
         hidePlayers(sp);
@@ -143,7 +142,6 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         }
     }
 
-    @Override
     public ArrayList<SpleefPlayer> getActivePlayers() {
         ArrayList<SpleefPlayer> active = new ArrayList<>();
         for (SpleefPlayer sp : players) {
@@ -201,8 +199,8 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     private void cleanup() {
         clock.cancel();
         resetField();
-        arena.registerGameEnd();
-        SuperSpleef.getInstance().getBattleManager().remove(this);
+        arena.setOccupied(false);
+        SuperSpleef.getInstance().getBattleManagerSpleef().remove(this);
         ChatManager.unregisterChannel(cc);
         GameSign.updateGameSigns(arena);
     }
@@ -284,7 +282,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     public void start() {
-        arena.registerGameStart();
+        arena.setOccupied(true);
         if(arena.getScoreboards() != null) {
             for(com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : arena.getScoreboards()) {
                 scoreboard.setScore(new int[arena.getSize()]);
@@ -292,7 +290,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         }
         GameSign.updateGameSigns(arena);
         ChatManager.registerChannel(cc);
-        SuperSpleef.getInstance().getBattleManager().add(this);
+        SuperSpleef.getInstance().getBattleManagerSpleef().add(this);
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -340,7 +338,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
             }
             for (SpleefPlayer sp1 : players) {
                 if (sp != sp1) {
-                    sp.showPlayer(sp1.getPlayer());
+                    sp.showPlayerEntity(sp1.getPlayer());
                 }
             }
             p.setFlying(false);
@@ -377,8 +375,8 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         battlePlayers.addAll(spectators);
         for(SpleefPlayer active : battlePlayers) {
             if(!battlePlayers.contains(target)) {
-                target.hidePlayer(active.getPlayer());
-                active.hidePlayer(target.getPlayer());
+                target.hidePlayerEntity(active);
+                active.hidePlayerEntity(target);
             }
         }
     }

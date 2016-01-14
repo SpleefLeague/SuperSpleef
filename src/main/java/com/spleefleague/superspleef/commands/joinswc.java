@@ -28,11 +28,11 @@ public class joinswc extends BasicCommand{
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
         if(!sp.joinedSWC()) {
-            success(p, "You successfully joined the SWC qualifiers! You need to win games to qualify for the groupstage.");
+            success(p, "You successfully joined the SWC! You need to win games to qualify for the groupstage.");
             sp.setJoinedSWC(true);
         }
         else {
-            success(p, "You left the SWC qualifiers! To rejoin, enter /joinswc again.");
+            error(p, "You can't join the SWC twice.");
         }
     }
 }

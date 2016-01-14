@@ -71,7 +71,7 @@ public class GameListener implements Listener {
                 }
             }
             else {
-                Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
+                Battle battle = SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(sp);
                 Arena arena = battle.getArena();
                 if(!arena.getBorder().isInArea(sp.getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
                     battle.onArenaLeave(sp);

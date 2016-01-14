@@ -9,7 +9,6 @@ import com.spleefleague.core.io.DBLoad;
 import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.Settings;
 import com.spleefleague.core.player.GeneralPlayer;
-import com.spleefleague.core.queue.RatedPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Battle;
@@ -24,7 +23,7 @@ import org.bson.Document;
  *
  * @author Jonas
  */
-public class SpleefPlayer extends GeneralPlayer implements RatedPlayer {
+public class SpleefPlayer extends GeneralPlayer {
     
     private int rating, swcRating;
     private boolean ingame, frozen, requestingReset, requestingEndgame, joinedSWC;
@@ -39,7 +38,6 @@ public class SpleefPlayer extends GeneralPlayer implements RatedPlayer {
         this.rating = (rating > 0) ? rating : 0;
     }
     
-    @Override
     @DBSave(fieldName = "rating")
     public int getRating() {
         return rating;
@@ -119,10 +117,10 @@ public class SpleefPlayer extends GeneralPlayer implements RatedPlayer {
     }
     
     public Battle getCurrentBattle() {
-        if(SuperSpleef.getInstance().getBattleManager().isIngame(this)) {  
-            return SuperSpleef.getInstance().getBattleManager().getBattle(this);
+        if(SuperSpleef.getInstance().getBattleManagerSpleef().isIngame(this)) {  
+            return SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(this);
         }
-        return null;//SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(this);
+        return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(this);
     }
     
     public Set<Arena> getVisitedArenas() {

@@ -11,9 +11,9 @@ import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.core.plugin.GamePlugin;
-import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.BattleManager;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -38,7 +38,7 @@ public class spleef extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         if (SuperSpleef.getInstance().queuesOpen()) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
-            BattleManager bm = SuperSpleef.getInstance().getBattleManager();
+            BattleManager bm = SuperSpleef.getInstance().getBattleManagerSpleef();
             if (!GamePlugin.isIngameGlobal(p)) {
                 if (args.length == 0) {
                     GamePlugin.dequeueGlobal(p);

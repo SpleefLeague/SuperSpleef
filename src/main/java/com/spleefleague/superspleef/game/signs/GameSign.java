@@ -71,11 +71,11 @@ public class GameSign extends DBEntity implements  DBLoadable{
     
     public Battle getBattle() {
         if(arena.getSpleefMode() == SpleefMode.NORMAL) {
-            return SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(arena);
+            return SuperSpleef.getInstance().getBattleManager().getBattle(arena);
         }
-        else if(arena.getSpleefMode() == SpleefMode.MULTI) {
-            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(arena);
-        }
+//        else if(arena.getSpleefMode() == SpleefMode.MULTI) {
+//            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(arena);
+//        }
         return null;
     }
     
@@ -85,15 +85,8 @@ public class GameSign extends DBEntity implements  DBLoadable{
             sign.setLine(0, "[" + (arena.isPaused() ? ChatColor.DARK_RED + "Closed" : (arena.isOccupied() ? ChatColor.YELLOW + "Occupied" : ChatColor.GREEN + "Free")) + ChatColor.RESET + "]");
             sign.setLine(1, getArena().getName());
             if (!arena.isPaused()) {
-                if (!arena.isOccupied()) {
-                    int required = (arena.getSize() - arena.getQueueLength());
-                    sign.setLine(2, "Waiting for " + required);
-                    sign.setLine(3, "more player" + (required == 1 ? "" : "s"));
-                } else {
-                    int waiting = arena.getQueueLength();
-                    sign.setLine(2, waiting + " player" + (waiting == 1 ? "" : "s"));
-                    sign.setLine(3, "currently waiting");
-                }
+                sign.setLine(2, ChatColor.ITALIC + "Click here to");
+                sign.setLine(3, ChatColor.ITALIC + "enter the queue");
             }
             sign.update();
         }

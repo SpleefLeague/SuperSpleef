@@ -10,7 +10,6 @@ import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -36,10 +35,10 @@ public class ConnectionListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if(sp.isIngame()) {
-            SuperSpleef.getInstance().getBattleManagerSpleef().getBattle(sp).removePlayer(sp);
+            SuperSpleef.getInstance().getBattleManager().getBattle(sp).removePlayer(sp);
         }
         else {
-            SuperSpleef.getInstance().getBattleManagerSpleef().dequeue(sp);
+            SuperSpleef.getInstance().getBattleManager().dequeue(sp);
         }
     }
 }

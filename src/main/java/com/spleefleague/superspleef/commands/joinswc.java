@@ -32,7 +32,7 @@ public class joinswc extends BasicCommand{
             sp.setJoinedSWC(true);
         }
         else {
-            success(p, "You left the SWC qualifiers! To rejoin, enter /joinswc again.");
+            error(p, "Please contact the staff if you do not want to participate in the SWC.");
         }
     }
 }

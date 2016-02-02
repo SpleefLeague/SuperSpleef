@@ -303,9 +303,9 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
             objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
         }
         String playerNames = "";
+        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
         FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
         FakeBlockHandler.addArea(field, false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
-        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
         
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
@@ -523,22 +523,17 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                         winnerSWCPoints += swcRating;
                         sp.setSwcRating(sp.getSwcRating() - swcRating);
                         sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sp.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
-                        //playerList += ChatColor.RED + sp.getName() + ChatColor.GREEN + " also lost " + ChatColor.GRAY + -swcRating + ChatColor.WHITE + " SWC points. ";
                     }
                 }
             }
             winner.setRating(winner.getRating() + winnerPoints);
             playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + " points. ";
-            if (winner.joinedSWC()) {
-                //playerList += ChatColor.RED + winner.getName() + ChatColor.GREEN + " also gets " + ChatColor.GRAY + winnerSWCPoints + ChatColor.WHITE + " SWC points. ";
+            if (winner.joinedSWC() && winnerSWCPoints != 0) {
                 winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
                 winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC points");
             }
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " is over. " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
         }
-//        else if (spleefMode == SpleefMode.MULTI) {
-//            
-//        }
     }
 
     private void saveGameHistory(SpleefPlayer winner) {

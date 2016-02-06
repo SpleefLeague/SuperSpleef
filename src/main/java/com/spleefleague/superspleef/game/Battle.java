@@ -171,7 +171,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
             data.get(sp).restoreOldData();
         }
         sp.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-        sp.teleport(SpleefLeague.getInstance().getSpawnLocation());
+        sp.teleport(SpleefLeague.getInstance().getSpawnManager().getNext().getLocation());
         slp.removeChatChannel(cc);
         slp.setState(PlayerState.IDLE);
         slp.resetVisibility();
@@ -303,9 +303,9 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
             objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
         }
         String playerNames = "";
-        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
+        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
+        FakeBlockHandler.addArea(field, false, players.toArray(new SpleefPlayer[players.size()]));
         FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
-        FakeBlockHandler.addArea(field, false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
         
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
@@ -457,8 +457,8 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         spawnCages.clear();
         spawnCages.add(getSpawnCageBlocks(Material.GLASS));
         FakeBlockHandler.update(spawnCages);
-    }
-    
+    }    
+
     private void removeSpawnCages() {
         spawnCages.clear();
         spawnCages.add(getSpawnCageBlocks(Material.AIR));

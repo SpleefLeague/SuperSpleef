@@ -26,7 +26,7 @@ public class multispleef extends BasicCommand {
 
     @Override
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
-        error(p, Theme.ERROR + "This command is currently disabled.");
+        error(p, "This command is currently disabled.");
 //        if (SuperSpleef.getInstance().queuesOpen()) {
 //            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
 //            BattleManager bm = SuperSpleef.getInstance().getBattleManagerMultiSpleef();

@@ -357,7 +357,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
-            sp.teleport(arena.getSpawns()[i]);
+            sp.teleport(arena.getSpawns()[i].clone().add(0, 0.3, 0));
         }
         hidePlayers();
         startClock();
@@ -415,6 +415,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
 
             public void onDone() {
                 for (SpleefPlayer sp : getActivePlayers()) {
+                    sp.teleport(getData(sp).getSpawn().clone().add(0, 0.3, 0));
                     sp.setFrozen(false);
                 }
                 removeSpawnCages();

@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.game;
 
 import com.mongodb.client.MongoCursor;
+import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.DBEntity;
 import com.spleefleague.core.io.DBLoad;
 import com.spleefleague.core.io.DBLoadable;
@@ -199,10 +200,10 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return queued;
     }
     
-    public Battle startBattle(List<SpleefPlayer> players) {
+    public Battle startBattle(List<SpleefPlayer> players, StartReason reason) {
         if(!isOccupied()) { //Shouldn't be necessary
             Battle battle = new Battle(this, players);
-            battle.start();
+            battle.start(reason);
             return battle;
         }
         return null;

@@ -9,6 +9,10 @@ import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.chat.ChatChannel;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
+import com.spleefleague.core.events.BattleEndEvent;
+import com.spleefleague.core.events.BattleEndEvent.EndReason;
+import com.spleefleague.core.events.BattleStartEvent;
+import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.listeners.FakeBlockHandler;
 import com.spleefleague.core.player.GeneralPlayer;
@@ -122,20 +126,21 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         resetPlayer(sp);
     }
 
-    public void removePlayer(SpleefPlayer sp) {
-        removePlayer(sp, sp.getName() + " has left the game!");
-    }
-
-    public void removePlayer(SpleefPlayer sp, String message) {
-        resetPlayer(sp);
+    public void removePlayer(SpleefPlayer sp, boolean surrender) {
         ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
+        if(!surrender) {
+            for (SpleefPlayer pl : activePlayers) {
+                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
+            }
+            for (SpleefPlayer pl : spectators) {
+                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
+            }
+        }
+        resetPlayer(sp);
         if (activePlayers.size() == 1) {
-            end(activePlayers.get(0));
+            end(activePlayers.get(0), surrender ? EndReason.SURRENDER : EndReason.QUIT);
         }
         else if (activePlayers.size() > 1) {
-            for (SpleefPlayer pl : activePlayers) {
-                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + message);
-            }
             if (spleefMode == SpleefMode.MULTI) {
                 players.remove(sp);
                 scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(activePlayers.size());
@@ -177,24 +182,28 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         slp.resetVisibility();
     }
 
-    public void end(SpleefPlayer winner) {
-        end(winner, arena.isRated());
-    }
-
-    public void end(SpleefPlayer winner, boolean rated) {
+    public void end(SpleefPlayer winner, EndReason reason) {
         saveGameHistory(winner);
-        if (spleefMode == SpleefMode.MULTI) {
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + ChatColor.GREEN + " won the MultiSpleef battle on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + "!", SuperSpleef.getInstance().getEndMessageChannel());
+        if(reason == EndReason.CANCEL) {
+            if(reason == EndReason.CANCEL) {
+                ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", cc);
+            }
         }
-        if (rated) {
-            applyRatingChange(winner);
-        }
-        for (SpleefPlayer sp : getActivePlayers()) {
-            resetPlayer(sp);
+        else if(reason != EndReason.ENDGAME) {
+            if (spleefMode == SpleefMode.MULTI) {
+                ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + ChatColor.GREEN + " won the MultiSpleef battle on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + "!", SuperSpleef.getInstance().getEndMessageChannel());
+            }
+            if(arena.isRated()) {
+                applyRatingChange(winner);
+            }
         }
         for (SpleefPlayer sp : new ArrayList<>(spectators)) {
             resetPlayer(sp);
         }
+        for (SpleefPlayer sp : getActivePlayers()) {
+            resetPlayer(sp);
+        }
+        Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
         cleanup();
     }
 
@@ -215,21 +224,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     public void cancel() {
-        cancel(true);
-    }
-
-    public void cancel(boolean sendMessage) {
-        saveGameHistory(null);
-        if (sendMessage) {
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", cc);
-        }
-        for (SpleefPlayer sp : new ArrayList<>(spectators)) {
-            resetPlayer(sp);
-        }
-        for (SpleefPlayer sp : getActivePlayers()) {
-            resetPlayer(sp);
-        }
-        cleanup();
+        end(null, EndReason.CANCEL);
     }
 
     public void onArenaLeave(SpleefPlayer player) {
@@ -252,13 +247,13 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                             startRound();
                         }
                         else {
-                            end(sp);
+                            end(sp, EndReason.NORMAL);
                         }
                     }
                 }
             }
             else if (spleefMode == SpleefMode.MULTI) {
-                removePlayer(player);
+                removePlayer(player, false);
                 for (SpleefPlayer sp : getActivePlayers()) {
                     if (sp != player) {
                         PlayerData playerdata = this.data.get(sp);
@@ -267,7 +262,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                 }
             }
             else {
-                this.cancel(false);
+                this.end(null, EndReason.CANCEL);
                 return;
             }
             if (arena.getScoreboards() != null) {
@@ -283,85 +278,89 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         }
     }
 
-    public void start() {
-        arena.registerGameStart();
-        if(arena.getScoreboards() != null) {
-            for(com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : arena.getScoreboards()) {
-                scoreboard.setScore(new int[arena.getSize()]);
-            }
-        }
-        GameSign.updateGameSigns(arena);
-        ChatManager.registerChannel(cc);
-        SuperSpleef.getInstance().getBattleManager().add(this);
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        if (spleefMode == SpleefMode.MULTI) {
-            objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Players:");
-        }
-        else {
-            objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
-        }
-        String playerNames = "";
-        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
-        FakeBlockHandler.addArea(field, false, players.toArray(new SpleefPlayer[players.size()]));
-        FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
-        
-        for (int i = 0; i < players.size(); i++) {
-            SpleefPlayer sp = players.get(i);
-            if (i == 0) {
-                playerNames = ChatColor.RED + sp.getName();
-            }
-            else if (i == players.size() - 1) {
-                playerNames += ChatColor.GREEN + " and " + ChatColor.RED + sp.getName();
-            }
-            else {
-                playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
-            }
-            Player p = sp.getPlayer();
-            GamePlugin.unspectateGlobal(p);
-            GamePlugin.dequeueGlobal(p);
-            SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
-            this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
-            p.eject();
-            p.teleport(arena.getSpawns()[i]);
-            p.setHealth(p.getMaxHealth());
-            p.setFoodLevel(20);
-            sp.setIngame(true);
-            sp.setFrozen(true);
-            sp.setRequestingReset(false);
-            p.setScoreboard(scoreboard);
-            p.setGameMode(GameMode.SURVIVAL);
-            p.closeInventory();
-            p.getInventory().clear();
-            p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
-            for (PotionEffect effect : p.getActivePotionEffects()) {
-                p.removePotionEffect(effect.getType());
-            }
-            for (SpleefPlayer sp1 : players) {
-                if (sp != sp1) {
-                    sp.showPlayer(sp1.getPlayer());
+    public void start(StartReason reason) {
+        BattleStartEvent event = new BattleStartEvent(this, reason);
+        Bukkit.getPluginManager().callEvent(event);
+        if(!event.isCancelled()) {
+            arena.registerGameStart();
+            if(arena.getScoreboards() != null) {
+                for(com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : arena.getScoreboards()) {
+                    scoreboard.setScore(new int[arena.getSize()]);
                 }
             }
-            p.setFlying(false);
-            p.setAllowFlight(false);
-            slp.addChatChannel(cc);
-            if (spleefMode == SpleefMode.NORMAL) {
-                scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
+            GameSign.updateGameSigns(arena);
+            ChatManager.registerChannel(cc);
+            SuperSpleef.getInstance().getBattleManager().add(this);
+            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+            Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            if (spleefMode == SpleefMode.MULTI) {
+                objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Players:");
             }
-            slp.setState(PlayerState.INGAME);
+            else {
+                objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
+            }
+            String playerNames = "";
+            FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
+            FakeBlockHandler.addArea(field, false, players.toArray(new SpleefPlayer[players.size()]));
+            FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
+
+            for (int i = 0; i < players.size(); i++) {
+                SpleefPlayer sp = players.get(i);
+                if (i == 0) {
+                    playerNames = ChatColor.RED + sp.getName();
+                }
+                else if (i == players.size() - 1) {
+                    playerNames += ChatColor.GREEN + " and " + ChatColor.RED + sp.getName();
+                }
+                else {
+                    playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
+                }
+                Player p = sp.getPlayer();
+                GamePlugin.unspectateGlobal(p);
+                GamePlugin.dequeueGlobal(p);
+                SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
+                this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
+                p.eject();
+                p.teleport(arena.getSpawns()[i]);
+                p.setHealth(p.getMaxHealth());
+                p.setFoodLevel(20);
+                sp.setIngame(true);
+                sp.setFrozen(true);
+                sp.setRequestingReset(false);
+                p.setScoreboard(scoreboard);
+                p.setGameMode(GameMode.SURVIVAL);
+                p.closeInventory();
+                p.getInventory().clear();
+                p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
+                for (PotionEffect effect : p.getActivePotionEffects()) {
+                    p.removePotionEffect(effect.getType());
+                }
+                for (SpleefPlayer sp1 : players) {
+                    if (sp != sp1) {
+                        sp.showPlayer(sp1.getPlayer());
+                    }
+                }
+                p.setFlying(false);
+                p.setAllowFlight(false);
+                slp.addChatChannel(cc);
+                if (spleefMode == SpleefMode.NORMAL) {
+                    scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(data.get(sp).getPoints());
+                }
+                slp.setState(PlayerState.INGAME);
+            }
+            if (spleefMode == SpleefMode.MULTI) {
+                scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(getActivePlayers().size());
+            }
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
+            for (int i = 0; i < players.size(); i++) {
+                SpleefPlayer sp = players.get(i);
+                sp.teleport(arena.getSpawns()[i].clone().add(0, 0.3, 0));
+            }
+            hidePlayers();
+            startClock();
+            startRound();
         }
-        if (spleefMode == SpleefMode.MULTI) {
-            scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(getActivePlayers().size());
-        }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
-        for (int i = 0; i < players.size(); i++) {
-            SpleefPlayer sp = players.get(i);
-            sp.teleport(arena.getSpawns()[i].clone().add(0, 0.3, 0));
-        }
-        hidePlayers();
-        startClock();
-        startRound();
     }
     
     private void hidePlayers() {
@@ -539,7 +538,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
 
     private void saveGameHistory(SpleefPlayer winner) {
         GameHistory gh = new GameHistory(this, winner);
-        EntityBuilder.save(gh, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory"));
+        Bukkit.getScheduler().runTaskAsynchronously(SuperSpleef.getInstance(), () -> EntityBuilder.save(gh, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory")));
     }
 
     public PlayerData getData(SpleefPlayer sp) {

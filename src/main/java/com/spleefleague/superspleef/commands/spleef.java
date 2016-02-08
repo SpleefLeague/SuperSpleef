@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.commands;
 
 import com.spleefleague.core.command.BasicCommand;
+import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
@@ -82,7 +83,7 @@ public class spleef extends BasicCommand {
                                             return;
                                         }
                                     }
-                                    arena.startBattle(players);
+                                    arena.startBattle(players, StartReason.FORCE);
                                     success(p, "You started a battle on the arena " + arena.getName());
                                 }
                                 else {

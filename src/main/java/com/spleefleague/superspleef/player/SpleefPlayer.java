@@ -24,7 +24,7 @@ import org.bson.Document;
  *
  * @author Jonas
  */
-public class SpleefPlayer extends GeneralPlayer implements RatedPlayer {
+public class SpleefPlayer extends RatedPlayer {
     
     private int rating, swcRating;
     private boolean ingame, frozen, requestingReset, requestingEndgame, joinedSWC;

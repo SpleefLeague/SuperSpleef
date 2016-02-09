@@ -8,7 +8,6 @@ package com.spleefleague.superspleef.player;
 import com.spleefleague.core.io.DBLoad;
 import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.Settings;
-import com.spleefleague.core.player.GeneralPlayer;
 import com.spleefleague.core.queue.RatedPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;

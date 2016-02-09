@@ -127,9 +127,8 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     public void removePlayer(SpleefPlayer sp, boolean surrender) {
-        ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
         if(!surrender) {
-            for (SpleefPlayer pl : activePlayers) {
+            for (SpleefPlayer pl : getActivePlayers()) {
                 pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
             }
             for (SpleefPlayer pl : spectators) {
@@ -137,6 +136,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
             }
         }
         resetPlayer(sp);
+        ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
         if (activePlayers.size() == 1) {
             end(activePlayers.get(0), surrender ? EndReason.SURRENDER : EndReason.QUIT);
         }

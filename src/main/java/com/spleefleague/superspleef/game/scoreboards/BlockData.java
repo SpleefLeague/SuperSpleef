@@ -19,22 +19,22 @@ import org.bukkit.block.Block;
  */
 public class BlockData extends DBEntity implements DBLoadable, DBSaveable {
 
-        @DBLoad(fieldName = "material")
-        private Material material;
-        @DBLoad(fieldName = "data")
-        private int data;
+    @DBLoad(fieldName = "material")
+    private Material material;
+    @DBLoad(fieldName = "data")
+    private int data;
 
-        public Material getType() {
-            return material;
-        }
-
-        public byte getData() {
-            return (byte) data;
-        }
-
-        public void setBlockAt(Location loc) {
-            Block b = loc.getBlock();
-            b.setType(getType());
-            b.setData(getData());
-        }
+    public Material getType() {
+        return material;
     }
+
+    public byte getData() {
+        return (byte) data;
+    }
+
+    public void setBlockAt(Location loc) {
+        Block b = loc.getBlock();
+        b.setType(getType());
+        b.setData(getData());
+    }
+}

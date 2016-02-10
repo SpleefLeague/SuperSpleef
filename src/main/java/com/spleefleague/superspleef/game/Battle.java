@@ -22,6 +22,7 @@ import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.utils.FakeArea;
 import com.spleefleague.core.utils.FakeBlock;
+import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -51,7 +52,7 @@ import org.bukkit.scoreboard.Scoreboard;
  */
 public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefPlayer> {
 
-    private final Arena arena;
+private final Arena arena;
     private final List<SpleefPlayer> players, spectators;
     private final Map<SpleefPlayer, PlayerData> data;
     private final ChatChannel cc;
@@ -322,7 +323,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                 SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
                 this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
                 p.eject();
-                p.teleport(arena.getSpawns()[i]);
+//                p.teleport(arena.getSpawns()[i]);
                 p.setHealth(p.getMaxHealth());
                 p.setFoodLevel(20);
                 sp.setIngame(true);
@@ -349,14 +350,11 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                 }
                 slp.setState(PlayerState.INGAME);
             }
+            PlayerUtil.teleportBulk(10, arena.getSpawns(), GeneralPlayer.toBukkitPlayer(players.toArray(new GeneralPlayer[0])));
             if (spleefMode == SpleefMode.MULTI) {
                 scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(getActivePlayers().size());
             }
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
-            for (int i = 0; i < players.size(); i++) {
-                SpleefPlayer sp = players.get(i);
-                sp.teleport(arena.getSpawns()[i].clone().add(0, 0.3, 0));
-            }
             hidePlayers();
             startClock();
             startRound();

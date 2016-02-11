@@ -52,7 +52,7 @@ import org.bukkit.scoreboard.Scoreboard;
  */
 public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefPlayer> {
 
-private final Arena arena;
+    private final Arena arena;
     private final List<SpleefPlayer> players, spectators;
     private final Map<SpleefPlayer, PlayerData> data;
     private final ChatChannel cc;
@@ -323,7 +323,7 @@ private final Arena arena;
                 SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
                 this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
                 p.eject();
-//                p.teleport(arena.getSpawns()[i]);
+                p.teleport(arena.getSpawns()[i]);
                 p.setHealth(p.getMaxHealth());
                 p.setFoodLevel(20);
                 sp.setIngame(true);
@@ -350,7 +350,6 @@ private final Arena arena;
                 }
                 slp.setState(PlayerState.INGAME);
             }
-            PlayerUtil.teleportBulk(10, arena.getSpawns(), GeneralPlayer.toBukkitPlayer(players.toArray(new GeneralPlayer[0])));
             if (spleefMode == SpleefMode.MULTI) {
                 scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(getActivePlayers().size());
             }

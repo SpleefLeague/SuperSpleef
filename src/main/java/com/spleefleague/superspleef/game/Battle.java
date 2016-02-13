@@ -280,6 +280,10 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     public void start(StartReason reason) {
+        for(SpleefPlayer player : players) {
+            GamePlugin.unspectateGlobal(player);
+            GamePlugin.dequeueGlobal(player);    
+        }
         BattleStartEvent event = new BattleStartEvent(this, reason);
         Bukkit.getPluginManager().callEvent(event);
         if(!event.isCancelled()) {
@@ -318,8 +322,6 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                     playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
                 }
                 Player p = sp.getPlayer();
-                GamePlugin.unspectateGlobal(p);
-                GamePlugin.dequeueGlobal(p);
                 SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
                 this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
                 p.eject();
@@ -354,6 +356,8 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                 scoreboard.getObjective("rounds").getScore(ChatColor.GREEN + "Players:").setScore(getActivePlayers().size());
             }
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
+            getSpawnCageBlocks();
+            FakeBlockHandler.addArea(spawnCages, false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
             hidePlayers();
             startClock();
             startRound();
@@ -451,23 +455,23 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     private void createSpawnCages() {
-        spawnCages.clear();
-        spawnCages.add(getSpawnCageBlocks(Material.GLASS));
+        for(FakeBlock block : spawnCages.getBlocks()) {
+            block.setType(Material.GLASS);
+        }
         FakeBlockHandler.update(spawnCages);
     }    
 
     private void removeSpawnCages() {
-        spawnCages.clear();
-        spawnCages.add(getSpawnCageBlocks(Material.AIR));
+        for(FakeBlock block : spawnCages.getBlocks()) {
+            block.setType(Material.AIR);
+        }
         FakeBlockHandler.update(spawnCages);
     }
     
-    private FakeArea getSpawnCageBlocks(Material m) {
-        FakeArea area = new FakeArea();
+    private void getSpawnCageBlocks() {
         for(Location spawn : arena.getSpawns()) {
-            area.add(getCageBlocks(spawn, m));
+            spawnCages.add(getCageBlocks(spawn, Material.AIR));
         }
-        return area;
     }
     
     private FakeArea getCageBlocks(Location loc, Material m) {

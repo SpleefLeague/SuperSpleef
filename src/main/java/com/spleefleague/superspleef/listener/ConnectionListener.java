@@ -5,11 +5,25 @@
  */
 package com.spleefleague.superspleef.listener;
 
+import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.PlayerInfoData;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
+import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.player.GeneralPlayer;
+import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.Battle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -40,5 +54,33 @@ public class ConnectionListener implements Listener {
         else {
             SuperSpleef.getInstance().getBattleManager().dequeue(sp);
         }
+    }
+    
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        List<Player> ingamePlayers = new ArrayList<>();
+        for(Battle battle : SuperSpleef.getInstance().getBattleManager().getAll()) {
+            for(SpleefPlayer p : battle.getActivePlayers()) {
+                event.getPlayer().hidePlayer(p.getPlayer());
+                p.getPlayer().hidePlayer(event.getPlayer());
+                ingamePlayers.add(p.getPlayer());
+            }
+        }
+        Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
+            List<PlayerInfoData> list = new ArrayList<>();
+            SpleefLeague.getInstance().getPlayerManager().getAll().forEach((SLPlayer slPlayer) -> list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(slPlayer.getPlayer()), ((CraftPlayer) slPlayer.getPlayer()).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(slPlayer.getRank().getColor() + slPlayer.getName()))));
+            WrapperPlayServerPlayerInfo packet = new WrapperPlayServerPlayerInfo();
+            packet.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
+            packet.setData(list);
+            ingamePlayers.forEach((Player p) -> packet.sendPacket(p));
+
+            list.clear();
+            ingamePlayers.forEach((Player p) -> {
+                SLPlayer generalPlayer = SpleefLeague.getInstance().getPlayerManager().get(p);
+                list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p), ((CraftPlayer)p).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
+            });
+            packet.setData(list);
+            packet.sendPacket(event.getPlayer());
+        },10);
     }
 }

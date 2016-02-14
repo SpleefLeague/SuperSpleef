@@ -5,6 +5,11 @@
  */
 package com.spleefleague.superspleef.game;
 
+import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.PlayerInfoData;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.chat.ChatChannel;
 import com.spleefleague.core.chat.ChatManager;
@@ -38,6 +43,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -124,6 +130,28 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     public void removeSpectator(SpleefPlayer sp) {
+        List<Player> ingamePlayers = new ArrayList<>();
+        for(SpleefPlayer p : getActivePlayers()) {
+            sp.getPlayer().hidePlayer(p.getPlayer());
+            p.getPlayer().hidePlayer(sp.getPlayer());
+            ingamePlayers.add(p.getPlayer());
+        }
+        Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
+            List<PlayerInfoData> list = new ArrayList<>();
+            SpleefLeague.getInstance().getPlayerManager().getAll().forEach((SLPlayer slPlayer) -> list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(slPlayer.getPlayer()), ((CraftPlayer) slPlayer.getPlayer()).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(slPlayer.getRank().getColor() + slPlayer.getName()))));
+            WrapperPlayServerPlayerInfo packet = new WrapperPlayServerPlayerInfo();
+            packet.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
+            packet.setData(list);
+            ingamePlayers.forEach((Player p) -> packet.sendPacket(p));
+
+            list.clear();
+            ingamePlayers.forEach((Player p) -> {
+                SLPlayer generalPlayer = SpleefLeague.getInstance().getPlayerManager().get(p);
+                list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p), ((CraftPlayer)p).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
+            });
+            packet.setData(list);
+            packet.sendPacket(sp.getPlayer());
+        },10);
         resetPlayer(sp);
     }
 

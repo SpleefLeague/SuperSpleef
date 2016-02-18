@@ -36,6 +36,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.NBTTagList;
+import net.minecraft.server.v1_8_R3.NBTTagString;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -44,6 +47,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -108,7 +112,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
         FakeBlockHandler.addArea(spawnCages, sp.getPlayer());
-        FakeBlockHandler.addArea(field, false, sp.getPlayer());
+        FakeBlockHandler.addArea(field, sp.getPlayer());
         FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, sp.getPlayer());
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
@@ -360,10 +364,10 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                 sp.setFrozen(true);
                 sp.setRequestingReset(false);
                 p.setScoreboard(scoreboard);
-                p.setGameMode(GameMode.SURVIVAL);
+                p.setGameMode(GameMode.ADVENTURE);
                 p.closeInventory();
                 p.getInventory().clear();
-                p.getInventory().addItem(new ItemStack(Material.DIAMOND_SPADE));
+                p.getInventory().addItem(getShovel());
                 for (PotionEffect effect : p.getActivePotionEffects()) {
                     p.removePotionEffect(effect.getType());
                 }
@@ -576,6 +580,17 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
 
     public int getDuration() {
         return ticksPassed;
+    }
+    
+    private static ItemStack getShovel() {
+        net.minecraft.server.v1_8_R3.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.DIAMOND_SPADE));
+        NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
+        NBTTagList list = new NBTTagList();
+        list.add(new NBTTagString("minecraft:snow"));
+        tag.set("CanDestroy", list);
+        tag.setBoolean("Unbreakable", true);
+        stack.setTag(tag);
+        return CraftItemStack.asBukkitCopy(stack);
     }
 
     public static class PlayerData {

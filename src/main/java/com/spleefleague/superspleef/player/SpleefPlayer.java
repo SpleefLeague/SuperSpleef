@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.player;
 
 import com.spleefleague.core.io.DBLoad;
+import com.spleefleague.core.io.DBLoadable;
 import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.Settings;
 import com.spleefleague.core.queue.RatedPlayer;
@@ -15,6 +16,7 @@ import com.spleefleague.superspleef.game.Battle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.bson.Document;
 
@@ -121,7 +123,7 @@ public class SpleefPlayer extends RatedPlayer {
         if(SuperSpleef.getInstance().getBattleManager().isIngame(this)) {  
             return SuperSpleef.getInstance().getBattleManager().getBattle(this);
         }
-        return null;//SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(this);
+        return null;
     }
     
     public Set<Arena> getVisitedArenas() {

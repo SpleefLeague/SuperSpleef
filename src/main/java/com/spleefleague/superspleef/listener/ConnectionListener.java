@@ -11,7 +11,6 @@ import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.player.GeneralPlayer;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Battle;
@@ -59,12 +58,27 @@ public class ConnectionListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         List<Player> ingamePlayers = new ArrayList<>();
+        List<Battle> toCancel = new ArrayList<>();//Workaround
         for(Battle battle : SuperSpleef.getInstance().getBattleManager().getAll()) {
             for(SpleefPlayer p : battle.getActivePlayers()) {
-                event.getPlayer().hidePlayer(p.getPlayer());
-                p.getPlayer().hidePlayer(event.getPlayer());
-                ingamePlayers.add(p.getPlayer());
+                if(p.getPlayer() != null) {
+                    event.getPlayer().hidePlayer(p.getPlayer());
+                    p.getPlayer().hidePlayer(event.getPlayer());
+                    ingamePlayers.add(p.getPlayer());
+                }
+                else {
+                    toCancel.add(battle);
+                    break;
+                }
             }
+        }
+        for(Battle battle : toCancel) {
+            for(SpleefPlayer p : battle.getActivePlayers()) {
+                if(p.getPlayer() != null) {
+                    p.kickPlayer("An error has occured. Please reconnect");
+                }
+            }
+            SuperSpleef.getInstance().getBattleManager().remove(battle);
         }
         Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
             List<PlayerInfoData> list = new ArrayList<>();

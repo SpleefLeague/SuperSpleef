@@ -13,6 +13,7 @@ import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.command.CommandLoader;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
+import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.menus.SLMenu;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.GamePlugin;
@@ -205,10 +206,13 @@ public class SuperSpleef extends GamePlugin {
 
     @Override
     public void printStats(Player p) {
-        SpleefPlayer sjp = playerManager.get(p);
+        SpleefPlayer sp = playerManager.get(p);
+        p.sendMessage(Theme.INFO + p.getName() + "'s SWC stats");
+        p.sendMessage(Theme.ERROR + "SWC Rating: " + ChatColor.YELLOW + sp.getSwcRating());
+        p.sendMessage(Theme.ERROR + "SWC Rank: " + ChatColor.YELLOW + sp.getSwcRank());
         p.sendMessage(Theme.INFO + p.getName() + "'s Spleef stats");
-        p.sendMessage(Theme.INCOGNITO + "Rating: " + ChatColor.YELLOW + sjp.getRating());
-        p.sendMessage(Theme.INCOGNITO + "Rank: " + ChatColor.YELLOW + sjp.getRank());
+        p.sendMessage(Theme.INCOGNITO + "Rating: " + ChatColor.YELLOW + sp.getRating());
+        p.sendMessage(Theme.INCOGNITO + "Rank: " + ChatColor.YELLOW + sp.getRank());
     }
 
     @Override
@@ -241,6 +245,14 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void setQueueStatus(boolean open) {
         queuesOpen = open;
+    }
+    
+    @Override
+    public void syncSave(Player p) {
+        SpleefPlayer slp = playerManager.get(p);
+        if(slp != null) {
+            EntityBuilder.save(slp, getPluginDB().getCollection("Players"));
+        }
     }
     
     public boolean queuesOpen() {

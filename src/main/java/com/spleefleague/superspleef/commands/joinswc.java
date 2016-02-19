@@ -26,13 +26,7 @@ public class joinswc extends BasicCommand{
 
     @Override
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
-        if(!sp.joinedSWC()) {
-            success(p, "You successfully joined the SWC qualifiers! You need to win games to qualify for the groupstage.");
-            sp.setJoinedSWC(true);
-        }
-        else {
-            error(p, "Please contact the staff if you do not want to participate in the SWC.");
-        }
+        //Fake command, players can be stupid
+        success(p, "You successfully joined the SWC qualifiers! You need to win games to qualify for the groupstage.");
     }
 }

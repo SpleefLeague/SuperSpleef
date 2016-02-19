@@ -6,7 +6,6 @@
 package com.spleefleague.superspleef.player;
 
 import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.DBLoadable;
 import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.Settings;
 import com.spleefleague.core.queue.RatedPlayer;
@@ -16,7 +15,6 @@ import com.spleefleague.superspleef.game.Battle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.bson.Document;
 
@@ -55,9 +53,10 @@ public class SpleefPlayer extends RatedPlayer {
         this.joinedSWC = joinedSWC;
     }
     
+    //Everybody is joining automatically
     @DBSave(fieldName = "joinedSWC")
     public boolean joinedSWC() {
-        return joinedSWC;
+        return true;
     }
     
     @DBLoad(fieldName = "swcRating")
@@ -68,6 +67,10 @@ public class SpleefPlayer extends RatedPlayer {
     @DBSave(fieldName = "swcRating")
     public int getSwcRating() {
         return swcRating;
+    }
+    
+    public int getSwcRank() {
+        return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("swcRating", new Document("$gt", swcRating))) + 1;
     }
     
     @DBSave(fieldName = "visitedArenas")

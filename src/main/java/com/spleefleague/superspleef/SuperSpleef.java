@@ -18,6 +18,7 @@ import com.spleefleague.core.menus.SLMenu;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.BattleManager;
+import com.spleefleague.core.queue.RatedBattleManager;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
@@ -54,7 +55,7 @@ public class SuperSpleef extends GamePlugin {
     public void start() {
         instance = this;
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
-        this.battleManagerSpleef = new BattleManager<Arena, SpleefPlayer, Battle>() {
+        this.battleManagerSpleef = new RatedBattleManager<Arena, SpleefPlayer, Battle>() {
             @Override
             public void startBattle(Arena queue, List<SpleefPlayer> players) {
                 queue.startBattle(players, StartReason.QUEUE);
@@ -207,9 +208,11 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void printStats(Player p) {
         SpleefPlayer sp = playerManager.get(p);
-        p.sendMessage(Theme.INFO + p.getName() + "'s SWC stats");
-        p.sendMessage(Theme.ERROR + "SWC Rating: " + ChatColor.YELLOW + sp.getSwcRating());
-        p.sendMessage(Theme.ERROR + "SWC Rank: " + ChatColor.YELLOW + sp.getSwcRank());
+        if(!sp.isQualified()) {
+            p.sendMessage(Theme.INFO + p.getName() + "'s SWC stats");
+            p.sendMessage(Theme.ERROR + "SWC Rating: " + ChatColor.YELLOW + sp.getSwcRating());
+            p.sendMessage(Theme.ERROR + "SWC Rank: " + ChatColor.YELLOW + sp.getSwcRank());
+        }
         p.sendMessage(Theme.INFO + p.getName() + "'s Spleef stats");
         p.sendMessage(Theme.INCOGNITO + "Rating: " + ChatColor.YELLOW + sp.getRating());
         p.sendMessage(Theme.INCOGNITO + "Rank: " + ChatColor.YELLOW + sp.getRank());

@@ -13,6 +13,7 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Battle;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,8 @@ public class SpleefPlayer extends RatedPlayer {
     
     private int rating, swcRating;
     private boolean ingame, frozen, requestingReset, requestingEndgame, joinedSWC;
+    @DBLoad(fieldName = "qualified")
+    private boolean qualified = false;
     private Set<Arena> visitedArenas;
     
     public SpleefPlayer() {
@@ -46,6 +49,10 @@ public class SpleefPlayer extends RatedPlayer {
     
     public int getRank() {
         return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("rating", new Document("$gt", rating))) + 1;
+    }
+    
+    public boolean isQualified() {
+        return qualified;
     }
     
     @DBLoad(fieldName = "joinedSWC")
@@ -70,7 +77,7 @@ public class SpleefPlayer extends RatedPlayer {
     }
     
     public int getSwcRank() {
-        return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("swcRating", new Document("$gt", swcRating))) + 1;
+        return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("$and", Arrays.asList(new Document("qualified", new Document("$ne", true)), new Document("swcRating", new Document("$gt", swcRating))))) + 1;
     }
     
     @DBSave(fieldName = "visitedArenas")

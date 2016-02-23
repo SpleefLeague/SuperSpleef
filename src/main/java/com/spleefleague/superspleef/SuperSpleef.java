@@ -208,9 +208,11 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void printStats(Player p) {
         SpleefPlayer sp = playerManager.get(p);
-        p.sendMessage(Theme.INFO + p.getName() + "'s SWC stats");
-        p.sendMessage(Theme.ERROR + "SWC Rating: " + ChatColor.YELLOW + sp.getSwcRating());
-        p.sendMessage(Theme.ERROR + "SWC Rank: " + ChatColor.YELLOW + sp.getSwcRank());
+        if(!sp.isQualified()) {
+            p.sendMessage(Theme.INFO + p.getName() + "'s SWC stats");
+            p.sendMessage(Theme.ERROR + "SWC Rating: " + ChatColor.YELLOW + sp.getSwcRating());
+            p.sendMessage(Theme.ERROR + "SWC Rank: " + ChatColor.YELLOW + sp.getSwcRank());
+        }
         p.sendMessage(Theme.INFO + p.getName() + "'s Spleef stats");
         p.sendMessage(Theme.INCOGNITO + "Rating: " + ChatColor.YELLOW + sp.getRating());
         p.sendMessage(Theme.INCOGNITO + "Rank: " + ChatColor.YELLOW + sp.getRank());

@@ -10,7 +10,6 @@ import com.spleefleague.core.command.BasicCommand;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 

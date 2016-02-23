@@ -94,8 +94,7 @@ public class GameListener implements Listener {
         if(sp.isIngame()) {
             if(sp.getCurrentBattle().isInCountdown()) {
                 event.setCancelled(true);
-            }
-            else {
+            } else {
                 event.setCancelled(!strongContains(sp.getCurrentBattle().getField().getBlocks(), event.getBlock()));
             }
         }

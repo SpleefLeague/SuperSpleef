@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.commands;
 
 import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.command.BasicCommand;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.EntityBuilder;
@@ -21,9 +22,9 @@ import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+
+import java.util.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -185,8 +186,33 @@ public class spleef extends BasicCommand {
                         }
                     }
                     else {
-                        error(p, "The arnea " + args[1] + " does not exist.");
+                        error(p, "The arena " + args[1] + " does not exist.");
                     }
+                } else if(args.length > 0 && args[0].equalsIgnoreCase("points") && (slp.getRank() != null && slp.getRank().hasPermission(Rank.MODERATOR) || Collections.singletonList(Rank.MODERATOR).contains(slp.getRank()))) {
+                    if(args.length != 4 || !(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
+                        p.sendMessage(plugin.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + "Correct Usage: ");
+                        p.sendMessage(plugin.getChatPrefix() + " " + Theme.INCOGNITO.buildTheme(false) + "/s points <add|remove> <player> <points>");
+                        return;
+                    }
+                    Player player = Bukkit.getPlayer(args[2]);
+                    if(player == null) {
+                        error(p, args[2] + " isn't online!");
+                        return;
+                    }
+                    int points;
+                    try {
+                        points = Integer.valueOf(args[3]);
+                    } catch (Exception e) {
+                        error(p, "The points value must be a number!");
+                        return;
+                    }
+                    SpleefPlayer spleefPlayer = SuperSpleef.getInstance().getPlayerManager().get(player);
+                    if(args[1].equalsIgnoreCase("add")) {
+                        spleefPlayer.setRating(spleefPlayer.getRating() + points);
+                    } else {
+                        spleefPlayer.setRating(spleefPlayer.getRating() - points);
+                    }
+                    success(p, "You have " + (args[1].equalsIgnoreCase("add") ? "added " : "removed ") + points + " points " + (args[1].equalsIgnoreCase("add") ? "to " : "from ") + player.getName() + "!");
                 }
                 else {
                     sendUsage(p);

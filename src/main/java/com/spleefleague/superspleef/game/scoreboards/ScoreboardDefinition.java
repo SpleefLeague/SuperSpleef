@@ -13,8 +13,6 @@ import com.spleefleague.core.io.DBSaveable;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Arena;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.bson.Document;
@@ -49,7 +47,7 @@ public class ScoreboardDefinition extends DBEntity implements DBLoadable, DBSave
         return definitionMap.get(score);
     }
 
-    @DBLoad(fieldName = "definitions", typeConverter = ScoreDefinitionMapConverter.class)
+    //@DBLoad(fieldName = "definitions", typeConverter = ScoreDefinitionMapConverter.class)
     private void loadHashMap(HashMap<Integer, ScoreDefinition> definitions) {
         this.definitionMap = definitions;
         for (Integer score : definitions.keySet()) {

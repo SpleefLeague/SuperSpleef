@@ -47,7 +47,7 @@ public class ScoreboardDefinition extends DBEntity implements DBLoadable, DBSave
         return definitionMap.get(score);
     }
 
-    //@DBLoad(fieldName = "definitions", typeConverter = ScoreDefinitionMapConverter.class)
+    @DBLoad(fieldName = "definitions", typeConverter = ScoreDefinitionMapConverter.class)
     private void loadHashMap(HashMap<Integer, ScoreDefinition> definitions) {
         this.definitionMap = definitions;
         for (Integer score : definitions.keySet()) {

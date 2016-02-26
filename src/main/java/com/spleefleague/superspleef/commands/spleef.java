@@ -210,13 +210,13 @@ public class spleef extends BasicCommand {
                     SpleefPlayer spleefPlayer = SuperSpleef.getInstance().getPlayerManager().get(player);
                     if(args[1].equalsIgnoreCase("add")) {
                         if(swc) {
-                            spleefPlayer.setSwcRating(spleefPlayer.getSwcRank() + points);
+                            spleefPlayer.setSwcRating(spleefPlayer.getSwcRating() + points);
                         } else {
                             spleefPlayer.setRating(spleefPlayer.getRating() + points);
                         }
                     } else {
                         if(swc) {
-                            spleefPlayer.setRating(spleefPlayer.getRating() - points);
+                            spleefPlayer.setSwcRating(spleefPlayer.getSwcRating() - points);
                         } else {
                             spleefPlayer.setRating(spleefPlayer.getRating() - points);
                         }

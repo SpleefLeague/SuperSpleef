@@ -201,7 +201,7 @@ public class spleef extends BasicCommand {
                     }
                     int points;
                     try {
-                        points = Integer.valueOf(args[3]);
+                        points = Integer.valueOf(args[4]);
                     } catch (Exception e) {
                         error(p, "The points value must be a number!");
                         return;

@@ -216,6 +216,12 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     }
 
     public void end(SpleefPlayer winner, EndReason reason) {
+        for (SpleefPlayer sp : new ArrayList<>(spectators)) {
+            resetPlayer(sp);
+        }
+        for (SpleefPlayer sp : getActivePlayers()) {
+            resetPlayer(sp);
+        }
         saveGameHistory(winner);
         if(reason == EndReason.CANCEL) {
             if(reason == EndReason.CANCEL) {
@@ -229,12 +235,6 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
             if(arena.isRated()) {
                 applyRatingChange(winner);
             }
-        }
-        for (SpleefPlayer sp : new ArrayList<>(spectators)) {
-            resetPlayer(sp);
-        }
-        for (SpleefPlayer sp : getActivePlayers()) {
-            resetPlayer(sp);
         }
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
         cleanup();

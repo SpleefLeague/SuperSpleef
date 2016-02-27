@@ -188,7 +188,7 @@ public class spleef extends BasicCommand {
                     else {
                         error(p, "The arena " + args[1] + " does not exist.");
                     }
-                } else if(args.length > 0 && args[0].equalsIgnoreCase("points") && (slp.getRank() != null && slp.getRank().hasPermission(Rank.MODERATOR) || Collections.singletonList(Rank.MODERATOR).contains(slp.getRank()))) {
+                } else if(args.length > 0 && args[0].equalsIgnoreCase("points") && (slp.getRank() != null && slp.getRank().hasPermission(Rank.SENIOR_MODERATOR) || Collections.singletonList(Rank.MODERATOR).contains(slp.getRank()))) {
                     if(args.length != 5 || !(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
                         p.sendMessage(plugin.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + "Correct Usage: ");
                         p.sendMessage(plugin.getChatPrefix() + " " + Theme.INCOGNITO.buildTheme(false) + "/s points <add|remove> <player> <swc|normal> <points>");

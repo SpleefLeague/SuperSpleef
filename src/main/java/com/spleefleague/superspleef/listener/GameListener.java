@@ -12,16 +12,19 @@ import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
-import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Collection;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -71,9 +74,9 @@ public class GameListener implements Listener {
                 }
             }
             else {
-                Battle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
+                SpleefBattle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
                 Arena arena = battle.getArena();
-                if(!arena.getBorder().isInArea(sp.getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
+                if(event.getPlayer().getGameMode() != GameMode.SPECTATOR && !arena.getBorder().isInArea(sp.getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
                     battle.onArenaLeave(sp);
                 }
             }
@@ -111,6 +114,16 @@ public class GameListener implements Listener {
     @EventHandler
     public void onFood(FoodLevelChangeEvent event) {
         event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        if(event.getWhoClicked() instanceof Player) {
+            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get((Player)event.getWhoClicked());
+            if(sp.isIngame()) {
+                event.setCancelled(true);
+            }
+        }
     }
     
     private <T> boolean strongContains(Collection<T> col, T object) {

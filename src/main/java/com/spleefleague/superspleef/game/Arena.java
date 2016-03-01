@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -45,7 +46,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     
     @DBLoad(fieldName = "border")
     private Area border;
-    private Area field;
+    private Area[] fields;
     @DBLoad(fieldName = "spawns", typeConverter = TypeConverter.LocationConverter.class)
     private Location[] spawns;
     @DBLoad(fieldName = "creator")
@@ -71,6 +72,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private Area area;
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.NORMAL;
+    private ObjectId sharedField;
+    
     private int runningGames = 0;
     private FakeArea defaultSnow;
     
@@ -88,17 +91,41 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     }
     
     @DBLoad(fieldName = "field")
-    public void setField(Area field) {
-        this.field = field;
-        defaultSnow = new FakeArea();
-        for(Block block : field.getBlocks()) {
-            defaultSnow.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
+    public void setField(Area[] field) {
+        this.fields = field;
+        if(sharedField != null) {
+            defaultSnow = new FakeArea();
+            for(Arena arena : Arena.getAll()) {
+                if(arena.getObjectId().equals(sharedField)) {
+                    defaultSnow = arena.getDefaultSnow();
+                    break;
+                }
+            }
+        }
+        if(defaultSnow == null) {
+            defaultSnow = new FakeArea();
+            for(Area f : fields) {
+                for(Block block : f.getBlocks()) {
+                    defaultSnow.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
+                }
+            }
         }
         FakeBlockHandler.addArea(defaultSnow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
     }
     
-    public Area getField() {
-        return field;
+    @DBLoad(fieldName = "sharedField")
+    public void setSharedField(ObjectId sharedField) {
+        for(Arena arena : Arena.getAll()) {
+            if(arena.getObjectId().equals(sharedField)) {
+                defaultSnow = arena.getDefaultSnow();
+                fields = arena.getField();
+                break;
+            }
+        }
+    }
+    
+    public Area[] getField() {
+        return fields;
     }
     
     public Location getSpectatorSpawn() {
@@ -200,9 +227,9 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return queued;
     }
     
-    public Battle startBattle(List<SpleefPlayer> players, StartReason reason) {
+    public SpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
         if(!isOccupied()) { //Shouldn't be necessary
-            Battle battle = new Battle(this, players);
+            SpleefBattle battle = new NormalSpleefBattle(this, players);
             battle.start(reason);
             return battle;
         }
@@ -223,13 +250,13 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return arena;
     }
     
-    public static Collection<Arena> getAll() {
+    public static Collection<? extends Arena> getAll() {
         return arenas.values();
     }
     
     public static void init(){
         arenas = new HashMap<>();
-        MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find().iterator();
+        MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
         while(dbc.hasNext()) {
             Arena arena = EntityBuilder.load(dbc.next(), Arena.class);
             arenas.put(arena.getName(), arena);

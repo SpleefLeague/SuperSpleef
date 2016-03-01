@@ -22,7 +22,8 @@ import com.spleefleague.core.queue.RatedBattleManager;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
-import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefBattle;
+import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.listener.ConnectionListener;
 import com.spleefleague.superspleef.listener.EnvironmentListener;
@@ -43,7 +44,7 @@ public class SuperSpleef extends GamePlugin {
 
     private static SuperSpleef instance;
     private PlayerManager<SpleefPlayer> playerManager;
-    private BattleManager<Arena, SpleefPlayer, Battle> battleManagerSpleef;
+    private BattleManager<Arena, SpleefPlayer, SpleefBattle> battleManagerSpleef;
     private boolean queuesOpen = true;
     private ChatChannel start, end;
     
@@ -55,13 +56,14 @@ public class SuperSpleef extends GamePlugin {
     public void start() {
         instance = this;
         this.playerManager = new PlayerManager(this, SpleefPlayer.class);
-        this.battleManagerSpleef = new RatedBattleManager<Arena, SpleefPlayer, Battle>() {
+        this.battleManagerSpleef = new RatedBattleManager<Arena, SpleefPlayer, SpleefBattle>() {
             @Override
             public void startBattle(Arena queue, List<SpleefPlayer> players) {
                 queue.startBattle(players, StartReason.QUEUE);
             }
         };
         Arena.init();
+        TeamSpleefArena.init();
         createGameMenu();
         start = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_START");
         end = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_END");
@@ -75,7 +77,7 @@ public class SuperSpleef extends GamePlugin {
     
     @Override
     public void stop() {
-        for(Battle battle : battleManagerSpleef.getAll()) {
+        for(SpleefBattle battle : battleManagerSpleef.getAll()) {
             battle.cancel();
         }
         playerManager.saveAll();
@@ -90,7 +92,7 @@ public class SuperSpleef extends GamePlugin {
         return playerManager;
     }
     
-    public BattleManager<Arena, SpleefPlayer, Battle> getBattleManager() {
+    public BattleManager<Arena, SpleefPlayer, SpleefBattle> getBattleManager() {
         return battleManagerSpleef;
     }
     
@@ -123,7 +125,7 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void unspectate(Player p) {
         SpleefPlayer sjp = getPlayerManager().get(p);
-        for(Battle battle : getBattleManager().getAll()) {
+        for(SpleefBattle battle : getBattleManager().getAll()) {
             if(battle.isSpectating(sjp)) {
                 battle.removeSpectator(sjp);
             }
@@ -138,7 +140,7 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public boolean isSpectating(Player p) {
         SpleefPlayer sjp = getPlayerManager().get(p);
-        for(Battle battle : getBattleManager().getAll()) {
+        for(SpleefBattle battle : getBattleManager().getAll()) {
             if(battle.isSpectating(sjp)) {
                 return true;
             }
@@ -161,7 +163,7 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void cancel(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        Battle battle = getBattleManager().getBattle(sp);
+        SpleefBattle battle = getBattleManager().getBattle(sp);
 //        if(battle == null) {
 //            battle = getBattleManagerMultiSpleef().getBattle(sp);
 //        }
@@ -174,7 +176,7 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void surrender(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
-        Battle battle = getBattleManager().getBattle(sp);
+        SpleefBattle battle = getBattleManager().getBattle(sp);
 //        if(battle == null) {
 //            battle = getBattleManagerMultiSpleef().getBattle(sp);
 //        }
@@ -200,7 +202,7 @@ public class SuperSpleef extends GamePlugin {
     
     @Override
     public void cancelAll() {
-        for(Battle battle : new ArrayList<>(battleManagerSpleef.getAll())) {
+        for(SpleefBattle battle : new ArrayList<>(battleManagerSpleef.getAll())) {
             battle.cancel();
         }
     }
@@ -221,7 +223,7 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public void requestEndgame(Player p) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
-        Battle battle = sp.getCurrentBattle();
+        SpleefBattle battle = sp.getCurrentBattle();
         if (battle != null) {
             sp.setRequestingEndgame(true);
             boolean shouldEnd = true;

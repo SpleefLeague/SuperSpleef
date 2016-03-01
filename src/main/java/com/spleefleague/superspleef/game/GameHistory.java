@@ -33,7 +33,7 @@ public class GameHistory extends DBEntity implements DBSaveable {
     @DBSave(fieldName = "arena")
     private final String arena;
 
-    protected GameHistory(Battle battle, SpleefPlayer winner) {
+    protected GameHistory(SpleefBattle battle, SpleefPlayer winner) {
         this.cancelled = winner == null;
         players = new PlayerData[battle.getPlayers().size()];
         Collection<SpleefPlayer> activePlayers = battle.getActivePlayers();

@@ -11,7 +11,7 @@ import com.spleefleague.core.io.Settings;
 import com.spleefleague.core.queue.RatedPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
-import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -60,7 +60,6 @@ public class SpleefPlayer extends RatedPlayer {
         this.joinedSWC = joinedSWC;
     }
     
-    //Everybody is joining automatically
     @DBSave(fieldName = "joinedSWC")
     public boolean joinedSWC() {
         return true;
@@ -84,7 +83,9 @@ public class SpleefPlayer extends RatedPlayer {
     private List<String> saveVisitedArenas() {
         List<String> arenaNames = new ArrayList<>();
         for(Arena arena : visitedArenas) {
-            arenaNames.add(arena.getName());
+            if(arena != null) {
+                arenaNames.add(arena.getName());
+            }
         }
         return arenaNames;
     }
@@ -93,7 +94,9 @@ public class SpleefPlayer extends RatedPlayer {
     private void loadVisitedArenas(List<String> arenaNames) {
         for(String name : arenaNames) {
             Arena arena = Arena.byName(name);
-            if(arena != null) visitedArenas.add(arena);
+            if(arena != null) {
+                visitedArenas.add(arena);
+            }
         }
     }
     
@@ -129,7 +132,7 @@ public class SpleefPlayer extends RatedPlayer {
         return requestingEndgame;
     }
     
-    public Battle getCurrentBattle() {
+    public SpleefBattle getCurrentBattle() {
         if(SuperSpleef.getInstance().getBattleManager().isIngame(this)) {  
             return SuperSpleef.getInstance().getBattleManager().getBattle(this);
         }

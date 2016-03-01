@@ -12,7 +12,7 @@ import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
-import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +46,7 @@ public class GameSign extends DBEntity implements  DBLoadable{
     private void setArena(String name) {
         arena = Arena.byName(name);
         if(signs.get(arena) == null) {
-            signs.put(arena, new HashSet<GameSign>());
+            signs.put(arena, new HashSet<>());
         }
         signs.get(arena).add(this);
     }
@@ -69,7 +69,7 @@ public class GameSign extends DBEntity implements  DBLoadable{
         return arena;
     }
     
-    public Battle getBattle() {
+    public SpleefBattle getBattle() {
         if(arena.getSpleefMode() == SpleefMode.NORMAL) {
             return SuperSpleef.getInstance().getBattleManager().getBattle(arena);
         }

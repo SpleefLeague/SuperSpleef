@@ -13,7 +13,7 @@ import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +58,8 @@ public class ConnectionListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         List<Player> ingamePlayers = new ArrayList<>();
-        List<Battle> toCancel = new ArrayList<>();//Workaround
-        for(Battle battle : SuperSpleef.getInstance().getBattleManager().getAll()) {
+        List<SpleefBattle> toCancel = new ArrayList<>();//Workaround
+        for(SpleefBattle battle : SuperSpleef.getInstance().getBattleManager().getAll()) {
             for(SpleefPlayer p : battle.getActivePlayers()) {
                 if(p.getPlayer() != null) {
                     event.getPlayer().hidePlayer(p.getPlayer());
@@ -72,7 +72,7 @@ public class ConnectionListener implements Listener {
                 }
             }
         }
-        for(Battle battle : toCancel) {
+        for(SpleefBattle battle : toCancel) {
             for(SpleefPlayer p : battle.getActivePlayers()) {
                 if(p.getPlayer() != null) {
                     p.kickPlayer("An error has occured. Please reconnect");

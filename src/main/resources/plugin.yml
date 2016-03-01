@@ -11,6 +11,11 @@ commands:
         aliases: [s]
         usage: |
           /<command> [arena]
+    teamspleef:
+        description: SuperSpleef queue command
+        aliases: [s]
+        usage: |
+          /<command> [arena]
     multispleef:
         description: MultiSpleef queue command
         aliases: [ms]

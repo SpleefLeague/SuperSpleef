@@ -12,7 +12,7 @@ import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Battle;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,7 +35,7 @@ public class reset extends BasicCommand {
         if(slp.getState() == PlayerState.INGAME) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
             sp.setRequestingReset(true);
-            Battle battle = sp.getCurrentBattle();
+            SpleefBattle battle = sp.getCurrentBattle();
             int requesting = 0, total = 0;
             for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                 if(spleefplayer.isRequestingReset()) {
@@ -64,7 +64,7 @@ public class reset extends BasicCommand {
                 Player player = Bukkit.getPlayer(args[0]);
                 if(player != null) {
                     SpleefPlayer target = SuperSpleef.getInstance().getPlayerManager().get(player);
-                    Battle battle = target.getCurrentBattle();
+                    SpleefBattle battle = target.getCurrentBattle();
                     if(battle != null) {
                         battle.resetField();
                         for(SpleefPlayer spleefplayer : battle.getActivePlayers()) {

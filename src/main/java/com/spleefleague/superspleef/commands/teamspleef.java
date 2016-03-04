@@ -6,7 +6,6 @@
 package com.spleefleague.superspleef.commands;
 
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.command.BasicCommand;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.EntityBuilder;
@@ -15,10 +14,8 @@ import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.core.plugin.GamePlugin;
-import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.signs.GameSign;
@@ -27,7 +24,6 @@ import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.*;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -38,7 +34,7 @@ import org.bukkit.entity.Player;
 public class teamspleef extends BasicCommand {
 
     public teamspleef(CorePlugin plugin, String name, String usage) {
-        super(SuperSpleef.getInstance(), name, usage);
+        super(SuperSpleef.getInstance(), name, usage, Rank.MODERATOR);
     }
 
     @Override

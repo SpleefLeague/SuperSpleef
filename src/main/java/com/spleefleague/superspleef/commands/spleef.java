@@ -201,25 +201,16 @@ public class spleef extends BasicCommand {
                     }
                     int points;
                     try {
-                        points = Integer.valueOf(args[4]);
+                        points = Integer.valueOf(args[3]);
                     } catch (Exception e) {
                         error(p, "The points value must be a number!");
                         return;
                     }
-                    boolean swc = args[3].equalsIgnoreCase("swc");
                     SpleefPlayer spleefPlayer = SuperSpleef.getInstance().getPlayerManager().get(player);
                     if(args[1].equalsIgnoreCase("add")) {
-                        if(swc) {
-                            spleefPlayer.setSwcRating(spleefPlayer.getSwcRating() + points);
-                        } else {
-                            spleefPlayer.setRating(spleefPlayer.getRating() + points);
-                        }
+                        spleefPlayer.setRating(spleefPlayer.getRating() + points);
                     } else {
-                        if(swc) {
-                            spleefPlayer.setSwcRating(spleefPlayer.getSwcRating() - points);
-                        } else {
-                            spleefPlayer.setRating(spleefPlayer.getRating() - points);
-                        }
+                        spleefPlayer.setRating(spleefPlayer.getRating() - points);
                     }
                     success(p, "You have " + (args[1].equalsIgnoreCase("add") ? "added " : "removed ") + points + " points " + (args[1].equalsIgnoreCase("add") ? "to " : "from ") + player.getName() + "!");
                 }

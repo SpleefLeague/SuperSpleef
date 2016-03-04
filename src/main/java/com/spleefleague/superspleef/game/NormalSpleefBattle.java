@@ -145,24 +145,10 @@ public class NormalSpleefBattle extends SpleefBattle {
                 winnerPoints += rating;
                 sp.setRating(sp.getRating() - rating);
                 playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
-                if (winner.joinedSWC() && sp.joinedSWC()) {
-                    float swcElo = (float) (1f / (1f + Math.pow(2f, ((sp.getSwcRating() - winner.getSwcRating()) / 400f))));
-                    int swcRating = (int) Math.round(MAX_RATING * (1f - swcElo));
-                    if (swcRating < MIN_RATING) {
-                        swcRating = MIN_RATING;
-                    }
-                    winnerSWCPoints += swcRating;
-                    sp.setSwcRating(sp.getSwcRating() - swcRating);
-                    sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You lost " + ChatColor.GRAY + -swcRating + " (" + sp.getSwcRating() + ")" + ChatColor.GREEN + " SWC " + (-swcRating == 1 ? "point." : "points."));
-                }
             }
         }
         winner.setRating(winner.getRating() + winnerPoints);
         playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + (winnerPoints == 1 ? " point. " : " points. ");
-        if (winner.joinedSWC() && winnerSWCPoints != 0) {
-            winner.setSwcRating(winner.getSwcRating() + winnerSWCPoints);
-            winner.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.GRAY + winnerSWCPoints + " (" + winner.getSwcRating() + ")" + ChatColor.GREEN + " SWC " + (winnerSWCPoints == 1 ? "point." : "points."));
-        }
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over. " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
     }
 }

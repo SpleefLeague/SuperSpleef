@@ -26,10 +26,8 @@ import org.bson.Document;
  */
 public class SpleefPlayer extends RatedPlayer {
     
-    private int rating, swcRating;
-    private boolean ingame, frozen, requestingReset, requestingEndgame, joinedSWC;
-    @DBLoad(fieldName = "qualified")
-    private boolean qualified = false;
+    private int rating;
+    private boolean ingame, frozen, requestingReset, requestingEndgame;
     private Set<Arena> visitedArenas;
     
     public SpleefPlayer() {
@@ -49,34 +47,6 @@ public class SpleefPlayer extends RatedPlayer {
     
     public int getRank() {
         return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("rating", new Document("$gt", rating))) + 1;
-    }
-    
-    public boolean isQualified() {
-        return qualified;
-    }
-    
-    @DBLoad(fieldName = "joinedSWC")
-    public void setJoinedSWC(boolean joinedSWC) {
-        this.joinedSWC = joinedSWC;
-    }
-    
-    @DBSave(fieldName = "joinedSWC")
-    public boolean joinedSWC() {
-        return true;
-    }
-    
-    @DBLoad(fieldName = "swcRating")
-    public void setSwcRating(int swcRating) {
-        this.swcRating = (swcRating > 0) ? swcRating : 0;
-    }
-    
-    @DBSave(fieldName = "swcRating")
-    public int getSwcRating() {
-        return swcRating;
-    }
-    
-    public int getSwcRank() {
-        return (int)SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("$and", Arrays.asList(new Document("qualified", new Document("$ne", true)), new Document("swcRating", new Document("$gt", swcRating))))) + 1;
     }
     
     @DBSave(fieldName = "visitedArenas")
@@ -147,10 +117,8 @@ public class SpleefPlayer extends RatedPlayer {
     public void setDefaults() {
         super.setDefaults();
         this.rating = 1000;
-        this.swcRating = 1000;
         this.frozen = false;
         this.ingame = false;
-        this.joinedSWC = false;
         visitedArenas = new HashSet<>();
         for(String name : (List<String>)Settings.getList("default_arenas_spleef")) {
             visitedArenas.add(Arena.byName(name));

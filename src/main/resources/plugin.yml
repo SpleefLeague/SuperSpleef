@@ -25,7 +25,3 @@ commands:
         description: Resets the current spleef field
         usage:
             /<command> [player]
-    joinswc:
-        description: Join the SWC
-        usage:
-            /<command>

@@ -29,6 +29,7 @@ import com.spleefleague.core.utils.FakeArea;
 import com.spleefleague.core.utils.FakeBlock;
 import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.commands.playto;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
@@ -72,6 +73,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
     private boolean inCountdown = false;
     private final SpleefMode spleefMode;
     private final FakeArea spawnCages, field;
+    private int pointsCup = 0;
     
     protected Battle(Arena arena, List<SpleefPlayer> players) {
         this(arena, players, arena.getSpleefMode());
@@ -235,6 +237,7 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
         }
         for (SpleefPlayer sp : getActivePlayers()) {
             resetPlayer(sp);
+            playto.invalidate(sp);
         }
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
         cleanup();
@@ -271,7 +274,8 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
                         PlayerData playerdata = this.data.get(sp);
                         playerdata.increasePoints();
                         scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
-                        if (playerdata.getPoints() < arena.getMaxRating()) {
+                        int cup = pointsCup == 0 ? arena.getMaxRating() : pointsCup;
+                        if (playerdata.getPoints() < cup) {
                             int round = 0;
                             for (PlayerData pd : data.values()) {
                                 round += pd.getPoints();
@@ -580,6 +584,17 @@ public class Battle implements com.spleefleague.core.queue.Battle<Arena, SpleefP
 
     public int getDuration() {
         return ticksPassed;
+    }
+    
+    public void changePointsCup(int value) {
+        pointsCup = value;
+        for(SpleefPlayer sp : getActivePlayers()) {
+            PlayerData pd = this.data.get(sp);
+            if(pd.getPoints() >= pointsCup) {
+                end(sp, EndReason.NORMAL);
+                break;
+            }
+        }
     }
     
     private static ItemStack getShovel() {

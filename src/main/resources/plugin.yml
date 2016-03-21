@@ -24,3 +24,7 @@ commands:
         description: Join the SWC
         usage:
             /<command>
+    playto:
+        description: Changes amount of wins needed to be reached to completely win the game
+        usage:
+            /<command> [wins]

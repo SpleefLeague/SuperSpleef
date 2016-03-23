@@ -95,7 +95,6 @@ public class TeamSpleefBattle extends SpleefBattle {
             scoreboard.getObjective("rounds").getScore(team.getName()).setScore(0);
             for (SpleefPlayer sp : team.getAlivePlayers()) {
                 sp.setScoreboard(scoreboard);
-                sp.getInventory().setArmorContents(team.getArmor());
             }
         }
         setScoreboard(scoreboard);
@@ -177,6 +176,7 @@ public class TeamSpleefBattle extends SpleefBattle {
             SpleefPlayer sp = entry.getKey();
             entry.getValue().addPlayer(sp);
             sp.setGameMode(GameMode.ADVENTURE);
+            sp.getInventory().setArmorContents(entry.getValue().getArmor());
         }
         super.startRound();
     }
@@ -198,6 +198,7 @@ public class TeamSpleefBattle extends SpleefBattle {
                 player.setSpectatorTarget(target);
             }
         }
+        sp.getInventory().setArmorContents(new ItemStack[4]);
         sp.setGameMode(GameMode.SPECTATOR);
         sp.setSpectatorTarget(target);
     }

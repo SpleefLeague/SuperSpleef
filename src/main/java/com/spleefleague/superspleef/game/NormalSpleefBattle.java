@@ -25,14 +25,14 @@ import org.bukkit.scoreboard.Scoreboard;
  * @author Jonas
  */
 public class NormalSpleefBattle extends SpleefBattle {
-    
+
     protected NormalSpleefBattle(Arena arena, List<SpleefPlayer> players) {
         super(arena, players);
     }
-    
+
     @Override
     public void removePlayer(SpleefPlayer sp, boolean surrender) {
-        if(!surrender) {
+        if (!surrender) {
             for (SpleefPlayer pl : getActivePlayers()) {
                 pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
             }
@@ -53,13 +53,13 @@ public class NormalSpleefBattle extends SpleefBattle {
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
-        for(SpleefPlayer sp : getPlayers()) {
+        for (SpleefPlayer sp : getPlayers()) {
             scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(0);
-            sp.setScoreboard(scoreboard);    
+            sp.setScoreboard(scoreboard);
         }
         setScoreboard(scoreboard);
     }
-    
+
     @Override
     public void end(SpleefPlayer winner, EndReason reason) {
         for (SpleefPlayer sp : new ArrayList<>(getSpectators())) {
@@ -69,13 +69,12 @@ public class NormalSpleefBattle extends SpleefBattle {
             resetPlayer(sp);
         }
         saveGameHistory(winner);
-        if(reason == EndReason.CANCEL) {
-            if(reason == EndReason.CANCEL) {
+        if (reason == EndReason.CANCEL) {
+            if (reason == EndReason.CANCEL) {
                 ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", getGameChannel());
             }
-        }
-        else if(reason != EndReason.ENDGAME) {
-            if(getArena().isRated()) {
+        } else if (reason != EndReason.ENDGAME) {
+            if (getArena().isRated()) {
                 applyRatingChange(winner);
             }
         }
@@ -87,8 +86,7 @@ public class NormalSpleefBattle extends SpleefBattle {
     public void onArenaLeave(SpleefPlayer player) {
         if (isInCountdown()) {
             player.teleport(getData(player).getSpawn());
-        }
-        else {
+        } else {
             for (SpleefPlayer sp : getActivePlayers()) {
                 if (sp != player) {
                     PlayerData playerdata = getData(sp);
@@ -98,12 +96,11 @@ public class NormalSpleefBattle extends SpleefBattle {
                         setRound(getRound() + 1);
                         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + sp.getName() + " has won round " + getRound(), getGameChannel());
                         startRound();
-                    }
-                    else {
+                    } else {
                         end(sp, EndReason.NORMAL);
                     }
                 }
-                
+
             }
             if (getArena().getScoreboards() != null) {
                 int[] score = new int[getArena().getSize()];
@@ -111,13 +108,13 @@ public class NormalSpleefBattle extends SpleefBattle {
                 for (SpleefPlayer sp : getActivePlayers()) {
                     score[i++] = getData(sp).getPoints();
                 }
-                for(com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : getArena().getScoreboards()) {
+                for (com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : getArena().getScoreboards()) {
                     scoreboard.setScore(score);
                 }
             }
         }
     }
-    
+
     @Override
     protected void updateScoreboardTime() {
         if (getScoreboard() == null) {

@@ -13,7 +13,6 @@ import com.spleefleague.superspleef.SuperSpleef;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-
 /**
  *
  * @author Jonas

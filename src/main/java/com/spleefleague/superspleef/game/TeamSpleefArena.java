@@ -22,46 +22,46 @@ import org.bson.Document;
  * @author Jonas
  */
 public class TeamSpleefArena extends Arena {
-    
+
     @DBLoad(fieldName = "teamSizes")
     private int[] teamSizes;
-    
+
     public int[] getTeamSizes() {
         return teamSizes;
     }
-    
+
     @Override
     public TeamSpleefBattle startBattle(List<SpleefPlayer> players, BattleStartEvent.StartReason reason) {
-        if(!isOccupied()) { //Shouldn't be necessary
+        if (!isOccupied()) { //Shouldn't be necessary
             TeamSpleefBattle battle = new TeamSpleefBattle(this, players);
             battle.start(reason);
             return battle;
         }
         return null;
     }
-    
+
     private static Map<String, TeamSpleefArena> arenas;
-    
+
     public static TeamSpleefArena byName(String name) {
         TeamSpleefArena arena = arenas.get(name);
-        if(arena == null) {
-            for(TeamSpleefArena a : arenas.values()) {
-                if(a.getName().equalsIgnoreCase(name)) {
+        if (arena == null) {
+            for (TeamSpleefArena a : arenas.values()) {
+                if (a.getName().equalsIgnoreCase(name)) {
                     arena = a;
                 }
             }
         }
         return arena;
     }
-    
+
     public static Collection<TeamSpleefArena> getAll() {
         return arenas.values();
     }
-    
-    public static void init(){
+
+    public static void init() {
         arenas = new HashMap<>();
         MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "TEAM")).iterator();
-        while(dbc.hasNext()) {
+        while (dbc.hasNext()) {
             TeamSpleefArena arena = EntityBuilder.load(dbc.next(), TeamSpleefArena.class);
             arenas.put(arena.getName(), arena);
             SuperSpleef.getInstance().getBattleManager().registerArena(arena);

@@ -22,35 +22,33 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-
-
 /**
  *
  * @author Jonas
  */
 public class EnvironmentListener implements Listener {
-    
+
     private static Listener instance;
-    
+
     public static void init() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new EnvironmentListener();
             Bukkit.getPluginManager().registerEvents(instance, SuperSpleef.getInstance());
         }
     }
-    
+
     private EnvironmentListener() {
-        
+
     }
-    
+
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
-        if(slp != null && slp.getState() == PlayerState.IDLE) {
+        if (slp != null && slp.getState() == PlayerState.IDLE) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-            for(Arena arena : Arena.getAll()) {
-                if(!sp.getVisitedArenas().contains(arena)) {
-                    if(arena.getArea().isInArea(event.getTo())) {
+            for (Arena arena : Arena.getAll()) {
+                if (!sp.getVisitedArenas().contains(arena)) {
+                    if (arena.getArea().isInArea(event.getTo())) {
                         sp.getVisitedArenas().add(arena);
                         String title = ChatColor.GREEN + "You have discovered " + ChatColor.RED + arena.getName() + ChatColor.GREEN + "!";
                         String subtitle = ChatColor.GRAY + String.valueOf(sp.getVisitedArenas().size()) + "/" + String.valueOf(Arena.getAll().size()) + ChatColor.GOLD + " Spleef arenas found!";
@@ -62,10 +60,10 @@ public class EnvironmentListener implements Listener {
             }
         }
     }
-    
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(PlayerJoinEvent event) {
-        for(Arena arena : Arena.getAll()) {
+        for (Arena arena : Arena.getAll()) {
             FakeBlockHandler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
         }
     }

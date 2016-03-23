@@ -38,7 +38,7 @@ public class GameHistory extends DBEntity implements DBSaveable {
         players = new PlayerData[battle.getPlayers().size()];
         Collection<SpleefPlayer> activePlayers = battle.getActivePlayers();
         int i = 0;
-        for(SpleefPlayer sp : battle.getPlayers()) {
+        for (SpleefPlayer sp : battle.getPlayers()) {
             players[i++] = new PlayerData(sp.getUniqueId(), battle.getData(sp).getPoints(), sp == winner, !activePlayers.contains(sp));
         }
         this.duration = battle.getDuration();

@@ -68,11 +68,11 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     private boolean inCountdown = false;
     private final SpleefMode spleefMode;
     private final FakeArea spawnCages, field;
-    
+
     protected SpleefBattle(Arena arena, List<SpleefPlayer> players) {
         this(arena, players, arena.getSpleefMode());
     }
-    
+
     private SpleefBattle(Arena arena, List<SpleefPlayer> players, SpleefMode spleefMode) {
         this.spleefMode = spleefMode;
         this.arena = arena;
@@ -81,45 +81,49 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         this.data = new LinkedHashMap<>();
         this.spawnCages = new FakeArea();
         this.field = new FakeArea();
-        for(Area f : arena.getField()) {
-            for(Block block : f.getBlocks()) {
+        for (Area f : arena.getField()) {
+            for (Block block : f.getBlocks()) {
                 this.field.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
             }
         }
         this.cc = ChatChannel.createTemporaryChannel("GAMECHANNEL" + this.hashCode(), null, Rank.DEFAULT, false, false);
     }
-    
+
     public abstract void removePlayer(SpleefPlayer sp, boolean surrender);
+
     public abstract void end(SpleefPlayer winner, EndReason reason);
+
     public abstract void onArenaLeave(SpleefPlayer player);
+
     protected abstract void onStart();
+
     protected abstract void updateScoreboardTime();
-    
+
     @Override
     public Arena getArena() {
         return arena;
     }
-    
+
     protected Scoreboard getScoreboard() {
         return scoreboard;
     }
-    
+
     protected void setScoreboard(Scoreboard scoreboard) {
         this.scoreboard = scoreboard;
     }
-    
+
     public ChatChannel getGameChannel() {
         return cc;
     }
-    
+
     public int getRound() {
         return round;
     }
-    
+
     public void setRound(int round) {
         this.round = round;
     }
-    
+
     public int getTicksPassed() {
         return ticksPassed;
     }
@@ -127,7 +131,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public List<SpleefPlayer> getPlayers() {
         return players;
     }
-    
+
     public List<SpleefPlayer> getSpectators() {
         return spectators;
     }
@@ -149,11 +153,11 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);
-        for(SpleefPlayer spl : getActivePlayers()) {
+        for (SpleefPlayer spl : getActivePlayers()) {
             spl.showPlayer(sp.getPlayer());
             sp.showPlayer(spl.getPlayer());
         }
-        for(SpleefPlayer spl : spectators) {
+        for (SpleefPlayer spl : spectators) {
             spl.showPlayer(sp);
             sp.showPlayer(spl);
         }
@@ -167,7 +171,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
     public void removeSpectator(SpleefPlayer sp) {
         List<Player> ingamePlayers = new ArrayList<>();
-        for(SpleefPlayer p : getActivePlayers()) {
+        for (SpleefPlayer p : getActivePlayers()) {
             sp.getPlayer().hidePlayer(p.getPlayer());
             p.getPlayer().hidePlayer(sp.getPlayer());
             ingamePlayers.add(p.getPlayer());
@@ -183,14 +187,14 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             list.clear();
             ingamePlayers.forEach((Player p) -> {
                 SLPlayer generalPlayer = SpleefLeague.getInstance().getPlayerManager().get(p);
-                list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p), ((CraftPlayer)p).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
+                list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p), ((CraftPlayer) p).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
             });
             packet.setData(list);
             packet.sendPacket(sp.getPlayer());
-        },10);
+        }, 10);
         resetPlayer(sp);
     }
-    
+
     @Override
     public ArrayList<SpleefPlayer> getActivePlayers() {
         ArrayList<SpleefPlayer> active = new ArrayList<>();
@@ -209,8 +213,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         FakeBlockHandler.addArea(arena.getDefaultSnow(), false, slp.getPlayer());
         if (spectators.contains(sp)) {
             spectators.remove(sp);
-        }
-        else {
+        } else {
             sp.setIngame(false);
             sp.setFrozen(false);
             sp.setRequestingReset(false);
@@ -235,7 +238,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     public void resetField() {
-        for(FakeBlock blocks : field.getBlocks()) {
+        for (FakeBlock blocks : field.getBlocks()) {
             blocks.setType(Material.SNOW_BLOCK);
         }
         FakeBlockHandler.update(field);
@@ -244,18 +247,18 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public void cancel() {
         end(null, EndReason.CANCEL);
     }
-    
+
     public void start(StartReason reason) {
-        for(SpleefPlayer player : players) {
+        for (SpleefPlayer player : players) {
             GamePlugin.unspectateGlobal(player);
-            GamePlugin.dequeueGlobal(player);    
+            GamePlugin.dequeueGlobal(player);
         }
         BattleStartEvent event = new BattleStartEvent(this, reason);
         Bukkit.getPluginManager().callEvent(event);
-        if(!event.isCancelled()) {
+        if (!event.isCancelled()) {
             arena.registerGameStart();
-            if(arena.getScoreboards() != null) {
-                for(com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : arena.getScoreboards()) {
+            if (arena.getScoreboards() != null) {
+                for (com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : arena.getScoreboards()) {
                     scoreboard.setScore(new int[arena.getSize()]);
                 }
             }
@@ -271,11 +274,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 SpleefPlayer sp = players.get(i);
                 if (i == 0) {
                     playerNames = ChatColor.RED + sp.getName();
-                }
-                else if (i == players.size() - 1) {
+                } else if (i == players.size() - 1) {
                     playerNames += ChatColor.GREEN + " and " + ChatColor.RED + sp.getName();
-                }
-                else {
+                } else {
                     playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
                 }
                 Player p = sp.getPlayer();
@@ -313,20 +314,20 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             startRound();
         }
     }
-    
+
     private void hidePlayers() {
         List<SpleefPlayer> battlePlayers = getActivePlayers();
         battlePlayers.addAll(spectators);
-        for(SpleefPlayer sjp : SuperSpleef.getInstance().getPlayerManager().getAll()) {
+        for (SpleefPlayer sjp : SuperSpleef.getInstance().getPlayerManager().getAll()) {
             hidePlayers(sjp);
         }
     }
-    
+
     protected void hidePlayers(SpleefPlayer target) {
         List<SpleefPlayer> battlePlayers = getActivePlayers();
         battlePlayers.addAll(spectators);
-        for(SpleefPlayer active : battlePlayers) {
-            if(!battlePlayers.contains(target)) {
+        for (SpleefPlayer active : battlePlayers) {
+            if (!battlePlayers.contains(target)) {
                 target.hidePlayer(active.getPlayer());
                 active.hidePlayer(target.getPlayer());
             }
@@ -352,8 +353,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 if (secondsLeft > 0) {
                     ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), secondsLeft + "...", cc);
                     secondsLeft--;
-                }
-                else {
+                } else {
                     ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), "GO!", cc);
                     for (SpleefPlayer sp : getActivePlayers()) {
                         sp.setFrozen(false);
@@ -389,25 +389,25 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     private void createSpawnCages() {
-        for(FakeBlock block : spawnCages.getBlocks()) {
+        for (FakeBlock block : spawnCages.getBlocks()) {
             block.setType(Material.GLASS);
         }
         FakeBlockHandler.update(spawnCages);
-    }    
+    }
 
     private void removeSpawnCages() {
-        for(FakeBlock block : spawnCages.getBlocks()) {
+        for (FakeBlock block : spawnCages.getBlocks()) {
             block.setType(Material.AIR);
         }
         FakeBlockHandler.update(spawnCages);
     }
-    
+
     private void getSpawnCageBlocks() {
-        for(Location spawn : arena.getSpawns()) {
+        for (Location spawn : arena.getSpawns()) {
             spawnCages.add(getCageBlocks(spawn, Material.AIR));
         }
     }
-    
+
     private FakeArea getCageBlocks(Location loc, Material m) {
         loc = loc.getBlock().getLocation();
         FakeArea area = new FakeArea();
@@ -428,7 +428,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public boolean isInCountdown() {
         return inCountdown;
     }
-    
+
     public FakeArea getField() {
         return field;
     }
@@ -445,7 +445,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public int getDuration() {
         return ticksPassed;
     }
-    
+
     private static ItemStack getShovel() {
         net.minecraft.server.v1_8_R3.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.DIAMOND_SPADE));
         NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
@@ -465,7 +465,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         private final GameMode oldGamemode;
         private final ItemStack[] oldInventory;
         private final ItemStack[] oldArmor;
-        
+
         public PlayerData(SpleefPlayer sp, Location spawn) {
             this.sp = sp;
             this.spawn = spawn;

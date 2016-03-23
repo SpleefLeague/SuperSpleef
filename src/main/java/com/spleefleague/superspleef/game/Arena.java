@@ -43,7 +43,7 @@ import org.bukkit.entity.Player;
  * @author Jonas
  */
 public class Arena extends DBEntity implements DBLoadable, DBSaveable, QueueableArena<SpleefPlayer> {
-    
+
     @DBLoad(fieldName = "border")
     private Area border;
     private Area[] fields;
@@ -73,143 +73,140 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.NORMAL;
     private ObjectId sharedField;
-    
+
     private int runningGames = 0;
     private FakeArea defaultSnow;
-    
-    
+
     public Location[] getSpawns() {
         return spawns;
     }
-    
+
     public Area getBorder() {
         return border;
     }
-    
+
     public FakeArea getDefaultSnow() {
         return defaultSnow;
     }
-    
+
     @DBLoad(fieldName = "field")
     public void setField(Area[] field) {
         this.fields = field;
-        if(sharedField != null) {
+        if (sharedField != null) {
             defaultSnow = new FakeArea();
-            for(Arena arena : Arena.getAll()) {
-                if(arena.getObjectId().equals(sharedField)) {
+            for (Arena arena : Arena.getAll()) {
+                if (arena.getObjectId().equals(sharedField)) {
                     defaultSnow = arena.getDefaultSnow();
                     break;
                 }
             }
         }
-        if(defaultSnow == null) {
+        if (defaultSnow == null) {
             defaultSnow = new FakeArea();
-            for(Area f : fields) {
-                for(Block block : f.getBlocks()) {
+            for (Area f : fields) {
+                for (Block block : f.getBlocks()) {
                     defaultSnow.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
                 }
             }
         }
         FakeBlockHandler.addArea(defaultSnow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
     }
-    
+
     @DBLoad(fieldName = "sharedField")
     public void setSharedField(ObjectId sharedField) {
-        for(Arena arena : Arena.getAll()) {
-            if(arena.getObjectId().equals(sharedField)) {
+        for (Arena arena : Arena.getAll()) {
+            if (arena.getObjectId().equals(sharedField)) {
                 defaultSnow = arena.getDefaultSnow();
                 fields = arena.getField();
                 break;
             }
         }
     }
-    
+
     public Area[] getField() {
         return fields;
     }
-    
+
     public Location getSpectatorSpawn() {
         return spectatorSpawn;
     }
-    
+
     public String getCreator() {
         return creator;
     }
-    
+
     public Scoreboard[] getScoreboards() {
         return scoreboards;
     }
-    
+
     @Override
     public String getName() {
         return name;
     }
-    
+
     @Override
     public boolean isOccupied() {
         return false;
     }
-    
+
     public int getRunningGamesCount() {
         return runningGames;
     }
-    
+
     public void registerGameStart() {
         runningGames++;
     }
-    
+
     public void registerGameEnd() {
         runningGames--;
     }
-    
+
     public Area getArea() {
         return area;
     }
-    
+
     public boolean isRated() {
         return rated;
     }
-    
+
     public boolean isTpBackSpectators() {
         return tpBackSpectators;
     }
-    
+
     @Override
     public boolean isPaused() {
         return paused;
     }
-    
+
     public void setPaused(boolean paused) {
         this.paused = paused;
     }
-    
+
     public int getMaxRating() {
         return maxRating;
     }
-    
+
     public SpleefMode getSpleefMode() {
         return spleefMode;
     }
-    
+
     @Override
     public int getSize() {
         return spawns.length;
     }
-    
+
     public Dynamic<List<String>> getDynamicDescription() {
         return (SLPlayer slp) -> {
             List<String> description = new ArrayList<>();
             SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(slp.getUniqueId());
-            if(Arena.this.isAvailable(sjp)) {
-                if(Arena.this.isPaused()) {
+            if (Arena.this.isAvailable(sjp)) {
+                if (Arena.this.isPaused()) {
                     description.add(ChatColor.RED + "This arena is");
                     description.add(ChatColor.RED + "currently paused.");
-                }
-                else if(getRunningGamesCount() == 0) {
+                } else if (getRunningGamesCount() == 0) {
                     description.add(ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "Click to join the queue");
                 }
-            }
-            else {
+            } else {
                 description.add(ChatColor.RED + "You have not discovered");
                 description.add(ChatColor.RED + "this arena yet.");
             }
@@ -221,43 +218,43 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     public boolean isAvailable(SpleefPlayer sp) {
         return sp.getVisitedArenas().contains(this);
     }
-    
+
     @Override
     public boolean isQueued() {
         return queued;
     }
-    
+
     public SpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
-        if(!isOccupied()) { //Shouldn't be necessary
+        if (!isOccupied()) { //Shouldn't be necessary
             SpleefBattle battle = new NormalSpleefBattle(this, players);
             battle.start(reason);
             return battle;
         }
         return null;
     }
-    
+
     private static Map<String, Arena> arenas;
-    
+
     public static Arena byName(String name) {
         Arena arena = arenas.get(name);
-        if(arena == null) {
-            for(Arena a : arenas.values()) {
-                if(a.getName().equalsIgnoreCase(name)) {
+        if (arena == null) {
+            for (Arena a : arenas.values()) {
+                if (a.getName().equalsIgnoreCase(name)) {
                     arena = a;
                 }
             }
         }
         return arena;
     }
-    
+
     public static Collection<? extends Arena> getAll() {
         return arenas.values();
     }
-    
-    public static void init(){
+
+    public static void init() {
         arenas = new HashMap<>();
         MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
-        while(dbc.hasNext()) {
+        while (dbc.hasNext()) {
             Arena arena = EntityBuilder.load(dbc.next(), Arena.class);
             arenas.put(arena.getName(), arena);
             SuperSpleef.getInstance().getBattleManager().registerArena(arena);

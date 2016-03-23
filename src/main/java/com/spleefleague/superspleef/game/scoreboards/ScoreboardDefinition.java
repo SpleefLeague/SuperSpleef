@@ -19,13 +19,12 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.bukkit.util.Vector;
 
-
 /**
  *
  * @author Jonas
  */
 public class ScoreboardDefinition extends DBEntity implements DBLoadable, DBSaveable {
-    
+
     private HashMap<Integer, ScoreDefinition> definitionMap;
     private int maxScore = 0;
     @DBLoad(fieldName = "xOffset")
@@ -34,15 +33,15 @@ public class ScoreboardDefinition extends DBEntity implements DBLoadable, DBSave
     private int yOffset;
     @DBLoad(fieldName = "zOffset")
     private int zOffset;
-    
+
     public Vector getOffsetVector() {
         return new Vector(xOffset, yOffset, zOffset);
     }
-    
+
     public int getMaxScore() {
         return maxScore;
     }
-    
+
     public ScoreDefinition getScoreDefinition(int score) {
         return definitionMap.get(score);
     }
@@ -79,18 +78,18 @@ public class ScoreboardDefinition extends DBEntity implements DBLoadable, DBSave
             return null;
         }
     }
-    
+
     private static HashMap<ObjectId, ScoreboardDefinition> definitions;
-    
+
     public static void init() {
         definitions = new HashMap<>();
         MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("ScoreboardDefinitions").find().iterator();
-        while(dbc.hasNext()) {
+        while (dbc.hasNext()) {
             ScoreboardDefinition definition = EntityBuilder.load(dbc.next(), ScoreboardDefinition.class);
             definitions.put(definition.getObjectId(), definition);
         }
     }
-    
+
     public static ScoreboardDefinition getDefinition(ObjectId _id) {
         return definitions.get(_id);
     }

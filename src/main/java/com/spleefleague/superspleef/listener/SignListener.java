@@ -22,28 +22,27 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class SignListener implements Listener {
 
     private static Listener instance;
-    
+
     public static void init() {
         if (instance == null) {
             instance = new SignListener();
             Bukkit.getPluginManager().registerEvents(instance, SuperSpleef.getInstance());
         }
     }
-    
+
     private SignListener() {
-    
+
     }
-    
+
     @EventHandler
     public void onClick(PlayerInteractEvent event) {
-        if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if(event.getClickedBlock().getState() instanceof Sign) {
-                for(GameSign gameSign : GameSign.getAll()) {
-                    if(gameSign.getLocation().equals(event.getClickedBlock().getLocation())) {
-                        if(gameSign.getArena().getSpleefMode() == SpleefMode.NORMAL) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (event.getClickedBlock().getState() instanceof Sign) {
+                for (GameSign gameSign : GameSign.getAll()) {
+                    if (gameSign.getLocation().equals(event.getClickedBlock().getLocation())) {
+                        if (gameSign.getArena().getSpleefMode() == SpleefMode.NORMAL) {
                             event.getPlayer().performCommand("spleef " + gameSign.getArena().getName());
-                        }
-                        else if(gameSign.getArena().getSpleefMode() == SpleefMode.MULTI) {
+                        } else if (gameSign.getArena().getSpleefMode() == SpleefMode.MULTI) {
                             event.getPlayer().performCommand("multispleef " + gameSign.getArena().getName());
                         }
                         break;

@@ -30,7 +30,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-
 /**
  *
  * @author Jonas
@@ -51,114 +50,97 @@ public class spleef extends BasicCommand {
                     GamePlugin.dequeueGlobal(p);
                     bm.queue(sp);
                     success(p, "You have been added to the queue.");
-                }
-                else if (args.length == 1) {
+                } else if (args.length == 1) {
                     Arena arena = Arena.byName(args[0]);
                     if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
                         if (!arena.isPaused()) {
                             if (sp.getVisitedArenas().contains(arena)) {
                                 bm.queue(sp, arena);
                                 success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
-                            }
-                            else {
+                            } else {
                                 error(p, "You have not visited this arena yet!");
                             }
-                        }
-                        else {
+                        } else {
                             error(p, "This arena is currently paused.");
                         }
-                    }
-                    else {
+                    } else {
                         error(p, "This arena does not exist.");
                     }
-                }
-                else if (args.length >= 2 && args[0].equalsIgnoreCase("match")) {
-                    if(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
+                } else if (args.length >= 2 && args[0].equalsIgnoreCase("match")) {
+                    if (slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
                         Arena arena = Arena.byName(args[1]);
-                        if(arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
-                            if(!arena.isOccupied()) {
-                                if((args.length - 2) == /*arena.getQueueLength()*/ 2) {
+                        if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
+                            if (!arena.isOccupied()) {
+                                if ((args.length - 2) == /*arena.getQueueLength()*/ 2) {
                                     ArrayList<SpleefPlayer> players = new ArrayList<>();
-                                    for(int i = 0; i < args.length - 2; i++) {
+                                    for (int i = 0; i < args.length - 2; i++) {
                                         Player pl = Bukkit.getPlayerExact(args[i + 2]);
-                                        if(pl != null) {
+                                        if (pl != null) {
                                             players.add(SuperSpleef.getInstance().getPlayerManager().get(pl));
-                                        }
-                                        else {
+                                        } else {
                                             error(p, "The player " + args[i + 2] + " is currently not online.");
                                             return;
                                         }
                                     }
                                     arena.startBattle(players, StartReason.FORCE);
                                     success(p, "You started a battle on the arena " + arena.getName());
-                                }
-                                else {
+                                } else {
                                     error(p, "You need to list " + (args.length - 2) + " players for this arena.");
                                 }
-                            }
-                            else {
+                            } else {
                                 error(p, "This arena is currently occupied.");
                             }
-                        }
-                        else {
+                        } else {
                             error(p, "This arena does not exist.");
                         }
-                    }
-                    else {
+                    } else {
                         sendUsage(p);
                     }
-                }
-                else if (args.length == 2) {
-                    if(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
+                } else if (args.length == 2) {
+                    if (slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
                         Arena arena = Arena.byName(args[1]);
                         if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
                             if (args[0].equalsIgnoreCase("pause")) {
                                 arena.setPaused(true);
                                 success(p, "You have paused the arena " + arena.getName());
-                            }
-                            else if (args[0].equalsIgnoreCase("unpause")) {
+                            } else if (args[0].equalsIgnoreCase("unpause")) {
                                 arena.setPaused(false);
                                 success(p, "You have unpaused the arena " + arena.getName());
-                            }
-                            else {
+                            } else {
                                 sendUsage(p);
                             }
                             GameSign.updateGameSigns(arena);
                             EntityBuilder.save(arena, SuperSpleef.getInstance().getPluginDB().getCollection("Arenas"));
-                        }
-                        else {
+                        } else {
                             error(p, "This arena does not exist.");
                         }
-                    }
-                    else {
+                    } else {
                         sendUsage(p);
                     }
-                }
-                else if (args.length == 3 && args[0].equalsIgnoreCase("challenge")) {
+                } else if (args.length == 3 && args[0].equalsIgnoreCase("challenge")) {
                     Arena arena = Arena.byName(args[1]);
-                    if(arena != null) {
-                        if(args.length - 1 == arena.getSize()) {
+                    if (arena != null) {
+                        if (args.length - 1 == arena.getSize()) {
                             Collection<SLPlayer> players = new ArrayList<>();
-                            for(int i = 2; i < args.length; i++) {
+                            for (int i = 2; i < args.length; i++) {
                                 Player t = Bukkit.getPlayer(args[i]);
-                                if(t != null) {
-                                    if(t == p) {
+                                if (t != null) {
+                                    if (t == p) {
                                         error(p, "You may not challenge yourself.");
                                         return;
                                     }
                                     SLPlayer splayer = SpleefLeague.getInstance().getPlayerManager().get(t.getUniqueId());
-                                    if(splayer.getState() == PlayerState.INGAME) {
+                                    if (splayer.getState() == PlayerState.INGAME) {
                                         error(p, splayer.getName() + " is currently ingame!");
                                         return;
                                     }
                                     SpleefPlayer spt = SuperSpleef.getInstance().getPlayerManager().get(t.getUniqueId());
-                                    if(!arena.isAvailable(spt)) {
+                                    if (!arena.isAvailable(spt)) {
                                         error(p, spt.getName() + " has not visited this arena yet!");
                                     }
                                     players.add(splayer);
-                                    
-                                }
-                                else {
+
+                                } else {
                                     error(p, "The player " + args[i] + " is not online.");
                                     return;
                                 }
@@ -167,7 +149,7 @@ public class spleef extends BasicCommand {
                                 @Override
                                 public void start(Collection<SLPlayer> accepted) {
                                     List<SpleefPlayer> players = new ArrayList<>();
-                                    for(SLPlayer slpt : accepted) {
+                                    for (SLPlayer slpt : accepted) {
                                         players.add(SuperSpleef.getInstance().getPlayerManager().get(slpt));
                                     }
                                     arena.startBattle(players, StartReason.CHALLENGE);
@@ -175,27 +157,25 @@ public class spleef extends BasicCommand {
                             };
                             success(p, "The players have been challenged.");
                             Collection<Player> bplayers = new ArrayList<>();
-                            for(SLPlayer slpt : players) {
+                            for (SLPlayer slpt : players) {
                                 slpt.addChallenge(challenge);
                                 bplayers.add(slpt.getPlayer());
                             }
                             challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), arena.getName(), bplayers);
-                        }
-                        else {
+                        } else {
                             error(p, "This arena requires " + arena.getSize() + " players.");
                         }
-                    }
-                    else {
+                    } else {
                         error(p, "The arena " + args[1] + " does not exist.");
                     }
-                } else if(args.length > 0 && args[0].equalsIgnoreCase("points") && (slp.getRank() != null && slp.getRank().hasPermission(Rank.SENIOR_MODERATOR) || Collections.singletonList(Rank.MODERATOR).contains(slp.getRank()))) {
-                    if(args.length != 5 || !(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
+                } else if (args.length > 0 && args[0].equalsIgnoreCase("points") && (slp.getRank() != null && slp.getRank().hasPermission(Rank.SENIOR_MODERATOR) || Collections.singletonList(Rank.MODERATOR).contains(slp.getRank()))) {
+                    if (args.length != 5 || !(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
                         p.sendMessage(plugin.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + "Correct Usage: ");
                         p.sendMessage(plugin.getChatPrefix() + " " + Theme.INCOGNITO.buildTheme(false) + "/s points <add|remove> <player> <swc|normal> <points>");
                         return;
                     }
                     Player player = Bukkit.getPlayer(args[2]);
-                    if(player == null) {
+                    if (player == null) {
                         error(p, args[2] + " isn't online!");
                         return;
                     }
@@ -207,22 +187,19 @@ public class spleef extends BasicCommand {
                         return;
                     }
                     SpleefPlayer spleefPlayer = SuperSpleef.getInstance().getPlayerManager().get(player);
-                    if(args[1].equalsIgnoreCase("add")) {
+                    if (args[1].equalsIgnoreCase("add")) {
                         spleefPlayer.setRating(spleefPlayer.getRating() + points);
                     } else {
                         spleefPlayer.setRating(spleefPlayer.getRating() - points);
                     }
                     success(p, "You have " + (args[1].equalsIgnoreCase("add") ? "added " : "removed ") + points + " points " + (args[1].equalsIgnoreCase("add") ? "to " : "from ") + player.getName() + "!");
-                }
-                else {
+                } else {
                     sendUsage(p);
                 }
-            }
-            else {
+            } else {
                 error(p, "You are currently ingame!");
             }
-        }
-        else {
+        } else {
             error(p, "All queues are currently paused!");
         }
     }

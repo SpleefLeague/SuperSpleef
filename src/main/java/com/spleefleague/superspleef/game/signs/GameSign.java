@@ -23,54 +23,52 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 
-
 /**
  *
  * @author Jonas
  */
-public class GameSign extends DBEntity implements  DBLoadable{
-    
+public class GameSign extends DBEntity implements DBLoadable {
+
     private Location location;
     private Arena arena;
-    
+
     public GameSign() {
-        
+
     }
-    
+
     @DBLoad(fieldName = "location", typeConverter = TypeConverter.LocationConverter.class)
     private void setSign(Location location) {
         this.location = location;
     }
-    
+
     @DBLoad(fieldName = "arena")
     private void setArena(String name) {
         arena = Arena.byName(name);
-        if(signs.get(arena) == null) {
+        if (signs.get(arena) == null) {
             signs.put(arena, new HashSet<>());
         }
         signs.get(arena).add(this);
     }
-    
+
     public Sign getSign() {
         BlockState bs = location.getBlock().getState();
         if (bs instanceof Sign) {
             return (Sign) bs;
-        }
-        else {
+        } else {
             return null;
         }
     }
-    
+
     public Location getLocation() {
         return location;
     }
-    
+
     public Arena getArena() {
         return arena;
     }
-    
+
     public SpleefBattle getBattle() {
-        if(arena.getSpleefMode() == SpleefMode.NORMAL) {
+        if (arena.getSpleefMode() == SpleefMode.NORMAL) {
             return SuperSpleef.getInstance().getBattleManager().getBattle(arena);
         }
 //        else if(arena.getSpleefMode() == SpleefMode.MULTI) {
@@ -78,7 +76,7 @@ public class GameSign extends DBEntity implements  DBLoadable{
 //        }
         return null;
     }
-    
+
     public void updateStatus() {
         Sign sign = getSign();
         if (sign != null) {
@@ -91,36 +89,36 @@ public class GameSign extends DBEntity implements  DBLoadable{
             sign.update();
         }
     }
-    
+
     private static Map<Arena, HashSet<GameSign>> signs;
 
     public static void initialize() {
         signs = new HashMap<>();
-        for(Document document : SuperSpleef.getInstance().getPluginDB().getCollection("GameSigns").find()) {
+        for (Document document : SuperSpleef.getInstance().getPluginDB().getCollection("GameSigns").find()) {
             EntityBuilder.load(document, GameSign.class).updateStatus();
         }
     }
-    
+
     public static HashSet<GameSign> getGameSigns(Arena arena) {
         HashSet<GameSign> set = signs.get(arena);
         return set != null ? set : new HashSet<>();
     }
-    
+
     public static void updateGameSigns(Arena arena) {
-        for(GameSign gs : getGameSigns(arena)) {
+        for (GameSign gs : getGameSigns(arena)) {
             gs.updateStatus();
         }
     }
-    
+
     public static void updateGameSigns() {
-        for(Arena arena : signs.keySet()) {
+        for (Arena arena : signs.keySet()) {
             updateGameSigns(arena);
         }
     }
-    
+
     public static HashSet<GameSign> getAll() {
         HashSet<GameSign> all = new HashSet<>();
-        for(HashSet<GameSign> gs : signs.values()) {
+        for (HashSet<GameSign> gs : signs.values()) {
             all.addAll(gs);
         }
         return all;

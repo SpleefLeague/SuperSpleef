@@ -47,11 +47,11 @@ public class SuperSpleef extends GamePlugin {
     private BattleManager<Arena, SpleefPlayer, SpleefBattle> battleManagerSpleef;
     private boolean queuesOpen = true;
     private ChatChannel start, end;
-    
+
     public SuperSpleef() {
         super("[SuperSpleef]", ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET);
     }
-    
+
     @Override
     public void start() {
         instance = this;
@@ -74,10 +74,10 @@ public class SuperSpleef extends GamePlugin {
         GameSign.initialize();
         CommandLoader.loadCommands(this, "com.spleefleague.superspleef.commands");
     }
-    
+
     @Override
     public void stop() {
-        for(SpleefBattle battle : battleManagerSpleef.getAll()) {
+        for (SpleefBattle battle : battleManagerSpleef.getAll()) {
             battle.cancel();
         }
         playerManager.saveAll();
@@ -86,47 +86,46 @@ public class SuperSpleef extends GamePlugin {
     @Override
     public MongoDatabase getPluginDB() {
         return SpleefLeague.getInstance().getMongo().getDatabase("SuperSpleef");
-    }   
-    
+    }
+
     public PlayerManager<SpleefPlayer> getPlayerManager() {
         return playerManager;
     }
-    
+
     public BattleManager<Arena, SpleefPlayer, SpleefBattle> getBattleManager() {
         return battleManagerSpleef;
     }
-    
+
     public static SuperSpleef getInstance() {
         return instance;
     }
-    
+
     public ChatChannel getStartMessageChannel() {
         return start;
     }
-    
+
     public ChatChannel getEndMessageChannel() {
         return end;
     }
-    
+
     @Override
     public boolean spectate(Player target, Player p) {
         SpleefPlayer tsjp = getPlayerManager().get(target);
         SpleefPlayer sjp = getPlayerManager().get(p);
-        if(sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
+        if (sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
             tsjp.getCurrentBattle().addSpectator(sjp);
             return true;
-        }
-        else {
+        } else {
             p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You can only spectate arenas you have already visited!");
             return false;
         }
     }
-    
+
     @Override
     public void unspectate(Player p) {
         SpleefPlayer sjp = getPlayerManager().get(p);
-        for(SpleefBattle battle : getBattleManager().getAll()) {
-            if(battle.isSpectating(sjp)) {
+        for (SpleefBattle battle : getBattleManager().getAll()) {
+            if (battle.isSpectating(sjp)) {
                 battle.removeSpectator(sjp);
             }
         }
@@ -136,12 +135,12 @@ public class SuperSpleef extends GamePlugin {
 //            }
 //        }
     }
-    
+
     @Override
     public boolean isSpectating(Player p) {
         SpleefPlayer sjp = getPlayerManager().get(p);
-        for(SpleefBattle battle : getBattleManager().getAll()) {
-            if(battle.isSpectating(sjp)) {
+        for (SpleefBattle battle : getBattleManager().getAll()) {
+            if (battle.isSpectating(sjp)) {
                 return true;
             }
         }
@@ -167,12 +166,12 @@ public class SuperSpleef extends GamePlugin {
 //        if(battle == null) {
 //            battle = getBattleManagerMultiSpleef().getBattle(sp);
 //        }
-        if(battle != null) {
-            battle.cancel();    
+        if (battle != null) {
+            battle.cancel();
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " The battle on " + battle.getArena().getName() + " has been cancelled.", ChatChannel.STAFF_NOTIFICATIONS);
         }
     }
-    
+
     @Override
     public void surrender(Player p) {
         SpleefPlayer sp = getPlayerManager().get(p);
@@ -180,8 +179,8 @@ public class SuperSpleef extends GamePlugin {
 //        if(battle == null) {
 //            battle = getBattleManagerMultiSpleef().getBattle(sp);
 //        }
-        if(battle != null) {
-            for(SpleefPlayer active : battle.getActivePlayers()) {
+        if (battle != null) {
+            for (SpleefPlayer active : battle.getActivePlayers()) {
                 active.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " " + p.getName() + " has surrendered!");
             }
             battle.removePlayer(sp, true);
@@ -199,10 +198,10 @@ public class SuperSpleef extends GamePlugin {
         SpleefPlayer sp = getPlayerManager().get(p);
         return getBattleManager().isIngame(sp);
     }
-    
+
     @Override
     public void cancelAll() {
-        for(SpleefBattle battle : new ArrayList<>(battleManagerSpleef.getAll())) {
+        for (SpleefBattle battle : new ArrayList<>(battleManagerSpleef.getAll())) {
             battle.cancel();
         }
     }
@@ -230,8 +229,7 @@ public class SuperSpleef extends GamePlugin {
             }
             if (shouldEnd) {
                 battle.end(null, EndReason.ENDGAME);
-            }
-            else {
+            } else {
                 for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if (!spleefplayer.isRequestingEndgame()) {
                         spleefplayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to end this game. To agree enter " + ChatColor.YELLOW + "/endgame.");
@@ -246,20 +244,20 @@ public class SuperSpleef extends GamePlugin {
     public void setQueueStatus(boolean open) {
         queuesOpen = open;
     }
-    
+
     @Override
     public void syncSave(Player p) {
         SpleefPlayer slp = playerManager.get(p);
-        if(slp != null) {
+        if (slp != null) {
             EntityBuilder.save(slp, getPluginDB().getCollection("Players"));
         }
     }
-    
+
     public boolean queuesOpen() {
         return queuesOpen;
     }
-    
-     private void createGameMenu() {
+
+    private void createGameMenu() {
         InventoryMenuTemplateBuilder menu = SLMenu.getNewGamemodeMenu()
                 .displayName("SuperSpleef")
                 .displayIcon(Material.SNOW_BLOCK)
@@ -275,12 +273,9 @@ public class SuperSpleef extends GamePlugin {
                         if (arena.isAvailable(sp)) {
                             if (arena.isOccupied()) {
                                 battleManagerSpleef.getBattle(arena).addSpectator(sp);
-                            }
-                            else {
-                                if (!arena.isPaused()) {
-                                    battleManagerSpleef.queue(sp, arena);
-                                    event.getItem().getParent().update();
-                                }
+                            } else if (!arena.isPaused()) {
+                                battleManagerSpleef.queue(sp, arena);
+                                event.getItem().getParent().update();
                             }
                         }
                     })

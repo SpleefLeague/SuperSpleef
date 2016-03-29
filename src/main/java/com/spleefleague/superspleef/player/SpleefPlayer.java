@@ -12,12 +12,12 @@ import com.spleefleague.core.queue.RatedPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
+import org.bson.Document;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.bson.Document;
 
 /**
  *
@@ -28,6 +28,7 @@ public class SpleefPlayer extends RatedPlayer {
     private int rating;
     private boolean ingame, frozen, requestingReset, requestingEndgame;
     private Set<Arena> visitedArenas;
+    private Set<String> visitedArenas_broken;
 
     public SpleefPlayer() {
         setDefaults();
@@ -56,6 +57,11 @@ public class SpleefPlayer extends RatedPlayer {
                 arenaNames.add(arena.getName());
             }
         }
+        for (String arena : visitedArenas_broken) {
+            if (arena != null) {
+                arenaNames.add(arena);
+            }
+        }
         return arenaNames;
     }
 
@@ -65,6 +71,8 @@ public class SpleefPlayer extends RatedPlayer {
             Arena arena = Arena.byName(name);
             if (arena != null) {
                 visitedArenas.add(arena);
+            } else {
+                visitedArenas_broken.add(name);
             }
         }
     }
@@ -119,8 +127,14 @@ public class SpleefPlayer extends RatedPlayer {
         this.frozen = false;
         this.ingame = false;
         visitedArenas = new HashSet<>();
+        visitedArenas_broken = new HashSet<>();
         for (String name : (List<String>) Settings.getList("default_arenas_spleef")) {
-            visitedArenas.add(Arena.byName(name));
+            Arena a = Arena.byName(name);
+            if (a != null) {
+                visitedArenas.add(a);
+            } else {
+                visitedArenas_broken.add(name);
+            }
         }
     }
 }

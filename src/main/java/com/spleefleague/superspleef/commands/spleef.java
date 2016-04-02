@@ -22,13 +22,15 @@ import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-
-import java.util.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -137,6 +139,7 @@ public class spleef extends BasicCommand {
                                     SpleefPlayer spt = SuperSpleef.getInstance().getPlayerManager().get(t.getUniqueId());
                                     if (!arena.isAvailable(spt)) {
                                         error(p, spt.getName() + " has not visited this arena yet!");
+                                        return;
                                     }
                                     players.add(splayer);
 

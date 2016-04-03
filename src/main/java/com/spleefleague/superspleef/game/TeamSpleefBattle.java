@@ -121,7 +121,7 @@ public class TeamSpleefBattle extends SpleefBattle {
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
 
         String playerNames = "";
-        List<SpleefPlayer> alivePlayers = new ArrayList<>(winner.getAlivePlayers());
+        List<SpleefPlayer> alivePlayers = getAllInTeam(winner);
         for (int i = 0; i < alivePlayers.size(); i++) {
             SpleefPlayer sp = alivePlayers.get(i);
             if (i == 0) {
@@ -229,6 +229,16 @@ public class TeamSpleefBattle extends SpleefBattle {
             String s = DurationFormatUtils.formatDuration(getTicksPassed() * 50, "HH:mm:ss", true);
             objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
         }
+    }
+
+    public List<SpleefPlayer> getAllInTeam(Team team) {
+        ArrayList<SpleefPlayer> result = new ArrayList<>();
+        playerTeams.forEach((SpleefPlayer slPlayer, Team slTeam) -> {
+            if(slTeam.equals(team)) {
+                result.add(slPlayer);
+            }
+        });
+        return result;
     }
 
     private class Team {

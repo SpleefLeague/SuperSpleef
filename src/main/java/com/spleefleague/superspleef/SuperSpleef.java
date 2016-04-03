@@ -23,6 +23,7 @@ import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
+import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.listener.ConnectionListener;
@@ -112,7 +113,20 @@ public class SuperSpleef extends GamePlugin {
     public boolean spectate(Player target, Player p) {
         SpleefPlayer tsjp = getPlayerManager().get(target);
         SpleefPlayer sjp = getPlayerManager().get(p);
-        if (sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
+        if(tsjp.getCurrentBattle().getArena().getSpleefMode() == SpleefMode.TEAM) {
+            Arena arena = Arena.byName(tsjp.getCurrentBattle().getArena().getName());
+            if(arena == null) {
+                p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You are unable to spectate this teamspleef match.");
+                return false;
+            }
+            if(sjp.getVisitedArenas().contains(arena)) {
+                tsjp.getCurrentBattle().addSpectator(sjp);
+                return true;
+            } else {
+                p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You must visit the spleef equivalent of the arena '" + arena.getName() + " ' before spectating here!");
+                return false;
+            }
+        } else if (sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
             tsjp.getCurrentBattle().addSpectator(sjp);
             return true;
         } else {

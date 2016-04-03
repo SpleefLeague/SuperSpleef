@@ -24,11 +24,9 @@ import com.spleefleague.core.utils.function.Dynamic;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.bukkit.Bukkit;
@@ -261,4 +259,16 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
     }
+
+    @Override
+    public final boolean equals(Object o) {
+        System.out.println("equalsing");
+        if(o instanceof QueueableArena) {
+            QueueableArena other = (QueueableArena) o;
+            System.out.print(other.getName() + " " + getName());
+            return other.getName().equalsIgnoreCase(getName());
+        }
+        return false;
+    }
+
 }

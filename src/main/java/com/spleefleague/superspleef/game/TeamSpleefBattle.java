@@ -9,6 +9,7 @@ import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
+import com.spleefleague.core.utils.ModifiableFinal;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
@@ -118,6 +119,21 @@ public class TeamSpleefBattle extends SpleefBattle {
             resetPlayer(sp);
         }
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
+
+        String playerNames = "";
+        List<SpleefPlayer> alivePlayers = new ArrayList<>(winner.getAlivePlayers());
+        for (int i = 0; i < alivePlayers.size(); i++) {
+            SpleefPlayer sp = alivePlayers.get(i);
+            if (i == 0) {
+                playerNames = ChatColor.RED + sp.getName();
+            } else if (i == alivePlayers.size() - 1) {
+                playerNames += ChatColor.GREEN + " and " + ChatColor.RED + sp.getName();
+            } else {
+                playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
+            }
+        }
+        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over. " + playerNames + ChatColor.GREEN + " have won!", SuperSpleef.getInstance().getEndMessageChannel());
+
         cleanup();
     }
 

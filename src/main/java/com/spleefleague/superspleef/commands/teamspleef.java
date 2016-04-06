@@ -118,10 +118,6 @@ public class teamspleef extends BasicCommand {
                                         return;
                                     }
                                     SpleefPlayer spt = SuperSpleef.getInstance().getPlayerManager().get(t.getUniqueId());
-                                    if (!arena.isAvailable(spt)) {
-                                        error(p, spt.getName() + " has not visited this arena yet!");
-                                        return;
-                                    }
                                     if (players.contains(splayer)) {
                                         error(p, t.getName() + " cannot be added twice");
                                         return;

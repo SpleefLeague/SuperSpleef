@@ -31,18 +31,10 @@ import com.spleefleague.core.utils.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import net.minecraft.server.v1_8_R3.NBTTagList;
 import net.minecraft.server.v1_8_R3.NBTTagString;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -51,6 +43,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -344,6 +341,12 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.setRequestingEndgame(false);
             sp.setFireTicks(0);
             sp.teleport(this.data.get(sp).getSpawn());
+            Player c = sp.getPlayer();
+            for (SpleefPlayer sp2 : getActivePlayers()) {
+                if (sp != sp2) {
+                    c.showPlayer(sp2.getPlayer());
+                }
+            }
         }
         BukkitRunnable br = new BukkitRunnable() {
             private int secondsLeft = 3;

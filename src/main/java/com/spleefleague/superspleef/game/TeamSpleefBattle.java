@@ -9,29 +9,19 @@ import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
-import com.spleefleague.core.utils.ModifiableFinal;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  *
@@ -132,7 +122,11 @@ public class TeamSpleefBattle extends SpleefBattle {
                 playerNames += ChatColor.GREEN + ", " + ChatColor.RED + sp.getName();
             }
         }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over. " + playerNames + ChatColor.GREEN + " have won!", SuperSpleef.getInstance().getEndMessageChannel());
+        String wStr = playerNames + ChatColor.GREEN + " have won!";
+        if (winner == null) {
+            wStr = "";
+        }
+        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over. " + wStr, SuperSpleef.getInstance().getEndMessageChannel());
 
         cleanup();
     }

@@ -19,7 +19,6 @@ import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.queue.RatedBattleManager;
-import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
@@ -31,14 +30,16 @@ import com.spleefleague.superspleef.listener.EnvironmentListener;
 import com.spleefleague.superspleef.listener.GameListener;
 import com.spleefleague.superspleef.listener.SignListener;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
+
 /**
- *
  * @author Jonas
  */
 public class SuperSpleef extends GamePlugin {
@@ -50,7 +51,10 @@ public class SuperSpleef extends GamePlugin {
     private ChatChannel start, end;
 
     public SuperSpleef() {
-        super("[SuperSpleef]", ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET);
+        super(
+                "[SuperSpleef]",
+                ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET
+        );
     }
 
     @Override
@@ -113,24 +117,21 @@ public class SuperSpleef extends GamePlugin {
     public boolean spectate(Player target, Player p) {
         SpleefPlayer tsjp = getPlayerManager().get(target);
         SpleefPlayer sjp = getPlayerManager().get(p);
-        if(tsjp.getCurrentBattle().getArena().getSpleefMode() == SpleefMode.TEAM) {
-            Arena arena = Arena.byName(tsjp.getCurrentBattle().getArena().getName());
-            if(arena == null) {
-                p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You are unable to spectate this teamspleef match.");
+        if (tsjp.getCurrentBattle().getArena().getSpleefMode() == SpleefMode.TEAM) {
+            Arena arena = tsjp.getCurrentBattle().getArena();
+            if (arena == null) {
+                p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) +
+                              " You are unable to spectate this teamspleef match.");
                 return false;
             }
-            if(sjp.getVisitedArenas().contains(arena)) {
-                tsjp.getCurrentBattle().addSpectator(sjp);
-                return true;
-            } else {
-                p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You must visit the spleef equivalent of the arena '" + arena.getName() + " ' before spectating here!");
-                return false;
-            }
+            tsjp.getCurrentBattle().addSpectator(sjp);
+            return true;
         } else if (sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
             tsjp.getCurrentBattle().addSpectator(sjp);
             return true;
         } else {
-            p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) + " You can only spectate arenas you have already visited!");
+            p.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.ERROR.buildTheme(false) +
+                          " You can only spectate arenas you have already visited!");
             return false;
         }
     }
@@ -182,7 +183,11 @@ public class SuperSpleef extends GamePlugin {
 //        }
         if (battle != null) {
             battle.cancel();
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " The battle on " + battle.getArena().getName() + " has been cancelled.", ChatChannel.STAFF_NOTIFICATIONS);
+            ChatManager.sendMessage(
+                    SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) +
+                    " The battle on " + battle.getArena().getName() + " has been cancelled.",
+                    ChatChannel.STAFF_NOTIFICATIONS
+            );
         }
     }
 
@@ -195,7 +200,9 @@ public class SuperSpleef extends GamePlugin {
 //        }
         if (battle != null) {
             for (SpleefPlayer active : battle.getActivePlayers()) {
-                active.sendMessage(SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " " + p.getName() + " has surrendered!");
+                active.sendMessage(
+                        SuperSpleef.getInstance().getChatPrefix() + Theme.SUPER_SECRET.buildTheme(false) + " " +
+                        p.getName() + " has surrendered!");
             }
             battle.removePlayer(sp, true);
         }
@@ -246,10 +253,14 @@ public class SuperSpleef extends GamePlugin {
             } else {
                 for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if (!spleefplayer.isRequestingEndgame()) {
-                        spleefplayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your opponent wants to end this game. To agree enter " + ChatColor.YELLOW + "/endgame.");
+                        spleefplayer.sendMessage(
+                                SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) +
+                                "Your opponent wants to end this game. To agree enter " + ChatColor.YELLOW +
+                                "/endgame.");
                     }
                 }
-                sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) + "You requested this game to be cancelled.");
+                sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) +
+                               "You requested this game to be cancelled.");
             }
         }
     }
@@ -272,7 +283,8 @@ public class SuperSpleef extends GamePlugin {
     }
 
     private void createGameMenu() {
-        InventoryMenuTemplateBuilder menu = SLMenu.getNewGamemodeMenu()
+        InventoryMenuTemplateBuilder menu = SLMenu
+                .getNewGamemodeMenu()
                 .displayName("SuperSpleef")
                 .displayIcon(Material.SNOW_BLOCK)
                 .exitOnClickOutside(true)
@@ -281,7 +293,8 @@ public class SuperSpleef extends GamePlugin {
             menu.component(item()
                     .displayName(arena.getName())
                     .description(arena.getDynamicDescription())
-                    .displayIcon((slp) -> (arena.isAvailable(playerManager.get(slp)) ? Material.MAP : Material.EMPTY_MAP))
+                    .displayIcon(
+                            (slp) -> (arena.isAvailable(playerManager.get(slp)) ? Material.MAP : Material.EMPTY_MAP))
                     .onClick((event) -> {
                         SpleefPlayer sp = getPlayerManager().get(event.getPlayer());
                         if (arena.isAvailable(sp)) {
@@ -292,8 +305,7 @@ public class SuperSpleef extends GamePlugin {
                                 event.getItem().getParent().update();
                             }
                         }
-                    })
-            );
+                    }));
         });
     }
 }

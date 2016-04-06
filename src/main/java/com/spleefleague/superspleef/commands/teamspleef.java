@@ -20,12 +20,13 @@ import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-
-import java.util.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -34,7 +35,7 @@ import org.bukkit.entity.Player;
 public class teamspleef extends BasicCommand {
 
     public teamspleef(CorePlugin plugin, String name, String usage) {
-        super(SuperSpleef.getInstance(), name, usage, Rank.MODERATOR);
+        super(SuperSpleef.getInstance(), name, usage, Rank.DEFAULT);
     }
 
     @Override
@@ -50,7 +51,17 @@ public class teamspleef extends BasicCommand {
                                 for (int i = 0; i < args.length - 2; i++) {
                                     Player pl = Bukkit.getPlayerExact(args[i + 2]);
                                     if (pl != null) {
-                                        players.add(SuperSpleef.getInstance().getPlayerManager().get(pl));
+                                        SpleefPlayer n = SuperSpleef.getInstance().getPlayerManager().get(pl);
+                                        SLPlayer splayer = SpleefLeague.getInstance().getPlayerManager().get(pl);
+                                        if (players.contains(n)) {
+                                            error(p, pl.getName() + " cannot be added more than once");
+                                            return;
+                                        }
+                                        if (splayer.getState() == PlayerState.INGAME) {
+                                            error(p, pl.getName() + " is already in a game");
+                                            return;
+                                        }
+                                        players.add(n);
                                     } else {
                                         error(p, "The player " + args[i + 2] + " is currently not online.");
                                         return;
@@ -109,6 +120,11 @@ public class teamspleef extends BasicCommand {
                                     SpleefPlayer spt = SuperSpleef.getInstance().getPlayerManager().get(t.getUniqueId());
                                     if (!arena.isAvailable(spt)) {
                                         error(p, spt.getName() + " has not visited this arena yet!");
+                                        return;
+                                    }
+                                    if (players.contains(splayer)) {
+                                        error(p, t.getName() + " cannot be added twice");
+                                        return;
                                     }
                                     players.add(splayer);
 

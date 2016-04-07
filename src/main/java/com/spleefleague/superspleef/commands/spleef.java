@@ -20,6 +20,7 @@ import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefMode;
+import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
@@ -123,7 +124,7 @@ public class spleef extends BasicCommand {
                     Arena arena = Arena.byName(args[1]);
                     if (arena != null) {
                         if (args.length - 1 == arena.getSize()) {
-                            Collection<SLPlayer> players = new ArrayList<>();
+                            SLPlayer[] players = new SLPlayer[arena.getSize()-1];
                             for (int i = 2; i < args.length; i++) {
                                 Player t = Bukkit.getPlayer(args[i]);
                                 if (t != null) {
@@ -141,16 +142,15 @@ public class spleef extends BasicCommand {
                                         error(p, spt.getName() + " has not visited this arena yet!");
                                         return;
                                     }
-                                    players.add(splayer);
-
+                                    players[i-2] = splayer;
                                 } else {
                                     error(p, "The player " + args[i] + " is not online.");
                                     return;
                                 }
                             }
-                            Challenge challenge = new Challenge(slp, arena.getSize()) {
+                            Challenge challenge = new Challenge(slp, players) {
                                 @Override
-                                public void start(Collection<SLPlayer> accepted) {
+                                public void start(SLPlayer[] accepted) {
                                     List<SpleefPlayer> players = new ArrayList<>();
                                     for (SLPlayer slpt : accepted) {
                                         players.add(SuperSpleef.getInstance().getPlayerManager().get(slpt));
@@ -169,6 +169,10 @@ public class spleef extends BasicCommand {
                             error(p, "This arena requires " + arena.getSize() + " players.");
                         }
                     } else {
+                        if (TeamSpleefArena.byName(args[1]) != null) {
+                            error(p, "The arena " + args[1] + " is for teamspleef. use /teamspleef instead");
+                            return;
+                        }
                         error(p, "The arena " + args[1] + " does not exist.");
                     }
                 } else if (args.length > 0 && args[0].equalsIgnoreCase("points") && (slp.getRank() != null && slp.getRank().hasPermission(Rank.SENIOR_MODERATOR) || Collections.singletonList(Rank.MODERATOR).contains(slp.getRank()))) {

@@ -104,7 +104,8 @@ public class teamspleef extends BasicCommand {
                     TeamSpleefArena arena = TeamSpleefArena.byName(args[1]);
                     if (arena != null) {
                         if (args.length - 1 == arena.getSize()) {
-                            Collection<SLPlayer> players = new ArrayList<>();
+                            SLPlayer[] players = new SLPlayer[arena.getSize()-1];
+                            ArrayList<SLPlayer> challengedPlayers = new ArrayList();
                             for (int i = 2; i < args.length; i++) {
                                 Player t = Bukkit.getPlayer(args[i]);
                                 if (t != null) {
@@ -118,20 +119,21 @@ public class teamspleef extends BasicCommand {
                                         return;
                                     }
                                     SpleefPlayer spt = SuperSpleef.getInstance().getPlayerManager().get(t.getUniqueId());
-                                    if (players.contains(splayer)) {
+                                    if (challengedPlayers.contains(splayer)) {
                                         error(p, t.getName() + " cannot be added twice");
                                         return;
                                     }
-                                    players.add(splayer);
+                                    players[i-2] = splayer;
+                                    challengedPlayers.add(splayer);
 
                                 } else {
                                     error(p, "The player " + args[i] + " is not online.");
                                     return;
                                 }
                             }
-                            Challenge challenge = new Challenge(slp, arena.getSize()) {
+                            Challenge challenge = new Challenge(slp, players) {
                                 @Override
-                                public void start(Collection<SLPlayer> accepted) {
+                                public void start(SLPlayer[] accepted) {
                                     List<SpleefPlayer> players = new ArrayList<>();
                                     for (SLPlayer slpt : accepted) {
                                         players.add(SuperSpleef.getInstance().getPlayerManager().get(slpt));

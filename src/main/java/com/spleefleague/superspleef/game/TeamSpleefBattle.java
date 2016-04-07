@@ -5,10 +5,12 @@
  */
 package com.spleefleague.superspleef.game;
 
+import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
+import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -24,13 +26,34 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- *
  * @author Jonas
  */
 public class TeamSpleefBattle extends SpleefBattle {
 
-    private static final Color[] colors = {Color.BLUE, Color.RED, Color.YELLOW, Color.GREEN, Color.PURPLE, Color.ORANGE};
-    private static final ChatColor[] chatColors = {ChatColor.BLUE, ChatColor.RED, ChatColor.YELLOW, ChatColor.GREEN, ChatColor.LIGHT_PURPLE, ChatColor.GOLD};
+    private static final Color[] colors = {
+            Color.BLUE,
+            Color.RED,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.PURPLE,
+            Color.ORANGE
+    };
+    private static final ChatColor[] chatColors = {
+            ChatColor.BLUE,
+            ChatColor.RED,
+            ChatColor.YELLOW,
+            ChatColor.GREEN,
+            ChatColor.LIGHT_PURPLE,
+            ChatColor.GOLD
+    };
+    private static final ChatColor[] chatHighlightColors = {
+            ChatColor.DARK_BLUE,
+            ChatColor.DARK_RED,
+            ChatColor.GOLD,
+            ChatColor.DARK_GREEN,
+            ChatColor.DARK_PURPLE,
+            ChatColor.WHITE
+    };
     private static final String[] names = {"Blue", "Red", "Yellow", "Green", "Purple", "Gold"};
     private Team[] teams;
     private Map<SpleefPlayer, Team> playerTeams;
@@ -50,10 +73,14 @@ public class TeamSpleefBattle extends SpleefBattle {
     public void removePlayer(SpleefPlayer sp, boolean surrender) {
         if (!surrender) {
             for (SpleefPlayer pl : getActivePlayers()) {
-                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
+                pl.sendMessage(
+                        SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
+                        " has left the game!");
             }
             for (SpleefPlayer pl : getSpectators()) {
-                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
+                pl.sendMessage(
+                        SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
+                        " has left the game!");
             }
         }
         handlePlayerDeath(sp, true);
@@ -74,8 +101,10 @@ public class TeamSpleefBattle extends SpleefBattle {
             Team team = new Team(teamID);
             teams[teamID] = team;
             for (int i = 0; i < getArena().getTeamSizes()[teamID]; i++, pid++) {
-                team.addPlayer(getPlayers().get(pid));
-                playerTeams.put(getPlayers().get(pid), team);
+                SpleefPlayer p = getPlayers().get(pid);
+                team.addPlayer(p);
+                playerTeams.put(p, team);
+                applyTeamColor(p, team, true);
             }
         }
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -98,15 +127,23 @@ public class TeamSpleefBattle extends SpleefBattle {
 
     private void end(Team winner, EndReason reason) {
         if (reason == EndReason.CANCEL) {
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", getGameChannel());
+            ChatManager.sendMessage(
+                    SuperSpleef.getInstance().getChatPrefix(),
+                    Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.",
+                    getGameChannel()
+            );
         } else if (reason != EndReason.ENDGAME) {
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + "Team " + winner.getName() + " has won the match.", getGameChannel());
+            ChatManager.sendMessage(
+                    SuperSpleef.getInstance().getChatPrefix(),
+                    Theme.INFO.buildTheme(false) + "Team " + winner.getName() + " has won the match.", getGameChannel()
+            );
         }
         for (SpleefPlayer sp : new ArrayList<>(getSpectators())) {
             resetPlayer(sp);
         }
         for (SpleefPlayer sp : getActivePlayers()) {
             resetPlayer(sp);
+            resetTeamColor(sp);
         }
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
 
@@ -126,7 +163,11 @@ public class TeamSpleefBattle extends SpleefBattle {
         if (winner == null) {
             wStr = "";
         }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over. " + wStr, SuperSpleef.getInstance().getEndMessageChannel());
+        ChatManager.sendMessage(
+                SuperSpleef.getInstance().getChatPrefix(),
+                ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN +
+                " is over. " + wStr, SuperSpleef.getInstance().getEndMessageChannel()
+        );
 
         cleanup();
     }
@@ -145,6 +186,7 @@ public class TeamSpleefBattle extends SpleefBattle {
             if (team.getAlivePlayerCount() >= 1) {
                 if (!leftGame) {
                     giveTempSpectator(player);
+                    applyTeamColor(player, team, false);
                 }
             } else {
                 Team winner = null;
@@ -165,7 +207,11 @@ public class TeamSpleefBattle extends SpleefBattle {
                     getScoreboard().getObjective("rounds").getScore(winner.getName()).setScore(winner.getPoints());
                     if (winner.getPoints() < getArena().getMaxRating()) {
                         setRound(getRound() + 1);
-                        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + "Team " + winner.getName() + ChatColor.YELLOW + " has won round " + getRound(), getGameChannel());
+                        ChatManager.sendMessage(
+                                SuperSpleef.getInstance().getChatPrefix(),
+                                Theme.INFO.buildTheme(false) + "Team " + winner.getName() + ChatColor.YELLOW +
+                                " has won round " + getRound(), getGameChannel()
+                        );
                         startRound();
                     } else {
                         end(winner, EndReason.NORMAL);
@@ -174,7 +220,11 @@ public class TeamSpleefBattle extends SpleefBattle {
                     if (!leftGame) {
                         giveTempSpectator(player);
                     }
-                    ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + "Team " + team.getName() + ChatColor.YELLOW + " died.", getGameChannel());
+                    ChatManager.sendMessage(
+                            SuperSpleef.getInstance().getChatPrefix(),
+                            Theme.INFO.buildTheme(false) + "Team " + team.getName() + ChatColor.YELLOW + " died.",
+                            getGameChannel()
+                    );
                 }
             }
         }
@@ -187,6 +237,7 @@ public class TeamSpleefBattle extends SpleefBattle {
             entry.getValue().addPlayer(sp);
             sp.setGameMode(GameMode.ADVENTURE);
             sp.getInventory().setArmorContents(entry.getValue().getArmor());
+            applyTeamColor(sp, playerTeams.get(sp), true);
         }
         super.startRound();
     }
@@ -204,7 +255,8 @@ public class TeamSpleefBattle extends SpleefBattle {
             }
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getSpectatorTarget() != null && player.getSpectatorTarget().getUniqueId().equals(sp.getUniqueId())) {
+            if (player.getSpectatorTarget() != null &&
+                player.getSpectatorTarget().getUniqueId().equals(sp.getUniqueId())) {
                 player.setSpectatorTarget(target);
             }
         }
@@ -228,17 +280,49 @@ public class TeamSpleefBattle extends SpleefBattle {
     public List<SpleefPlayer> getAllInTeam(Team team) {
         ArrayList<SpleefPlayer> result = new ArrayList<>();
         playerTeams.forEach((SpleefPlayer slPlayer, Team slTeam) -> {
-            if(slTeam.equals(team)) {
+            if (slTeam.equals(team)) {
                 result.add(slPlayer);
             }
         });
         return result;
     }
 
+    public void resetTeamColor(SpleefPlayer p) {
+        SLPlayer sp = SpleefLeague.getInstance().getPlayerManager().get(p);
+        if (sp == null) {
+            return;
+        }
+        p.setPlayerListName(
+            sp.getRank().getColor() + p.getName()
+        );
+        sp.resetChatArrowColor();
+    }
+
+    public void applyTeamColor(SpleefPlayer p, Team t, boolean alive) {
+        if (alive) {
+            p.setPlayerListName(
+                t.getChatHighlightColor() + "[+ " +
+                t.getChatColor() + p.getName() +
+                t.getChatHighlightColor() + " +]"
+            );
+        } else {
+            p.setPlayerListName(
+                    t.getChatHighlightColor() + ChatColor.ITALIC.toString() + "[- " +
+                    t.getChatColor() + ChatColor.ITALIC.toString() + p.getName() +
+                    t.getChatHighlightColor() + ChatColor.ITALIC.toString() + " -]"
+            );
+        }
+        SLPlayer sp = SpleefLeague.getInstance().getPlayerManager().get(p);
+        if (sp != null) {
+            sp.setChatArrowColor(t.getChatColor());
+        }
+    }
+
     private class Team {
 
         private final Color color;
         private final ChatColor chatColor;
+        private final ChatColor chatHighlightColor;
         private final Set<SpleefPlayer> alivePlayers;
         private final String name;
         private int points = 0;
@@ -246,6 +330,7 @@ public class TeamSpleefBattle extends SpleefBattle {
         public Team(int id) {
             this.color = colors[id];
             this.chatColor = chatColors[id];
+            this.chatHighlightColor = chatHighlightColors[id];
             this.alivePlayers = new HashSet<>();
             this.name = chatColor + names[id];
         }
@@ -256,6 +341,10 @@ public class TeamSpleefBattle extends SpleefBattle {
 
         public ChatColor getChatColor() {
             return chatColor;
+        }
+
+        public ChatColor getChatHighlightColor() {
+            return chatHighlightColor;
         }
 
         public Set<SpleefPlayer> getAlivePlayers() {

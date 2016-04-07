@@ -97,6 +97,7 @@ public class SuperSpleef extends GamePlugin {
         return playerManager;
     }
 
+    @Override
     public BattleManager<Arena, SpleefPlayer, SpleefBattle> getBattleManager() {
         return battleManagerSpleef;
     }

@@ -44,10 +44,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -129,7 +126,8 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         return players;
     }
 
-    public List<SpleefPlayer> getSpectators() {
+    @Override
+    public Collection<SpleefPlayer> getSpectators() {
         return spectators;
     }
 

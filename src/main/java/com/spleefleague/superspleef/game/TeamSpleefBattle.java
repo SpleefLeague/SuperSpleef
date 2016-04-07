@@ -292,28 +292,26 @@ public class TeamSpleefBattle extends SpleefBattle {
         if (sp == null) {
             return;
         }
-        p.setPlayerListName(
-            sp.getRank().getColor() + p.getName()
-        );
+        sp.setTabName(null);
         sp.resetChatArrowColor();
     }
 
     public void applyTeamColor(SpleefPlayer p, Team t, boolean alive) {
-        if (alive) {
-            p.setPlayerListName(
-                t.getChatHighlightColor() + "[+ " +
-                t.getChatColor() + p.getName() +
-                t.getChatHighlightColor() + " +]"
-            );
-        } else {
-            p.setPlayerListName(
-                    t.getChatHighlightColor() + ChatColor.ITALIC.toString() + "[- " +
-                    t.getChatColor() + ChatColor.ITALIC.toString() + p.getName() +
-                    t.getChatHighlightColor() + ChatColor.ITALIC.toString() + " -]"
-            );
-        }
         SLPlayer sp = SpleefLeague.getInstance().getPlayerManager().get(p);
         if (sp != null) {
+            if (alive) {
+                sp.setTabName(
+                        t.getChatHighlightColor() + "[+ " +
+                        t.getChatColor() + p.getName() +
+                        t.getChatHighlightColor() + " +]"
+                );
+            } else {
+                sp.setTabName(
+                        t.getChatHighlightColor() + ChatColor.ITALIC.toString() + "[- " +
+                        t.getChatColor() + ChatColor.ITALIC.toString() + p.getName() +
+                        t.getChatHighlightColor() + ChatColor.ITALIC.toString() + " -]"
+                );
+            }
             sp.setChatArrowColor(t.getChatColor());
         }
     }

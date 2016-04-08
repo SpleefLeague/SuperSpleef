@@ -25,3 +25,7 @@ commands:
         description: Resets the current spleef field
         usage:
             /<command> [player]
+    playto:
+        description: Changes amount of wins needed to be reached to completely win the game
+        usage:
+            /<command> [wins]

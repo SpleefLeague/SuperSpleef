@@ -11,6 +11,7 @@ import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.commands.playto;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
@@ -65,7 +66,10 @@ public class NormalSpleefBattle extends SpleefBattle {
     @Override
     public void end(SpleefPlayer winner, EndReason reason) {
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
-        Lists.newArrayList(getActivePlayers()).forEach(this::resetPlayer);
+        Lists.newArrayList(getActivePlayers()).forEach((p) -> {
+            this.resetPlayer(p);
+            playto.invalidate(p);
+        });
         saveGameHistory(winner);
         if (reason == EndReason.CANCEL) {
             if (reason == EndReason.CANCEL) {
@@ -90,7 +94,7 @@ public class NormalSpleefBattle extends SpleefBattle {
                     PlayerData playerdata = getData(sp);
                     playerdata.increasePoints();
                     getScoreboard().getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
-                    if (playerdata.getPoints() < getArena().getMaxRating()) {
+                    if (playerdata.getPoints() < getPlayTo()) {
                         setRound(getRound() + 1);
                         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + sp.getName() + " has won round " + getRound(), getGameChannel());
                         startRound();

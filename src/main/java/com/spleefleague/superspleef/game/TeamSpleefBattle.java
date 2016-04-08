@@ -13,6 +13,7 @@ import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.commands.playto;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.*;
@@ -143,6 +144,7 @@ public class TeamSpleefBattle extends SpleefBattle {
         Lists.newArrayList(getActivePlayers()).forEach((p) -> {
             resetPlayer(p);
             resetTeamColor(p);
+            playto.invalidate(p);
         });
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
 
@@ -204,7 +206,7 @@ public class TeamSpleefBattle extends SpleefBattle {
                 if (winner != null) {
                     winner.increasePoints();
                     getScoreboard().getObjective("rounds").getScore(winner.getName()).setScore(winner.getPoints());
-                    if (winner.getPoints() < getArena().getMaxRating()) {
+                    if (winner.getPoints() < getPlayTo()) {
                         setRound(getRound() + 1);
                         ChatManager.sendMessage(
                                 SuperSpleef.getInstance().getChatPrefix(),

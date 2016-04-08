@@ -62,7 +62,8 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     private boolean inCountdown = false;
     private final SpleefMode spleefMode;
     private final FakeArea spawnCages, field;
-
+    private int pointsCup = 0;
+    
     protected SpleefBattle(Arena arena, List<SpleefPlayer> players) {
         this(arena, players, arena.getSpleefMode());
     }
@@ -81,17 +82,18 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             }
         }
         this.cc = ChatChannel.createTemporaryChannel("GAMECHANNEL" + this.hashCode(), null, Rank.DEFAULT, false, false);
+        this.pointsCup = this.arena.getMaxRating();
     }
 
     public abstract void removePlayer(SpleefPlayer sp, boolean surrender);
 
     public abstract void end(SpleefPlayer winner, EndReason reason);
 
-    public abstract void onArenaLeave(SpleefPlayer player);
-
     protected abstract void onStart();
 
     protected abstract void updateScoreboardTime();
+
+    public abstract void onArenaLeave(SpleefPlayer player);
 
     @Override
     public Arena getArena() {
@@ -133,6 +135,10 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
     public boolean isNormalSpleef() {
         return players.size() == 2;
+    }
+
+    public int getPlayTo() {
+        return this.pointsCup;
     }
 
     public void addSpectator(SpleefPlayer sp) {
@@ -223,7 +229,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         slp.resetVisibility();
     }
 
-    protected void cleanup() {
+    public void cleanup() {
         clock.cancel();
         resetField();
         arena.registerGameEnd();
@@ -445,6 +451,17 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
     public int getDuration() {
         return ticksPassed;
+    }
+
+    public void changePointsCup(int value) {
+        pointsCup = value;
+        for(SpleefPlayer sp : getActivePlayers()) {
+            PlayerData pd = this.data.get(sp);
+            if(pd.getPoints() >= pointsCup) {
+                end(sp, EndReason.NORMAL);
+                break;
+            }
+        }
     }
 
     private static ItemStack getShovel() {

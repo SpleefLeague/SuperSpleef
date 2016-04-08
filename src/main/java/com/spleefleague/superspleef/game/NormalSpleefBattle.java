@@ -5,20 +5,22 @@
  */
 package com.spleefleague.superspleef.game;
 
+import com.google.common.collect.Lists;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -62,12 +64,8 @@ public class NormalSpleefBattle extends SpleefBattle {
 
     @Override
     public void end(SpleefPlayer winner, EndReason reason) {
-        for (SpleefPlayer sp : new ArrayList<>(getSpectators())) {
-            resetPlayer(sp);
-        }
-        for (SpleefPlayer sp : getActivePlayers()) {
-            resetPlayer(sp);
-        }
+        Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
+        Lists.newArrayList(getActivePlayers()).forEach(this::resetPlayer);
         saveGameHistory(winner);
         if (reason == EndReason.CANCEL) {
             if (reason == EndReason.CANCEL) {

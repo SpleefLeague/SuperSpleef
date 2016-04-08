@@ -5,6 +5,7 @@
  */
 package com.spleefleague.superspleef.game;
 
+import com.google.common.collect.Lists;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
@@ -138,13 +139,11 @@ public class TeamSpleefBattle extends SpleefBattle {
                     Theme.INFO.buildTheme(false) + "Team " + winner.getName() + " has won the match.", getGameChannel()
             );
         }
-        for (SpleefPlayer sp : new ArrayList<>(getSpectators())) {
-            resetPlayer(sp);
-        }
-        for (SpleefPlayer sp : getActivePlayers()) {
-            resetPlayer(sp);
-            resetTeamColor(sp);
-        }
+        Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
+        Lists.newArrayList(getActivePlayers()).forEach((p) -> {
+            resetPlayer(p);
+            resetTeamColor(p);
+        });
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
 
         String playerNames = "";

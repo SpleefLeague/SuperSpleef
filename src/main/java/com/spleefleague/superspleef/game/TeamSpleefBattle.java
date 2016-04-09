@@ -203,6 +203,11 @@ public class TeamSpleefBattle extends SpleefBattle {
                 }
                 if (winner != null) {
                     winner.increasePoints();
+                    for (Entry<SpleefPlayer, Team> e : this.playerTeams.entrySet()) {
+                        if (e.getValue() == winner) {
+                            getData(e.getKey()).increasePoints();
+                        }
+                    }
                     getScoreboard().getObjective("rounds").getScore(winner.getName()).setScore(winner.getPoints());
                     if (winner.getPoints() < getPlayTo()) {
                         setRound(getRound() + 1);

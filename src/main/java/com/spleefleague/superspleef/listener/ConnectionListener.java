@@ -49,8 +49,7 @@ public class ConnectionListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        Player p = event.getPlayer();
-        playto.invalidate(p);
+        sp.invalidatePlayToRequest();
         if(sp.isIngame()) {
             SuperSpleef.getInstance().getBattleManager().getBattle(sp).removePlayer(sp, false);
         } else {

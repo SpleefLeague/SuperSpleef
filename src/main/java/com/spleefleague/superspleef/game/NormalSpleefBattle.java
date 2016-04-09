@@ -68,7 +68,7 @@ public class NormalSpleefBattle extends SpleefBattle {
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
         Lists.newArrayList(getActivePlayers()).forEach((p) -> {
             this.resetPlayer(p);
-            playto.invalidate(p);
+            p.invalidatePlayToRequest();
         });
         saveGameHistory(winner);
         if (reason == EndReason.CANCEL) {

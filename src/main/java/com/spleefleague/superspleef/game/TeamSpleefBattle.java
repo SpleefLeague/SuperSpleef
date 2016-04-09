@@ -85,6 +85,7 @@ public class TeamSpleefBattle extends SpleefBattle {
                         " has left the game!");
             }
         }
+        resetTeamColor(sp);
         handlePlayerDeath(sp, true);
         playerTeams.remove(sp);
         resetPlayer(sp);

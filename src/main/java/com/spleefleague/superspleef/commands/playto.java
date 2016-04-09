@@ -57,7 +57,7 @@ public class playto extends BasicCommand {
                 requesting.add(spleefPlayer);
             }
         });
-        if ((double) requesting.size() / total.getValue() > 0.65d) {
+        if (requesting.size() == total.getValue()) {
             battle.getPlayers().forEach((SpleefPlayer spleefPlayer) -> {
                 spleefPlayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) +
                         "The game has been set to first to " + to + ".");

@@ -145,7 +145,7 @@ public class TeamSpleefBattle extends SpleefBattle {
         Lists.newArrayList(getActivePlayers()).forEach((p) -> {
             resetPlayer(p);
             resetTeamColor(p);
-            playto.invalidate(p);
+            p.invalidatePlayToRequest();
         });
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
 

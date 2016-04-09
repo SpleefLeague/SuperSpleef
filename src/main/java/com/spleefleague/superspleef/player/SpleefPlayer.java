@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public class SpleefPlayer extends RatedPlayer {
 
-    private int rating;
+    private int rating, playTo;
     private boolean ingame, frozen, requestingReset, requestingEndgame;
     private Set<Arena> visitedArenas;
     private Set<String> visitedArenas_broken;
@@ -120,10 +120,23 @@ public class SpleefPlayer extends RatedPlayer {
         return visitedArenas;
     }
 
+    public int getPlayToRequest() {
+        return playTo;
+    }
+
+    public void setPlayToRequest(int playTo) {
+        this.playTo = playTo;
+    }
+
+    public void invalidatePlayToRequest() {
+        this.playTo = -1;
+    }
+
     @Override
     public void setDefaults() {
         super.setDefaults();
         this.rating = 1000;
+        this.playTo = -1;
         this.frozen = false;
         this.ingame = false;
         visitedArenas = new HashSet<>();

@@ -148,9 +148,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         }
         sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
+        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, sp.getPlayer());
         FakeBlockHandler.addArea(spawnCages, sp.getPlayer());
         FakeBlockHandler.addArea(field, sp.getPlayer());
-        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, sp.getPlayer());
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);

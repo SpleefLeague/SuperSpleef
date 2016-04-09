@@ -13,7 +13,6 @@ import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.commands.playto;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.*;
@@ -59,16 +58,14 @@ public class TeamSpleefBattle extends SpleefBattle {
     private static final String[] names = {"Blue", "Red", "Yellow", "Green", "Purple", "Gold"};
     private Team[] teams;
     private Map<SpleefPlayer, Team> playerTeams;
-    private TeamSpleefArena arena;
 
     protected TeamSpleefBattle(TeamSpleefArena arena, List<SpleefPlayer> players) {
         super(arena, players);
-        this.arena = arena;
     }
 
     @Override
     public TeamSpleefArena getArena() {
-        return arena;
+        return (TeamSpleefArena) super.getArena();
     }
 
     @Override

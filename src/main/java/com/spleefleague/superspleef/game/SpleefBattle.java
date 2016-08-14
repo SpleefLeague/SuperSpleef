@@ -222,6 +222,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.closeInventory();
             data.get(sp).restoreOldData();
         }
+        if (sp.getPlayer().getGameMode() == GameMode.SPECTATOR) {
+            sp.getPlayer().setSpectatorTarget(null);
+        }
         sp.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         sp.teleport(SpleefLeague.getInstance().getSpawnManager().getNext().getLocation());
         slp.removeChatChannel(cc);

@@ -12,6 +12,7 @@ import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -64,6 +65,9 @@ public class EnvironmentListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(PlayerJoinEvent event) {
         for (Arena arena : Arena.getAll()) {
+            FakeBlockHandler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
+        }
+        for (Arena arena : TeamSpleefArena.getAll()) {
             FakeBlockHandler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
         }
     }

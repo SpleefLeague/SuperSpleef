@@ -252,6 +252,7 @@ public class SuperSpleef extends GamePlugin {
             if (shouldEnd) {
                 battle.end(null, EndReason.ENDGAME);
             } else {
+                battle.onScoreboardUpdate();
                 for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if (!spleefplayer.isRequestingEndgame()) {
                         spleefplayer.sendMessage(

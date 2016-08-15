@@ -33,8 +33,24 @@ public class reset extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         if (slp.getState() == PlayerState.INGAME) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
+            if (args.length > 0 && args[0].equalsIgnoreCase("force") && slp.getRank().hasPermission(Rank.SENIOR_MODERATOR)) {
+                SpleefBattle b = sp.getCurrentBattle();
+                if (b != null) {
+                    b.resetField();
+                    for (SpleefPlayer spleefplayer : b.getActivePlayers()) {
+                        spleefplayer.sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.WARNING.buildTheme(false) +
+                                                 "Your battle has been reset by a moderator.");
+                        spleefplayer.teleport(b.getData(spleefplayer).getSpawn());
+                    }
+                    success(p, "The battle has been reset.");
+                } else {
+                    error(p, "You aren't in a valid battle");
+                }
+                return;
+            }
             sp.setRequestingReset(true);
             SpleefBattle battle = sp.getCurrentBattle();
+            battle.onScoreboardUpdate();
             int requesting = 0, total = 0;
             for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                 if (spleefplayer.isRequestingReset()) {
@@ -48,6 +64,7 @@ public class reset extends BasicCommand {
                     spleefplayer.setRequestingReset(false);
                     spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());
                 }
+                battle.onScoreboardUpdate();
             } else {
                 for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                     if (!spleefplayer.isRequestingReset()) {
@@ -67,8 +84,10 @@ public class reset extends BasicCommand {
                         for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {
                             spleefplayer.sendMessage(SuperSpleef.getInstance().getPrefix() + " " + Theme.WARNING.buildTheme(false) + "Your battle has been reset by a moderator.");
                             spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());
+                            spleefplayer.setRequestingReset(false);
                         }
                         success(p, "The battle has been reset.");
+                        battle.onScoreboardUpdate();
                     } else {
                         error(p, player.getName() + " is currently not ingame.");
                     }

@@ -11,7 +11,6 @@ import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.commands.playto;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
@@ -21,7 +20,9 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -50,6 +51,50 @@ public class NormalSpleefBattle extends SpleefBattle {
         }
     }
 
+    private String getPlayToString() {
+        return ChatColor.GOLD + "Playing to: ";
+    }
+
+    @Override
+    public void onScoreboardUpdate() {
+        reInitScoreboard();
+    }
+
+    private void reInitScoreboard() {
+        getScoreboard().getObjective("rounds").unregister();
+        Objective objective = getScoreboard().registerNewObjective("rounds", "dummy");
+        String s = DurationFormatUtils.formatDuration(getTicksPassed() * 50, "HH:mm:ss", true);
+        objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective.getScore(getPlayToString()).setScore(getPlayTo());
+        Set<String> requestingReset = new HashSet();
+        Set<String> requestingEnd = new HashSet();
+        for (SpleefPlayer sp : this.getPlayers()) {
+            if (sp.isRequestingReset()) {
+                requestingReset.add(sp.getName());
+            }
+            if (sp.isRequestingEndgame()) {
+                requestingEnd.add(sp.getName());
+            }
+            objective.getScore(sp.getName()).setScore(getData(sp).getPoints());
+        }
+        if (!requestingEnd.isEmpty() || !requestingReset.isEmpty()) {
+            objective.getScore(ChatColor.BLACK + "-----------").setScore(-1);
+        }
+        if (!requestingReset.isEmpty()) {
+            objective.getScore(ChatColor.GOLD + "Reset requested").setScore(-2);
+            for (String name : requestingReset) {
+                objective.getScore(ChatColor.LIGHT_PURPLE + "> " + name).setScore(-3);
+            }
+        }
+        if (!requestingEnd.isEmpty()) {
+            objective.getScore(ChatColor.RED + "End requested").setScore(-4);
+            for (String name : requestingEnd) {
+                objective.getScore(ChatColor.AQUA + "> " + name).setScore(-5);
+            }
+        }
+    }
+
     @Override
     protected void onStart() {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -57,10 +102,17 @@ public class NormalSpleefBattle extends SpleefBattle {
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
         for (SpleefPlayer sp : getPlayers()) {
-            scoreboard.getObjective("rounds").getScore(sp.getName()).setScore(0);
+            objective.getScore(sp.getName()).setScore(0);
             sp.setScoreboard(scoreboard);
         }
+        objective.getScore(getPlayToString()).setScore(getPlayTo());
         setScoreboard(scoreboard);
+    }
+
+    @Override
+    public void changePointsCup(int value) {
+        super.changePointsCup(value);
+        this.reInitScoreboard();
     }
 
     @Override
@@ -115,6 +167,7 @@ public class NormalSpleefBattle extends SpleefBattle {
                 }
             }
         }
+        reInitScoreboard();
     }
 
     @Override

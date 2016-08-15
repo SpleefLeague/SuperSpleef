@@ -63,6 +63,7 @@ public class playto extends BasicCommand {
                         "The game has been set to first to " + to + ".");
             });
             battle.changePointsCup(to);
+            battle.onScoreboardUpdate();
         } else {
             battle.getActivePlayers().stream().filter(player -> !requesting.contains(player)).forEach(player -> {
                 player.sendMessage(

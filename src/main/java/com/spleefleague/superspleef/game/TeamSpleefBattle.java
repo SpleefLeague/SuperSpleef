@@ -117,7 +117,53 @@ public class TeamSpleefBattle extends SpleefBattle {
                 sp.setScoreboard(scoreboard);
             }
         }
+        objective.getScore(getPlayToString()).setScore(getPlayTo());
         setScoreboard(scoreboard);
+    }
+
+    private String getPlayToString() {
+        return ChatColor.GOLD + "Playing to: ";
+    }
+
+    @Override
+    public void onScoreboardUpdate() {
+        reInitScoreboard();
+    }
+
+    private void reInitScoreboard() {
+        getScoreboard().getObjective("rounds").unregister();
+        Objective objective = getScoreboard().registerNewObjective("rounds", "dummy");
+        String s = DurationFormatUtils.formatDuration(getTicksPassed() * 50, "HH:mm:ss", true);
+        objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective.getScore(getPlayToString()).setScore(getPlayTo());
+        Set<String> requestingReset = new HashSet();
+        Set<String> requestingEnd = new HashSet();
+        for (SpleefPlayer sp : this.getPlayers()) {
+            Team t = this.playerTeams.get(sp);
+            if (sp.isRequestingReset()) {
+                requestingReset.add(t.getChatColor() + sp.getName());
+            }
+            if (sp.isRequestingEndgame()) {
+                requestingEnd.add(t.getChatColor() + sp.getName());
+            }
+            getScoreboard().getObjective("rounds").getScore(t.getName()).setScore(t.getPoints());
+        }
+        if (!requestingEnd.isEmpty() || !requestingReset.isEmpty()) {
+            objective.getScore(ChatColor.BLACK + "-----------").setScore(-1);
+        }
+        if (!requestingReset.isEmpty()) {
+            objective.getScore(ChatColor.GOLD + "Reset requested").setScore(-2);
+            for (String name : requestingReset) {
+                objective.getScore("> " + name).setScore(-3);
+            }
+        }
+        if (!requestingEnd.isEmpty()) {
+            objective.getScore(ChatColor.RED + "End requested").setScore(-4);
+            for (String name : requestingEnd) {
+                objective.getScore("* " + name).setScore(-5);
+            }
+        }
     }
 
     @Override
@@ -232,6 +278,7 @@ public class TeamSpleefBattle extends SpleefBattle {
                 }
             }
         }
+        reInitScoreboard();
     }
 
     @Override

@@ -95,6 +95,8 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
     public abstract void onArenaLeave(SpleefPlayer player);
 
+    public abstract void onScoreboardUpdate();
+
     @Override
     public Arena getArena() {
         return arena;

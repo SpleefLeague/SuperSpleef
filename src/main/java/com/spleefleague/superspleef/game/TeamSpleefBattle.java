@@ -167,6 +167,15 @@ public class TeamSpleefBattle extends SpleefBattle {
     }
 
     @Override
+    public ArrayList<SpleefPlayer> getAlivePlayers() {
+        ArrayList<SpleefPlayer> pls = new ArrayList();
+        for (Team t : this.teams) {
+            pls.addAll(t.getAlivePlayers());
+        }
+        return pls;
+    }
+
+    @Override
     public void end(SpleefPlayer winner, EndReason reason) {
         end((Team) null, reason);
     }

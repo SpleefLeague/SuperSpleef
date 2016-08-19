@@ -198,6 +198,10 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         resetPlayer(sp);
     }
 
+    public ArrayList<SpleefPlayer> getAlivePlayers() {
+        return this.getActivePlayers();
+    }
+
     @Override
     public ArrayList<SpleefPlayer> getActivePlayers() {
         ArrayList<SpleefPlayer> active = new ArrayList<>();

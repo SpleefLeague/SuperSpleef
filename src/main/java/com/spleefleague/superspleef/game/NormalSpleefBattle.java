@@ -202,5 +202,8 @@ public class NormalSpleefBattle extends SpleefBattle {
         winner.setRating(winner.getRating() + winnerPoints);
         playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + (winnerPoints == 1 ? " point. " : " points. ");
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over. " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
+        this.getPlayers().forEach((p) -> {
+            SuperSpleef.getInstance().getPlayerManager().save(p);
+        });
     }
 }

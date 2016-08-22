@@ -236,6 +236,9 @@ public class TeamSpleefBattle extends SpleefBattle {
             player.teleport(getData(player).getSpawn());
         } else {
             Team team = playerTeams.get(player);
+            if (!playerTeams.get(player).getAlivePlayers().contains(player)) {
+                return;
+            }
             playerTeams.get(player).getAlivePlayers().remove(player);
             if (team.getAlivePlayerCount() >= 1) {
                 if (!leftGame) {

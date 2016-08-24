@@ -100,7 +100,7 @@ public class teamspleef extends BasicCommand {
                     } else {
                         sendUsage(p);
                     }
-                } else if (args.length >= 3 && args[0].equalsIgnoreCase("challenge")) {
+                } else if (args.length >= 3 && (args[0].equalsIgnoreCase("challenge") || args[0].equalsIgnoreCase("c"))) {
                     TeamSpleefArena arena = TeamSpleefArena.byName(args[1]);
                     if (arena != null) {
                         if (args.length - 1 == arena.getSize()) {

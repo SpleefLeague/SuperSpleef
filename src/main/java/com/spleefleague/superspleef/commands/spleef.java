@@ -120,7 +120,7 @@ public class spleef extends BasicCommand {
                     } else {
                         sendUsage(p);
                     }
-                } else if (args.length == 3 && (args[0].equalsIgnoreCase("challenge") || args[0].equalsIgnoreCase("c")) {
+                } else if (args.length == 3 && (args[0].equalsIgnoreCase("challenge") || args[0].equalsIgnoreCase("c"))) {
                     Arena arena = Arena.byName(args[1]);
                     if (arena != null) {
                         if (!arena.isAvailable(sp)) {

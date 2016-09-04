@@ -217,7 +217,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         FakeBlockHandler.removeArea(spawnCages, slp.getPlayer());
         FakeBlockHandler.removeArea(field, false, slp.getPlayer());
-        FakeBlockHandler.addArea(arena.getDefaultSnow(), false, slp.getPlayer());
+        FakeBlockHandler.addArea(arena.getDefaultSnow(), slp.getPlayer());
         if (spectators.contains(sp)) {
             spectators.remove(sp);
         } else {
@@ -277,7 +277,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             SuperSpleef.getInstance().getBattleManager().add(this);
             String playerNames = "";
             FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
-            FakeBlockHandler.addArea(field, false, players.toArray(new SpleefPlayer[players.size()]));
+            FakeBlockHandler.addArea(field, players.toArray(new SpleefPlayer[players.size()]));
             FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
 
             for (int i = 0; i < players.size(); i++) {
@@ -318,7 +318,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             SpleefBattle.this.onStart();
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
             getSpawnCageBlocks();
-            FakeBlockHandler.addArea(spawnCages, false, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
+            FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
             hidePlayers();
             startClock();
             startRound();

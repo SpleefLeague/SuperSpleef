@@ -126,6 +126,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         return ticksPassed;
     }
 
+    @Override
     public List<SpleefPlayer> getPlayers() {
         return players;
     }

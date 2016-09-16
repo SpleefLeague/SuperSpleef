@@ -13,7 +13,6 @@ import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.commands.playto;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
@@ -49,6 +48,9 @@ public class ConnectionListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
+        if (sp == null) {
+            return;
+        }
         sp.invalidatePlayToRequest();
         if(sp.isIngame()) {
             SuperSpleef.getInstance().getBattleManager().getBattle(sp).removePlayer(sp, false);

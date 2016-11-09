@@ -301,7 +301,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 p.setGameMode(GameMode.ADVENTURE);
                 p.closeInventory();
                 p.getInventory().clear();
-                p.getInventory().setArmorContents(null);
+//                p.getInventory().setArmorContents(null);
                 p.getInventory().addItem(getShovel());
                 for (PotionEffect effect : p.getActivePotionEffects()) {
                     p.removePotionEffect(effect.getType());

@@ -5,8 +5,55 @@
     <artifactId>SuperSpleef</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+    
+    <scm>
+        <connection>scm:git:git@github.com:SpleefLeague/SuperSpleef.git</connection>
+        <developerConnection>scm:git:git@github.com:SpleefLeague/SuperSpleef.git</developerConnection>
+        <url>git@github.com:SpleefLeague/SuperSpleef.git</url>
+    </scm>
+
+    <properties>
+        <build.number>unknown</build.number>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <repositories>
+        <repository>
+            <id>rines-repo</id>
+            <url>https://repo.kostya.sexy/</url>
+        </repository>
+    </repositories>
+    
     <build>
         <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Version>${gitcommitid}-${gitcommitdate}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>ru.luvas</groupId>
+                <artifactId>gitver</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>describe</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
     <dependencies>
         <dependency>
@@ -15,9 +62,4 @@
             <version>1.0</version>
         </dependency>
     </dependencies>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
 </project>

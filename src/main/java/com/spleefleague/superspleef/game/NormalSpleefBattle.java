@@ -187,7 +187,9 @@ public class NormalSpleefBattle extends SpleefBattle {
         int winnerPoints = 0;
         int winnerSWCPoints = 0;
         final int MIN_RATING = 1, MAX_RATING = 40;
-        String endScore = getData(winner).getPoints() + "-";
+        int winnersIngamePoints = getData(winner).getPoints();
+        boolean earnCoins = winnersIngamePoints >= 5;
+        String endScore = winnersIngamePoints + "-";
         String playerList = "";
         for (SpleefPlayer sp : getPlayers()) {
             if (sp != winner) {
@@ -200,12 +202,14 @@ public class NormalSpleefBattle extends SpleefBattle {
                 sp.setRating(sp.getRating() - rating);
                 playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
                 endScore += getData(sp).getPoints() + "-";
-                SpleefLeague.getInstance().getPlayerManager().get(sp).changeCoins(2);
+                if(earnCoins)
+                    SpleefLeague.getInstance().getPlayerManager().get(sp).changeCoins(2);
             }
         }
         endScore = endScore.substring(0, endScore.length() - 1);
         winner.setRating(winner.getRating() + winnerPoints);
-        SpleefLeague.getInstance().getPlayerManager().get(winner).changeCoins(5);
+        if(earnCoins)
+            SpleefLeague.getInstance().getPlayerManager().get(winner).changeCoins(5);
         playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + (winnerPoints == 1 ? " point. " : " points. ");
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over " + ChatColor.WHITE + "(" + endScore + ")" + ChatColor.GREEN + ". " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
         this.getPlayers().forEach((p) -> {

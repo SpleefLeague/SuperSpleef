@@ -89,7 +89,8 @@ public class TeamSpleefBattle extends SpleefBattle {
         ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
         if (activePlayers.size() == 1) {
             end(activePlayers.get(0), surrender ? EndReason.SURRENDER : EndReason.QUIT);
-        }
+        }else
+            getPlayers().remove(sp);
     }
 
     @Override

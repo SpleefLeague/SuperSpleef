@@ -181,6 +181,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             ingamePlayers.add(p.getPlayer());
         }
         Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
+            if(sp.getPlayer() == null) {
+                return;
+            }
             List<PlayerInfoData> list = new ArrayList<>();
             SpleefLeague.getInstance().getPlayerManager().getAll().forEach((SLPlayer slPlayer) -> list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(slPlayer.getPlayer()), ((CraftPlayer) slPlayer.getPlayer()).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(slPlayer.getRank().getColor() + slPlayer.getName()))));
             WrapperPlayServerPlayerInfo packet = new WrapperPlayServerPlayerInfo();

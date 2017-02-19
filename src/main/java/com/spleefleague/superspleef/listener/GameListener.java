@@ -61,7 +61,7 @@ public class GameListener implements Listener {
                 }
             } else if (!sp.isIngame()) {
                 SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
-                if (!(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER)) {
+                if (slp != null && !(slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER)) {
                     for (Arena arena : Arena.getAll()) {
                         if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getLocation())) {
                             Location loc = arena.getSpectatorSpawn();

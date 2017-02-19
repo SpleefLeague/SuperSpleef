@@ -6,12 +6,6 @@
     <version>1.0</version>
     <packaging>jar</packaging>
     
-    <scm>
-        <connection>scm:git:git@github.com:SpleefLeague/SuperSpleef.git</connection>
-        <developerConnection>scm:git:git@github.com:SpleefLeague/SuperSpleef.git</developerConnection>
-        <url>git@github.com:SpleefLeague/SuperSpleef.git</url>
-    </scm>
-
     <properties>
         <build.number>unknown</build.number>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -19,47 +13,73 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
-    <repositories>
-        <repository>
-            <id>rines-repo</id>
-            <url>https://repo.kostya.sexy/</url>
-        </repository>
-    </repositories>
     
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Implementation-Version>${gitcommitid}-${gitcommitdate}</Implementation-Version>
-                        </manifestEntries>
-                    </archive>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>ru.luvas</groupId>
-                <artifactId>gitver</artifactId>
-                <version>1.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
                 <executions>
                     <execution>
-                        <phase>initialize</phase>
+                        <phase>package</phase>
                         <goals>
-                            <goal>describe</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <shadedClassifierName>shaded</shadedClassifierName>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+    <repositories>    
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>http://repo.dmulloy2.net/content/groups/public/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>SpleefLeagueCore</artifactId>
             <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.packetwrapper</groupId>
+            <artifactId>PacketWrapper</artifactId>
+            <version>1.11-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>4.1.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

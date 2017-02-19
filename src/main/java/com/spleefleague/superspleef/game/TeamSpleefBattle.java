@@ -109,6 +109,8 @@ public class TeamSpleefBattle extends SpleefBattle {
             }
         }
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        org.bukkit.scoreboard.Team scoreboardTeam = scoreboard.registerNewTeam("NO_COLLISION");
+        scoreboardTeam.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
@@ -116,10 +118,12 @@ public class TeamSpleefBattle extends SpleefBattle {
             scoreboard.getObjective("rounds").getScore(team.getName()).setScore(0);
             for (SpleefPlayer sp : team.getAlivePlayers()) {
                 sp.setScoreboard(scoreboard);
+                scoreboardTeam.addEntry(sp.getName());
             }
         }
         objective.getScore(getPlayToString()).setScore(getPlayTo());
         setScoreboard(scoreboard);
+        scoreboard.getTeams().forEach(t -> t.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.NEVER));
     }
 
     private String getPlayToString() {

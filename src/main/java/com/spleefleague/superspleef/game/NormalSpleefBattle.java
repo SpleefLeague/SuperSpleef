@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.bukkit.scoreboard.Team;
 
 /**
  *
@@ -100,15 +101,18 @@ public class NormalSpleefBattle extends SpleefBattle {
     @Override
     protected void onStart() {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Team team = scoreboard.registerNewTeam("NO_COLLISION");
+        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         Objective objective = scoreboard.registerNewObjective("rounds", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName(ChatColor.GRAY + "00:00:00 | " + ChatColor.RED + "Score:");
         for (SpleefPlayer sp : getPlayers()) {
             objective.getScore(sp.getName()).setScore(0);
             sp.setScoreboard(scoreboard);
+            team.addEntry(sp.getName());
         }
         objective.getScore(getPlayToString()).setScore(getPlayTo());
-        setScoreboard(scoreboard);
+        setScoreboard(scoreboard);    
     }
 
     @Override

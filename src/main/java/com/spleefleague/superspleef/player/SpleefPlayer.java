@@ -31,6 +31,8 @@ public class SpleefPlayer extends RatedPlayer {
     private Set<String> visitedArenas_broken;
 
     public SpleefPlayer() {
+        visitedArenas = new HashSet<>();
+        visitedArenas_broken = new HashSet<>();
         setDefaults();
     }
 
@@ -139,15 +141,8 @@ public class SpleefPlayer extends RatedPlayer {
         this.playTo = -1;
         this.frozen = false;
         this.ingame = false;
-        visitedArenas = new HashSet<>();
-        visitedArenas_broken = new HashSet<>();
-        for (String name : (List<String>) Settings.getList("default_arenas_spleef")) {
-            Arena a = Arena.byName(name);
-            if (a != null) {
-                visitedArenas.add(a);
-            } else {
-                visitedArenas_broken.add(name);
-            }
-        }
+        Settings.getList("default_arenas_spleef")
+            .ifPresent(l -> ((List<String>)l)
+                .forEach(name -> visitedArenas.add(Arena.byName(name))));
     }
 }

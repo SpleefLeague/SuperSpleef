@@ -45,8 +45,9 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "border")
     private Area border;
     private Area[] fields;
-    @DBLoad(fieldName = "spawns", typeConverter = TypeConverter.LocationConverter.class)
     private Location[] spawns;
+    @DBLoad(fieldName = "requiredPlayers", priority = 2)
+    private int requiredPlayers;
     @DBLoad(fieldName = "creator")
     private String creator;
     @DBLoad(fieldName = "name")
@@ -85,6 +86,15 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     public FakeArea getDefaultSnow() {
         return defaultSnow;
+    }
+    
+    @DBLoad(fieldName = "spawns", typeConverter = TypeConverter.LocationConverter.class, priority = 1)
+    private void setSpawns(Location[] spawns) {
+        System.out.println("setSpawns");
+        System.out.println(requiredPlayers);
+        System.out.println(name);
+        this.spawns = spawns;
+        this.requiredPlayers = spawns.length;//Will be overwritten if requiredPlayers value exists
     }
 
     @DBLoad(fieldName = "field")
@@ -187,6 +197,11 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     public SpleefMode getSpleefMode() {
         return spleefMode;
     }
+    
+    @Override
+    public int getRequiredPlayers() {
+        return requiredPlayers;
+    }
 
     @Override
     public int getSize() {
@@ -251,11 +266,17 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     public static void init() {
         arenas = new HashMap<>();
-        MongoCursor<Document> dbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
-        while (dbc.hasNext()) {
-            Arena arena = EntityBuilder.load(dbc.next(), Arena.class);
+        MongoCursor<Document> normalDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
+        while (normalDbc.hasNext()) {
+            Arena arena = EntityBuilder.load(normalDbc.next(), Arena.class);
             arenas.put(arena.getName(), arena);
-            SuperSpleef.getInstance().getBattleManager().registerArena(arena);
+            SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
+        }
+        MongoCursor<Document> multiDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "MULTI")).iterator();
+        while (multiDbc.hasNext()) {
+            Arena arena = EntityBuilder.load(multiDbc.next(), Arena.class);
+            arenas.put(arena.getName(), arena);
+            SuperSpleef.getInstance().getMultiSpleefBattleManager().registerArena(arena);
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
     }

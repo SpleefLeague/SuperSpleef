@@ -47,7 +47,7 @@ public class spleef extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         if (SuperSpleef.getInstance().queuesOpen()) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
-            BattleManager bm = SuperSpleef.getInstance().getBattleManager();
+            BattleManager bm = SuperSpleef.getInstance().getNormalSpleefBattleManager();
             if (!GamePlugin.isIngameGlobal(p)) {
                 if (args.length == 0) {
                     GamePlugin.dequeueGlobal(p);
@@ -74,7 +74,7 @@ public class spleef extends BasicCommand {
                         Arena arena = Arena.byName(args[1]);
                         if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
                             if (!arena.isOccupied()) {
-                                if ((args.length - 2) == /*arena.getQueueLength()*/ 2) {
+                                if ((args.length - 2) == arena.getSize()) {
                                     ArrayList<SpleefPlayer> players = new ArrayList<>();
                                     for (int i = 0; i < args.length - 2; i++) {
                                         Player pl = Bukkit.getPlayer(args[i + 2]);

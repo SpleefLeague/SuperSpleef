@@ -25,6 +25,7 @@ import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Battle;
+import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.core.utils.fakeblock.FakeArea;
 import com.spleefleague.core.utils.fakeblock.FakeBlock;
@@ -100,6 +101,10 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     @Override
     public Arena getArena() {
         return arena;
+    }
+    
+    public SpleefMode getSpleefMode() {
+        return spleefMode;
     }
 
     protected Scoreboard getScoreboard() {
@@ -226,6 +231,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             spectators.remove(sp);
         } else {
             sp.setIngame(false);
+            sp.setDead(false);
             sp.setFrozen(false);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
@@ -246,7 +252,12 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         clock.cancel();
         resetField();
         arena.registerGameEnd();
-        SuperSpleef.getInstance().getBattleManager().remove(this);
+        if(arena.getSpleefMode() == SpleefMode.MULTI) {
+            SuperSpleef.getInstance().getMultiSpleefBattleManager().remove(this);
+        }
+        else {
+            SuperSpleef.getInstance().getNormalSpleefBattleManager().remove(this);   
+        }
         ChatManager.unregisterChannel(cc);
         GameSign.updateGameSigns(arena);
     }
@@ -278,7 +289,12 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             }
             GameSign.updateGameSigns(arena);
             ChatManager.registerChannel(cc);
-            SuperSpleef.getInstance().getBattleManager().add(this);
+            if(arena.getSpleefMode() == SpleefMode.MULTI) {
+                SuperSpleef.getInstance().getMultiSpleefBattleManager().add(this);
+            }
+            else {
+                SuperSpleef.getInstance().getNormalSpleefBattleManager().add(this);   
+            }
             String playerNames = "";
             FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
             FakeBlockHandler.addArea(field, players.toArray(new SpleefPlayer[players.size()]));
@@ -301,6 +317,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 p.setHealth(p.getMaxHealth());
                 p.setFoodLevel(20);
                 sp.setIngame(true);
+                sp.setDead(false);
                 p.setGameMode(GameMode.ADVENTURE);
                 p.closeInventory();
                 p.getInventory().clear();
@@ -356,6 +373,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.setFrozen(true);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
+            sp.setDead(false);
             sp.setFireTicks(0);
             sp.teleport(this.data.get(sp).getSpawn());
             Player c = sp.getPlayer();

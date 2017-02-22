@@ -5,7 +5,6 @@
  */
 package com.spleefleague.superspleef.commands;
 
-import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.command.BasicCommand;
 import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.core.io.EntityBuilder;
@@ -40,7 +39,7 @@ public class multispleef extends BasicCommand {
     protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
         if (SuperSpleef.getInstance().queuesOpen()) {
             SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
-            BattleManager bm = SuperSpleef.getInstance().getBattleManager();
+            BattleManager bm = SuperSpleef.getInstance().getMultiSpleefBattleManager();
             if (!GamePlugin.isIngameGlobal(p)) {
                 if (args.length == 0) {
                     GamePlugin.dequeueGlobal(p);

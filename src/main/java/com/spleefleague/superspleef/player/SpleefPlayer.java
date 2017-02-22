@@ -5,9 +5,12 @@
  */
 package com.spleefleague.superspleef.player;
 
+import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.io.DBLoad;
 import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.Settings;
+import com.spleefleague.core.queue.Battle;
+import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.queue.RatedPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
@@ -26,7 +29,7 @@ import java.util.Set;
 public class SpleefPlayer extends RatedPlayer {
 
     private int rating, playTo;
-    private boolean ingame, frozen, requestingReset, requestingEndgame;
+    private boolean ingame, frozen, requestingReset, requestingEndgame, dead;
     private Set<Arena> visitedArenas;
     private Set<String> visitedArenas_broken;
 
@@ -111,11 +114,23 @@ public class SpleefPlayer extends RatedPlayer {
         return requestingEndgame;
     }
 
+    public void setDead(boolean dead) {
+        this.dead = dead;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
     public SpleefBattle getCurrentBattle() {
-        if (SuperSpleef.getInstance().getBattleManager().isIngame(this)) {
-            return SuperSpleef.getInstance().getBattleManager().getBattle(this);
+        SpleefBattle battle = null;
+        for(BattleManager<Arena, SpleefPlayer, SpleefBattle> bm : SuperSpleef.getInstance().getBattleManagers()) {
+            battle = bm.getBattle(this);
+            if(battle != null) {
+                break;
+            }
         }
-        return null;
+        return battle;
     }
 
     public Set<Arena> getVisitedArenas() {

@@ -64,7 +64,7 @@ public class TeamSpleefArena extends Arena {
         while (dbc.hasNext()) {
             TeamSpleefArena arena = EntityBuilder.load(dbc.next(), TeamSpleefArena.class);
             arenas.put(arena.getName(), arena);
-            SuperSpleef.getInstance().getBattleManager().registerArena(arena);
+            SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " team spleef arenas!");
     }

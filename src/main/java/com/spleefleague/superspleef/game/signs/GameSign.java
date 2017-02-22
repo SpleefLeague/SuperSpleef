@@ -69,11 +69,11 @@ public class GameSign extends DBEntity implements DBLoadable {
 
     public SpleefBattle getBattle() {
         if (arena.getSpleefMode() == SpleefMode.NORMAL) {
-            return SuperSpleef.getInstance().getBattleManager().getBattle(arena);
+            return SuperSpleef.getInstance().getNormalSpleefBattleManager().getBattle(arena);
         }
-//        else if(arena.getSpleefMode() == SpleefMode.MULTI) {
-//            return SuperSpleef.getInstance().getBattleManagerMultiSpleef().getBattle(arena);
-//        }
+        else if(arena.getSpleefMode() == SpleefMode.MULTI) {
+            return SuperSpleef.getInstance().getMultiSpleefBattleManager().getBattle(arena);
+        }
         return null;
     }
 

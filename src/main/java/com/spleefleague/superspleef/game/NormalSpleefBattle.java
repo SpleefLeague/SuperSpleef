@@ -11,6 +11,7 @@ import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
+import static com.spleefleague.core.utils.UtilAlgo.r;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -23,7 +24,15 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Team;
 
 /**
@@ -31,11 +40,11 @@ import org.bukkit.scoreboard.Team;
  * @author Jonas
  */
 public class NormalSpleefBattle extends SpleefBattle {
-
+    
     protected NormalSpleefBattle(Arena arena, List<SpleefPlayer> players) {
         super(arena, players);
     }
-
+    
     @Override
     public void removePlayer(SpleefPlayer sp, boolean surrender) {
         if (!surrender) {
@@ -50,19 +59,20 @@ public class NormalSpleefBattle extends SpleefBattle {
         ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
         if (activePlayers.size() == 1) {
             end(activePlayers.get(0), surrender ? EndReason.SURRENDER : EndReason.QUIT);
-        }else
+        } else {
             getPlayers().remove(sp);
+        }
     }
-
+    
     private String getPlayToString() {
         return ChatColor.GOLD + "Playing to: ";
     }
-
+    
     @Override
     public void onScoreboardUpdate() {
         reInitScoreboard();
     }
-
+    
     private void reInitScoreboard() {
         getScoreboard().getObjective("rounds").unregister();
         Objective objective = getScoreboard().registerNewObjective("rounds", "dummy");
@@ -97,7 +107,7 @@ public class NormalSpleefBattle extends SpleefBattle {
             }
         }
     }
-
+    
     @Override
     protected void onStart() {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -112,15 +122,15 @@ public class NormalSpleefBattle extends SpleefBattle {
             team.addEntry(sp.getName());
         }
         objective.getScore(getPlayToString()).setScore(getPlayTo());
-        setScoreboard(scoreboard);    
+        setScoreboard(scoreboard);        
     }
-
+    
     @Override
     public void changePointsCup(int value) {
         super.changePointsCup(value);
         this.reInitScoreboard();
     }
-
+    
     @Override
     public void end(SpleefPlayer winner, EndReason reason) {
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
@@ -141,26 +151,56 @@ public class NormalSpleefBattle extends SpleefBattle {
         Bukkit.getPluginManager().callEvent(new BattleEndEvent(this, reason));
         cleanup();
     }
-
+    
+    @Override
+    public void startRound() {
+        getActivePlayers().stream().forEach(sp -> {
+            sp.setDead(false);
+            sp.setGameMode(GameMode.ADVENTURE);
+        });
+        super.startRound();
+    }
+    
     @Override
     public void onArenaLeave(SpleefPlayer player) {
+        if(player.isDead()) {
+            return;
+        }
         if (isInCountdown()) {
             player.teleport(getData(player).getSpawn());
-        } else {
+        } 
+        else {
+            player.setDead(true);
+            int maxScore = 0;
+            SpleefPlayer winner = null;
+            List<SpleefPlayer> alive = getActivePlayers().stream().filter(sp -> !sp.isDead()).collect(Collectors.toList());
+            giveTempSpectator(player, alive.get(new Random().nextInt(alive.size())).getPlayer());
             for (SpleefPlayer sp : getActivePlayers()) {
-                if (sp != player) {
-                    PlayerData playerdata = getData(sp);
+                PlayerData playerdata = getData(sp);
+                if (!sp.isDead()) {
                     playerdata.increasePoints();
                     getScoreboard().getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
-                    if (playerdata.getPoints() < getPlayTo()) {
-                        setRound(getRound() + 1);
-                        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + sp.getName() + " has won round " + getRound(), getGameChannel());
-                        startRound();
-                    } else {
-                        end(sp, EndReason.NORMAL);
-                    }
                 }
-
+                if (playerdata.getPoints() >= getPlayTo()) {
+                        if (maxScore == playerdata.getPoints()) {
+                            winner = null;
+                        } else if (maxScore < playerdata.getPoints()) {                        
+                            maxScore = playerdata.getPoints();
+                            winner = sp;
+                        }
+                    }
+            }
+            if(winner == null && maxScore >= this.getPlayTo()) {
+                changePointsCup(maxScore + 1);
+            }
+            if (alive.size() == 1 && winner != null) {
+                end(winner, EndReason.NORMAL);
+            } else {
+                if (alive.size() == 1) {
+                    setRound(getRound() + 1);
+                    ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + alive.get(0).getName() + " has won round " + getRound(), getGameChannel());
+                    startRound();
+                }
             }
             if (getArena().getScoreboards() != null) {
                 int[] score = new int[getArena().getSize()];
@@ -175,22 +215,32 @@ public class NormalSpleefBattle extends SpleefBattle {
         }
         reInitScoreboard();
     }
-
+    
+    private void giveTempSpectator(SpleefPlayer sp, Player target) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getSpectatorTarget() != null &&
+                player.getSpectatorTarget().getUniqueId().equals(sp.getUniqueId())) {
+                player.setSpectatorTarget(target);
+            }
+        }
+        sp.getInventory().setArmorContents(new ItemStack[4]);
+        sp.setGameMode(GameMode.SPECTATOR);
+        sp.setSpectatorTarget(target);
+    }
+    
     @Override
     protected void updateScoreboardTime() {
-        if (getScoreboard() == null) {
-            return;
-        }
-        Objective objective = getScoreboard().getObjective("rounds");
-        if (objective != null) {
-            String s = DurationFormatUtils.formatDuration(getTicksPassed() * 50, "HH:mm:ss", true);
-            objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
+        if (getScoreboard() != null) {
+            Objective objective = getScoreboard().getObjective("rounds");
+            if (objective != null) {
+                String s = DurationFormatUtils.formatDuration(getTicksPassed() * 50, "HH:mm:ss", true);
+                objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
+            }
         }
     }
-
+    
     private void applyRatingChange(SpleefPlayer winner) {
         int winnerPoints = 0;
-        int winnerSWCPoints = 0;
         final int MIN_RATING = 1, MAX_RATING = 40;
         int winnersIngamePoints = getData(winner).getPoints();
         boolean earnCoins = winnersIngamePoints >= 5;
@@ -207,14 +257,16 @@ public class NormalSpleefBattle extends SpleefBattle {
                 sp.setRating(sp.getRating() - rating);
                 playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + -rating + ChatColor.WHITE + " points. ";
                 endScore += getData(sp).getPoints() + "-";
-                if(earnCoins)
+                if (earnCoins) {
                     SpleefLeague.getInstance().getPlayerManager().get(sp).changeCoins(2);
+                }
             }
         }
         endScore = endScore.substring(0, endScore.length() - 1);
         winner.setRating(winner.getRating() + winnerPoints);
-        if(earnCoins)
+        if (earnCoins) {
             SpleefLeague.getInstance().getPlayerManager().get(winner).changeCoins(5);
+        }
         playerList += ChatColor.RED + winner.getName() + ChatColor.WHITE + " (" + winner.getRating() + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + winnerPoints + ChatColor.GREEN + (winnerPoints == 1 ? " point. " : " points. ");
         ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over " + ChatColor.WHITE + "(" + endScore + ")" + ChatColor.GREEN + ". " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
         this.getPlayers().forEach((p) -> {

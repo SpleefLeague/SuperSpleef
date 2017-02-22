@@ -303,6 +303,7 @@ public class TeamSpleefBattle extends SpleefBattle {
         for (Entry<SpleefPlayer, Team> entry : playerTeams.entrySet()) {
             SpleefPlayer sp = entry.getKey();
             entry.getValue().addPlayer(sp);
+            sp.setDead(false);
             sp.setGameMode(GameMode.ADVENTURE);
             sp.getInventory().setArmorContents(entry.getValue().getArmor());
             applyTeamColor(sp, playerTeams.get(sp), true);

@@ -5,6 +5,12 @@
  */
 package com.spleefleague.superspleef.listener;
 
+import com.comphenix.packetwrapper.WrapperPlayServerCamera;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.events.PacketListener;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.events.FakeBlockBreakEvent;
 import com.spleefleague.core.player.Rank;
@@ -38,18 +44,18 @@ import java.util.Collection;
 public class GameListener implements Listener {
 
     private static Listener instance;
-
+    
     public static void init() {
         if (instance == null) {
             instance = new GameListener();
             Bukkit.getPluginManager().registerEvents(instance, SuperSpleef.getInstance());
         }
     }
-
+    
     private GameListener() {
-
+        
     }
-
+    
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
@@ -66,7 +72,7 @@ public class GameListener implements Listener {
                         if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getLocation())) {
                             Location loc = arena.getSpectatorSpawn();
                             if (loc == null) {
-                                loc = SpleefLeague.getInstance().getSpawnLocation();
+                                loc = SpleefLeague.getInstance().getSpawnManager().getNext().getLocation();
                             }
                             sp.teleport(loc);
                             break;
@@ -76,7 +82,7 @@ public class GameListener implements Listener {
                         if (arena.isTpBackSpectators() && arena.getBorder().isInArea(sp.getLocation())) {
                             Location loc = arena.getSpectatorSpawn();
                             if (loc == null) {
-                                loc = SpleefLeague.getInstance().getSpawnLocation();
+                                loc = SpleefLeague.getInstance().getSpawnManager().getNext().getLocation();
                             }
                             sp.teleport(loc);
                             break;
@@ -84,9 +90,9 @@ public class GameListener implements Listener {
                     }
                 }
             } else {
-                SpleefBattle battle = SuperSpleef.getInstance().getBattleManager().getBattle(sp);
+                SpleefBattle battle = sp.getCurrentBattle();
                 Arena arena = battle.getArena();
-                if (event.getPlayer().getGameMode() != GameMode.SPECTATOR && !arena.getBorder().isInArea(sp.getLocation()) || PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer())) {
+                if (event.getPlayer().getGameMode() != GameMode.SPECTATOR && PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer()) || !arena.getBorder().isInArea(sp.getLocation())) {
                     battle.onArenaLeave(sp);
                 }
             }

@@ -105,11 +105,11 @@ public class SuperSpleef extends GamePlugin {
     }
 
     public BattleManager<Arena, SpleefPlayer, SpleefBattle> getMultiSpleefBattleManager() {
-        return battleManagerNormalSpleef;
+        return battleManagerMultiSpleef;
     }
 
     public BattleManager<Arena, SpleefPlayer, SpleefBattle> getNormalSpleefBattleManager() {
-        return battleManagerMultiSpleef;
+        return battleManagerNormalSpleef;
     }
 
     public static SuperSpleef getInstance() {

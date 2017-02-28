@@ -66,7 +66,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
     @DBLoad(fieldName = "maxRating")
-    private int maxRating = 5;
+    private int maxRating = -1;
     @DBLoad(fieldName = "area")
     private Area area;
     @DBLoad(fieldName = "spleefMode")
@@ -90,9 +90,6 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     
     @DBLoad(fieldName = "spawns", typeConverter = TypeConverter.LocationConverter.class, priority = 1)
     private void setSpawns(Location[] spawns) {
-        System.out.println("setSpawns");
-        System.out.println(requiredPlayers);
-        System.out.println(name);
         this.spawns = spawns;
         this.requiredPlayers = spawns.length;//Will be overwritten if requiredPlayers value exists
     }
@@ -236,6 +233,15 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     public boolean isQueued() {
         return queued;
     }
+    
+    @Override
+    public void done() {
+        if(maxRating == -1) {
+            if(spleefMode == SpleefMode.NORMAL) {
+                maxRating = 5;
+            }
+        }
+    }
 
     public SpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
         if (!isOccupied()) { //Shouldn't be necessary
@@ -283,13 +289,10 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     @Override
     public final boolean equals(Object o) {
-        System.out.println("equalsing");
         if(o instanceof QueueableArena) {
             QueueableArena other = (QueueableArena) o;
-            System.out.print(other.getName() + " " + getName());
             return other.getName().equalsIgnoreCase(getName());
         }
         return false;
     }
-
 }

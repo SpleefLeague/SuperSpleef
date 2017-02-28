@@ -55,12 +55,12 @@ public class ConnectionListener implements Listener {
             return;
         }
         sp.invalidatePlayToRequest();
+        if (sp.isIngame()) {
+            sp.getCurrentBattle().removePlayer(sp, false);
+        } 
+            
         for (BattleManager<Arena, SpleefPlayer, SpleefBattle> bm : SuperSpleef.getInstance().getBattleManagers()) {
-            if (sp.isIngame()) {
-                bm.getBattle(sp).removePlayer(sp, false);
-            } else {
-                bm.dequeue(sp);
-            }
+            bm.dequeue(sp);
         }
     }
 

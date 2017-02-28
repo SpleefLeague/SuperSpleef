@@ -11,7 +11,6 @@ import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
-import static com.spleefleague.core.utils.UtilAlgo.r;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -28,10 +27,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Team;
 
@@ -43,6 +39,9 @@ public class NormalSpleefBattle extends SpleefBattle {
     
     protected NormalSpleefBattle(Arena arena, List<SpleefPlayer> players) {
         super(arena, players);
+        if(arena.getSpleefMode() == SpleefMode.MULTI && arena.getMaxRating() == -1) {
+            this.changePointsCup((players.size() - 1) * 5);
+        }
     }
     
     @Override
@@ -74,6 +73,7 @@ public class NormalSpleefBattle extends SpleefBattle {
     }
     
     private void reInitScoreboard() {
+        if(getScoreboard() == null) return;
         getScoreboard().getObjective("rounds").unregister();
         Objective objective = getScoreboard().registerNewObjective("rounds", "dummy");
         String s = DurationFormatUtils.formatDuration(getTicksPassed() * 50, "HH:mm:ss", true);
@@ -128,11 +128,15 @@ public class NormalSpleefBattle extends SpleefBattle {
     @Override
     public void changePointsCup(int value) {
         super.changePointsCup(value);
+        
         this.reInitScoreboard();
     }
     
     @Override
     public void end(SpleefPlayer winner, EndReason reason) {
+        if(!this.getArena().isRated() && winner != null) {
+            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + Theme.INFO.buildTheme(false) + " has won the match!", getGameChannel());
+        }
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
         Lists.newArrayList(getActivePlayers()).forEach((p) -> {
             this.resetPlayer(p);

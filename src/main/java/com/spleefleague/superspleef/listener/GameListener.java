@@ -5,12 +5,6 @@
  */
 package com.spleefleague.superspleef.listener;
 
-import com.comphenix.packetwrapper.WrapperPlayServerCamera;
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.events.PacketListener;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.events.FakeBlockBreakEvent;
 import com.spleefleague.core.player.Rank;

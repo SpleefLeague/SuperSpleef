@@ -71,7 +71,7 @@ public class multispleef extends BasicCommand {
                         Arena arena = Arena.byName(args[1]);
                         if(arena != null && arena.getSpleefMode() == SpleefMode.MULTI) {
                             if(!arena.isOccupied()) {
-                                if((args.length - 2) == /*arena.getQueueLength()*/ 2) {
+                                if((args.length - 2) >= arena.getRequiredPlayers() && (args.length - 2) <= arena.getSize()) {
                                     ArrayList<SpleefPlayer> players = new ArrayList<>();
                                     for(int i = 0; i < args.length - 2; i++) {
                                         Player pl = Bukkit.getPlayerExact(args[i + 2]);

@@ -19,7 +19,7 @@ import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

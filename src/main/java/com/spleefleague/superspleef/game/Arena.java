@@ -274,15 +274,25 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         arenas = new HashMap<>();
         MongoCursor<Document> normalDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
         while (normalDbc.hasNext()) {
-            Arena arena = EntityBuilder.load(normalDbc.next(), Arena.class);
-            arenas.put(arena.getName(), arena);
-            SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
+            Document doc = normalDbc.next();
+            try {
+                Arena arena = EntityBuilder.load(doc, Arena.class);
+                arenas.put(arena.getName(), arena);
+                SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
+            } catch(Exception e) {
+                SuperSpleef.getInstance().log("Error loading arena: " + doc.getString("name"));
+            }
         }
         MongoCursor<Document> multiDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "MULTI")).iterator();
         while (multiDbc.hasNext()) {
-            Arena arena = EntityBuilder.load(multiDbc.next(), Arena.class);
-            arenas.put(arena.getName(), arena);
-            SuperSpleef.getInstance().getMultiSpleefBattleManager().registerArena(arena);
+            Document doc = multiDbc.next();
+            try {
+               Arena arena = EntityBuilder.load(doc, Arena.class);
+                arenas.put(arena.getName(), arena);
+                SuperSpleef.getInstance().getMultiSpleefBattleManager().registerArena(arena);
+            } catch(Exception e) {
+                SuperSpleef.getInstance().log("Error loading arena: " + doc.getString("name"));
+            }
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
     }

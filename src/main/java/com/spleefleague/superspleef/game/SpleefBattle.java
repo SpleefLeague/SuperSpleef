@@ -25,20 +25,19 @@ import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Battle;
-import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.core.utils.fakeblock.FakeArea;
 import com.spleefleague.core.utils.fakeblock.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import net.minecraft.server.v1_11_R1.NBTTagList;
-import net.minecraft.server.v1_11_R1.NBTTagString;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import net.minecraft.server.v1_12_R1.NBTTagList;
+import net.minecraft.server.v1_12_R1.NBTTagString;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -496,7 +495,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     private static ItemStack getShovel() {
-        net.minecraft.server.v1_11_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.DIAMOND_SPADE));
+        net.minecraft.server.v1_12_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.DIAMOND_SPADE));
         NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
         NBTTagList list = new NBTTagList();
         list.add(new NBTTagString("minecraft:snow"));

@@ -51,10 +51,12 @@ public class EnvironmentListener implements Listener {
                 if (!sp.getVisitedArenas().contains(arena)) {
                     if (arena.getArea().isInArea(event.getTo())) {
                         sp.getVisitedArenas().add(arena);
-                        String title = ChatColor.GREEN + "You have discovered " + ChatColor.RED + arena.getName() + ChatColor.GREEN + "!";
-                        String subtitle = ChatColor.GRAY + String.valueOf(sp.getVisitedArenas().size()) + "/" + String.valueOf(Arena.getAll().size()) + ChatColor.GOLD + " Spleef arenas found!";
-                        PlayerUtil.sendTitle(event.getPlayer(), title, subtitle, 10, 40, 10);
-                        event.getPlayer().playSound(event.getTo(), Sound.ENTITY_FIREWORK_BLAST, 1, 0);
+                        if(!arena.isDefaultArena()) {
+                            String title = ChatColor.GREEN + "You have discovered " + ChatColor.RED + arena.getName() + ChatColor.GREEN + "!";
+                            String subtitle = ChatColor.GRAY + String.valueOf(sp.getVisitedArenas().size()) + "/" + String.valueOf(Arena.getAll().size()) + ChatColor.GOLD + " Spleef arenas found!";
+                            PlayerUtil.sendTitle(event.getPlayer(), title, subtitle, 10, 40, 10);
+                            event.getPlayer().playSound(event.getTo(), Sound.ENTITY_FIREWORK_BLAST, 1, 0);
+                        }
                         break;
                     }
                 }

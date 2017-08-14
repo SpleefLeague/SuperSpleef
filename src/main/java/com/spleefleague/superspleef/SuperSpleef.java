@@ -137,7 +137,7 @@ public class SuperSpleef extends GamePlugin {
             }
             tsjp.getCurrentBattle().addSpectator(sjp);
             return true;
-        } else if (sjp.getVisitedArenas().contains(tsjp.getCurrentBattle().getArena())) {
+        } else if (tsjp.getCurrentBattle().getArena().isAvailable(sjp)) {
             tsjp.getCurrentBattle().addSpectator(sjp);
             return true;
         } else {

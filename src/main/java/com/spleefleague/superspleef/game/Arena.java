@@ -65,6 +65,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private boolean paused = false;
     @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
+    @DBLoad(fieldName = "isDefault")
+    private boolean defaultArena = false;
     @DBLoad(fieldName = "maxRating")
     private int maxRating = -1;
     @DBLoad(fieldName = "area")
@@ -226,12 +228,16 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     @Override
     public boolean isAvailable(SpleefPlayer sp) {
-        return sp.getVisitedArenas().contains(this);
+        return this.isDefaultArena() || sp.getVisitedArenas().contains(this);
     }
 
     @Override
     public boolean isQueued() {
         return queued;
+    }
+    
+    public boolean isDefaultArena() {
+        return this.defaultArena;
     }
     
     @Override

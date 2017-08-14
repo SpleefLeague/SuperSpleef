@@ -57,7 +57,7 @@ public class spleef extends BasicCommand {
                     Arena arena = Arena.byName(args[0]);
                     if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
                         if (!arena.isPaused()) {
-                            if (sp.getVisitedArenas().contains(arena)) {
+                            if (arena.isAvailable(sp)) {
                                 bm.queue(sp, arena);
                                 success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
                             } else {

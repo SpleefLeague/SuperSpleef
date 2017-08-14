@@ -156,8 +156,5 @@ public class SpleefPlayer extends RatedPlayer {
         this.playTo = -1;
         this.frozen = false;
         this.ingame = false;
-        Settings.getList("default_arenas_spleef")
-            .ifPresent(l -> ((List<String>)l)
-                .forEach(name -> visitedArenas.add(Arena.byName(name))));
     }
 }

@@ -82,7 +82,7 @@ public class teamspleef extends BasicCommand {
                 } else if (args.length == 2) {
                     if (slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
                         TeamSpleefArena arena = TeamSpleefArena.byName(args[1]);
-                        if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
+                        if (arena != null) {
                             if (args[0].equalsIgnoreCase("pause")) {
                                 arena.setPaused(true);
                                 success(p, "You have paused the arena " + arena.getName());

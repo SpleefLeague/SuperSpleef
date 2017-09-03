@@ -1,7 +1,10 @@
 package com.spleefleague.superspleef.commands;
 
+import static com.spleefleague.annotations.CommandSource.PLAYER;
+import com.spleefleague.annotations.Endpoint;
+import com.spleefleague.annotations.IntArg;
 import com.spleefleague.core.chat.Theme;
-import com.spleefleague.core.command.BasicCommand;
+import com.spleefleague.commands.command.BasicCommand;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
@@ -10,8 +13,6 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -21,31 +22,16 @@ import java.util.*;
 public class playto extends BasicCommand {
 
     public playto(CorePlugin plugin, String name, String usage) {
-        super(SuperSpleef.getInstance(), name, usage);
+        super(SuperSpleef.getInstance(), new playtoDispatcher(), name, usage);
     }
 
-    @Override
-    protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
+    @Endpoint(target = {PLAYER})
+    public void playto(SLPlayer slp, @IntArg(min = 1, max = 100) int to) {
         if (slp.getState() != PlayerState.INGAME) {
-            error(p, "You are currently not in a game.");
+            error(slp, "You are currently not in a game.");
             return;
         }
-        if (args.length < 1) {
-            sendUsage(p);
-            return;
-        }
-        final int to;
-        try {
-            to = Integer.parseInt(args[0]);
-        } catch (NumberFormatException ex) {
-            sendUsage(p);
-            return;
-        }
-        if (to <= 0 || to > 100) {
-            error(p, "You can only play between 1-100 rounds!");
-            return;
-        }
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(p);
+        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(slp);
         sp.setPlayToRequest(to);
         SpleefBattle battle = sp.getCurrentBattle();
         Set<SpleefPlayer> requesting = new HashSet<>();
@@ -75,5 +61,4 @@ public class playto extends BasicCommand {
                             "You requested to change the game to first to " + to + ".");
         }
     }
-
 }

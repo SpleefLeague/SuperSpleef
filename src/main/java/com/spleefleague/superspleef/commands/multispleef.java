@@ -145,6 +145,10 @@ public class multispleef extends BasicCommand {
             error(sender, "This arena does not exist.");
             return;
         }
+        if (arena.isPaused()) {
+            error(sender, "This arena is currently paused.");
+            return;
+        }
         if (arena.isOccupied()) {
             error(sender, "This arena is currently occupied.");
             return;

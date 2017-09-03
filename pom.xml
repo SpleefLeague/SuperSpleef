@@ -18,10 +18,39 @@
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>2.2.4</version>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <processors>
+                                <processor>com.spleefleague.annotations.processor.Processor</processor>
+                            </processors>
+                        </configuration>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.spleefleague</groupId>
+                        <artifactId>annotations.processor</artifactId>
+                        <version>1.1</version>
+                        <scope>compile</scope>
+                        <optional>true</optional>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
+                <version>2.3.2</version>
                 <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
@@ -58,11 +87,22 @@
             <url>http://repo.dmulloy2.net/content/groups/public/</url>
         </repository>
     </repositories>
-    
     <dependencies>
         <dependency>
+            <groupId>com.spleefleague</groupId>
+            <artifactId>annotations</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.spleefleague</groupId>
+            <artifactId>Commands</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>SpleefLeagueCore</artifactId>
+            <artifactId>Core</artifactId>
             <version>1.1</version>
             <scope>provided</scope>
         </dependency>

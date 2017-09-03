@@ -5,10 +5,15 @@
  */
 package com.spleefleague.superspleef.commands;
 
+import static com.spleefleague.annotations.CommandSource.PLAYER;
+import com.spleefleague.annotations.Endpoint;
+import com.spleefleague.annotations.LiteralArg;
+import com.spleefleague.annotations.PlayerArg;
+import com.spleefleague.annotations.StringArg;
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.command.BasicCommand;
+import com.spleefleague.commands.command.BasicCommand;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
-import com.spleefleague.core.io.EntityBuilder;
+import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
@@ -16,17 +21,14 @@ import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.SpleefMode;
-import com.spleefleague.superspleef.game.TeamSpleefArena;
-import com.spleefleague.superspleef.game.signs.GameSign;
+import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -35,133 +37,161 @@ import java.util.List;
 public class teamspleef extends BasicCommand {
 
     public teamspleef(CorePlugin plugin, String name, String usage) {
-        super(SuperSpleef.getInstance(), name, usage, Rank.DEFAULT);
+        super(SuperSpleef.getInstance(), new teamspleefDispatcher(), name, usage, Rank.DEFAULT);
     }
 
-    @Override
-    protected void run(Player p, SLPlayer slp, Command cmd, String[] args) {
-        if (SuperSpleef.getInstance().queuesOpen()) {
-            if (!GamePlugin.isIngameGlobal(p)) {
-                if (args.length >= 2 && args[0].equalsIgnoreCase("match")) {
-                    if (slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
-                        TeamSpleefArena arena = TeamSpleefArena.byName(args[1]);
-                        if (!arena.isOccupied()) {
-                            if ((args.length - 2) == arena.getSize()) {
-                                ArrayList<SpleefPlayer> players = new ArrayList<>();
-                                for (int i = 0; i < args.length - 2; i++) {
-                                    Player pl = Bukkit.getPlayerExact(args[i + 2]);
-                                    if (pl != null) {
-                                        SpleefPlayer n = SuperSpleef.getInstance().getPlayerManager().get(pl);
-                                        SLPlayer splayer = SpleefLeague.getInstance().getPlayerManager().get(pl);
-                                        if (players.contains(n)) {
-                                            error(p, pl.getName() + " cannot be added more than once");
-                                            return;
-                                        }
-                                        if (splayer.getState() == PlayerState.INGAME) {
-                                            error(p, pl.getName() + " is already in a game");
-                                            return;
-                                        }
-                                        players.add(n);
-                                    } else {
-                                        error(p, "The player " + args[i + 2] + " is currently not online.");
-                                        return;
-                                    }
-                                }
-                                arena.startBattle(players, StartReason.FORCE);
-                                success(p, "You started a battle on the arena " + arena.getName());
-                            } else {
-                                error(p, "You need to list " + (args.length - 2) + " players for this arena.");
-                            }
-                        } else {
-                            error(p, "This arena is currently occupied.");
-                        }
-
-                    } else {
-                        sendUsage(p);
-                    }
-                } else if (args.length == 2) {
-                    if (slp.getRank().hasPermission(Rank.MODERATOR) || slp.getRank() == Rank.ORGANIZER) {
-                        TeamSpleefArena arena = TeamSpleefArena.byName(args[1]);
-                        if (arena != null && arena.getSpleefMode() == SpleefMode.NORMAL) {
-                            if (args[0].equalsIgnoreCase("pause")) {
-                                arena.setPaused(true);
-                                success(p, "You have paused the arena " + arena.getName());
-                            } else if (args[0].equalsIgnoreCase("unpause")) {
-                                arena.setPaused(false);
-                                success(p, "You have unpaused the arena " + arena.getName());
-                            } else {
-                                sendUsage(p);
-                            }
-                            GameSign.updateGameSigns(arena);
-                            EntityBuilder.save(arena, SuperSpleef.getInstance().getPluginDB().getCollection("Arenas"));
-                        } else {
-                            error(p, "This arena does not exist.");
-                        }
-                    } else {
-                        sendUsage(p);
-                    }
-                } else if (args.length >= 3 && (args[0].equalsIgnoreCase("challenge") || args[0].equalsIgnoreCase("c"))) {
-                    TeamSpleefArena arena = TeamSpleefArena.byName(args[1]);
-                    if (arena != null) {
-                        if (args.length - 1 == arena.getSize()) {
-                            SLPlayer[] players = new SLPlayer[arena.getSize()-1];
-                            ArrayList<SLPlayer> challengedPlayers = new ArrayList();
-                            for (int i = 2; i < args.length; i++) {
-                                Player t = Bukkit.getPlayer(args[i]);
-                                if (t != null) {
-                                    if (t == p) {
-                                        error(p, "You may not challenge yourself.");
-                                        return;
-                                    }
-                                    SLPlayer splayer = SpleefLeague.getInstance().getPlayerManager().get(t.getUniqueId());
-                                    if (splayer.getState() == PlayerState.INGAME) {
-                                        error(p, splayer.getName() + " is currently ingame!");
-                                        return;
-                                    }
-                                    SpleefPlayer spt = SuperSpleef.getInstance().getPlayerManager().get(t.getUniqueId());
-                                    if (challengedPlayers.contains(splayer)) {
-                                        error(p, t.getName() + " cannot be added twice");
-                                        return;
-                                    }
-                                    players[i-2] = splayer;
-                                    challengedPlayers.add(splayer);
-
-                                } else {
-                                    error(p, "The player " + args[i] + " is not online.");
-                                    return;
-                                }
-                            }
-                            Challenge challenge = new Challenge(slp, players) {
-                                @Override
-                                public void start(SLPlayer[] accepted) {
-                                    List<SpleefPlayer> players = new ArrayList<>();
-                                    for (SLPlayer slpt : accepted) {
-                                        players.add(SuperSpleef.getInstance().getPlayerManager().get(slpt));
-                                    }
-                                    arena.startBattle(players, StartReason.CHALLENGE);
-                                }
-                            };
-                            success(p, "The players have been challenged.");
-                            Collection<Player> bplayers = new ArrayList<>();
-                            for (SLPlayer slpt : players) {
-                                slpt.addChallenge(challenge);
-                                bplayers.add(slpt.getPlayer());
-                            }
-                            challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), arena.getName(), bplayers);
-                        } else {
-                            error(p, "This arena requires " + arena.getSize() + " players.");
-                        }
-                    } else {
-                        error(p, "The arena " + args[1] + " does not exist.");
-                    }
-                } else {
-                    sendUsage(p);
-                }
-            } else {
-                error(p, "You are currently ingame!");
-            }
-        } else {
+    
+    private boolean checkQueuesClosed(Player p) {
+        if (!SuperSpleef.getInstance().queuesOpen()) {
             error(p, "All queues are currently paused!");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkIngame(Player p) {
+        if (GamePlugin.isIngameGlobal(p)) {
+            error(p, "You are currently ingame!");
+            return true;
+        }
+        return false;
+    }
+
+    @Endpoint(target = {PLAYER})
+    public void forcestart(SLPlayer sender, @LiteralArg(value = "match") String l, @StringArg String arenaName, @PlayerArg Player[] players) {
+        if (checkIngame(sender)) {
+            return;
+        }
+        if (!sender.getRank().hasPermission(Rank.MODERATOR) && sender.getRank() != Rank.ORGANIZER) {
+            sendUsage(sender);
+            return;
+        }
+        Arena arena = Arena.byName(arenaName);
+        if (arena == null) {
+            error(sender, "This arena does not exist.");
+            return;
+        }
+        if (arena.isOccupied()) {
+            error(sender, "This arena is currently occupied.");
+            return;
+        }
+        if (arena.getRequiredPlayers() > players.length || arena.getSize() < players.length) {
+            if (arena.getRequiredPlayers() == arena.getSize()) {
+                error(sender, "This arena requires " + arena.getSize() + " players.");
+            } else {
+                error(sender, "This arena requires between " + arena.getRequiredPlayers() + " and " + arena.getSize() + " players");
+            }
+            return;
+        }
+        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        List<SpleefPlayer> SpleefPlayers = Arrays.stream(players)
+                .map(pm::get)
+                .collect(Collectors.toList());
+        arena.startBattle(SpleefPlayers, StartReason.FORCE);
+        success(sender, "You started a battle on the arena " + arena.getName());
+    }
+
+    @Endpoint(target = {PLAYER})
+    public void challenge(SLPlayer sender, @LiteralArg(value = "challenge", aliases = {"c"}) String l, @StringArg String arenaName, @PlayerArg Player[] players) {
+        if (checkQueuesClosed(sender)) {
+            return;
+        }
+        if (checkIngame(sender)) {
+            return;
+        }
+        Arena arena = Arena.byName(arenaName);
+        if (arena == null) {
+            error(sender, "This arena does not exist.");
+            return;
+        }
+        if (arena.isPaused()) {
+            error(sender, "This arena is currently paused.");
+            return;
+        }
+        if (arena.isOccupied()) {
+            error(sender, "This arena is currently occupied.");
+            return;
+        }
+        if (arena.getRequiredPlayers() - 1 > players.length || arena.getSize() - 1 < players.length) {
+            if (arena.getRequiredPlayers() == arena.getSize()) {
+                error(sender, "This arena requires " + arena.getSize() + " players.");
+            } else {
+                error(sender, "This arena requires between " + arena.getRequiredPlayers() + " and " + arena.getSize() + " players");
+            }
+            return;
+        }
+        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        SpleefPlayer sendersjp = pm.get(sender);
+        if (sender.getState() == PlayerState.INGAME) {
+            error(sender, "You are currently ingame.");
+            return;
+        }
+        if (!arena.isAvailable(sendersjp)) {
+            error(sender, "You have not discovered this arena yet.");
+        }
+        List<SLPlayer> challenged = new ArrayList<>();
+        for (Player player : players) {
+            SpleefPlayer sjp = pm.get(player);
+            SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(player);
+            if (sjp == sendersjp) {
+                error(sender, "You cannot challenge yourself.");
+                return;
+            }
+            if (challenged.contains(slp)) {
+                error(sender, "You cannot challenge " + sjp.getName() + " more than once.");
+                return;
+            }
+            if (slp.getState() == PlayerState.INGAME) {
+                error(sender, player.getName() + " is currently ingame.");
+                return;
+            }
+            if (!arena.isAvailable(sjp)) {
+                error(sender, player.getName() + " has not discovered this arena yet.");
+            }
+            challenged.add(slp);
+        }
+        Challenge challenge = new Challenge(sender, challenged.toArray(new SLPlayer[0])) {
+            @Override
+            public void start(SLPlayer[] accepted) {
+                List<SpleefPlayer> players = new ArrayList<>();
+                for (SLPlayer slpt : accepted) {
+                    players.add(SuperSpleef.getInstance().getPlayerManager().get(slpt));
+                }
+                arena.startBattle(players, StartReason.CHALLENGE);
+            }
+        };
+        challenged.forEach((slpt) -> {
+            slpt.addChallenge(challenge);
+        });
+        challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), arena.getName(), Arrays.asList(players));
+        success(sender, "The players have been challenged.");
+    }
+
+    @Endpoint(target = {PLAYER})
+    public void pause(SLPlayer sender, @LiteralArg(value = "pause") String l, @StringArg String arenaName) {
+        handlePause(sender, true, arenaName);
+    }
+
+    @Endpoint(target = {PLAYER})
+    public void unpause(SLPlayer sender, @LiteralArg(value = "unpause") String l, @StringArg String arenaName) {
+        handlePause(sender, false, arenaName);
+    }
+
+    private void handlePause(SLPlayer sender, boolean pauseValue, @StringArg String arenaName) {
+        if (!sender.getRank().hasPermission(Rank.MODERATOR) && sender.getRank() != Rank.ORGANIZER) {
+            sendUsage(sender);
+            return;
+        }
+        Arena arena = Arena.byName(arenaName);
+        if (arena == null) {
+            error(sender, "This arena does not exist.");
+            return;
+        }
+        arena.setPaused(pauseValue);
+        if (pauseValue) {
+            success(sender, "You have paused the arena " + arena.getName());
+        } else {
+            success(sender, "You have unpaused the arena " + arena.getName());
         }
     }
 }

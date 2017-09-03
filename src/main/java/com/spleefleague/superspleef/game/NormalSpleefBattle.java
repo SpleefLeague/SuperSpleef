@@ -134,15 +134,12 @@ public class NormalSpleefBattle extends SpleefBattle {
     
     @Override
     public void end(SpleefPlayer winner, EndReason reason) {
+        saveGameHistory(winner);
         if(!this.getArena().isRated() && winner != null) {
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + Theme.INFO.buildTheme(false) + " has won the match!", getGameChannel());
         }
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
-        Lists.newArrayList(getActivePlayers()).forEach((p) -> {
-            this.resetPlayer(p);
-            p.invalidatePlayToRequest();
-        });
-        saveGameHistory(winner);
+        Lists.newArrayList(getActivePlayers()).forEach(this::resetPlayer);
         if (reason == EndReason.CANCEL) {
             if (reason == EndReason.CANCEL) {
                 ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", getGameChannel());

@@ -10,14 +10,14 @@ import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.chat.ChatChannel;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
-import com.spleefleague.core.command.CommandLoader;
+import com.spleefleague.commands.command.CommandLoader;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.menus.SLMenu;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.GamePlugin;
-import com.spleefleague.core.queue.Battle;
+import com.spleefleague.core.plugin.PlayerHandling;
 import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.queue.RatedBattleManager;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
@@ -43,7 +43,7 @@ import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 /**
  * @author Jonas
  */
-public class SuperSpleef extends GamePlugin {
+public class SuperSpleef extends GamePlugin implements PlayerHandling {
 
     private static SuperSpleef instance;
     private PlayerManager<SpleefPlayer> playerManager;
@@ -52,10 +52,7 @@ public class SuperSpleef extends GamePlugin {
     private ChatChannel start, end;
 
     public SuperSpleef() {
-        super(
-                "[SuperSpleef]",
-                ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET
-        );
+        super(ChatColor.GRAY + "[" + ChatColor.GOLD + "SuperSpleef" + ChatColor.GRAY + "]" + ChatColor.RESET);
     }
 
     @Override
@@ -230,9 +227,9 @@ public class SuperSpleef extends GamePlugin {
     }
 
     @Override
-    public void printStats(Player p) {
-        SpleefPlayer sp = playerManager.get(p);
-        p.sendMessage(Theme.INFO + p.getName() + "'s Spleef stats");
+    public void printStats(Player p, Player target) {
+        SpleefPlayer sp = playerManager.get(target);
+        p.sendMessage(Theme.INFO + sp.getName() + "'s Spleef stats");
         p.sendMessage(Theme.INCOGNITO + "Rating: " + ChatColor.YELLOW + sp.getRating());
         p.sendMessage(Theme.INCOGNITO + "Rank: " + ChatColor.YELLOW + sp.getRank());
     }

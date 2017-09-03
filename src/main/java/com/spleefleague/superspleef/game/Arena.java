@@ -68,7 +68,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "isDefault")
     private boolean defaultArena = false;
     @DBLoad(fieldName = "maxRating")
-    private int maxRating = -1;
+    private int maxRating = 5;
     @DBLoad(fieldName = "area")
     private Area area;
     @DBLoad(fieldName = "spleefMode")
@@ -176,6 +176,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return rated;
     }
 
+    @Deprecated
     public boolean isTpBackSpectators() {
         return tpBackSpectators;
     }

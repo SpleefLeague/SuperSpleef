@@ -234,6 +234,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.setFrozen(false);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
+            sp.invalidatePlayToRequest();
             sp.closeInventory();
             data.get(sp).restoreOldData();
         }

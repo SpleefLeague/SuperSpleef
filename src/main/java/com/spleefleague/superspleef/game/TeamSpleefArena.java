@@ -68,5 +68,4 @@ public class TeamSpleefArena extends Arena {
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " team spleef arenas!");
     }
-
 }

@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.game;
 
 import com.mongodb.client.MongoCursor;
+import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.DBEntity;
 import com.spleefleague.core.io.DBLoad;
@@ -14,13 +15,13 @@ import com.spleefleague.core.io.DBSave;
 import com.spleefleague.core.io.DBSaveable;
 import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.io.TypeConverter;
-import com.spleefleague.core.listeners.FakeBlockHandler;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
-import com.spleefleague.core.utils.fakeblock.FakeArea;
-import com.spleefleague.core.utils.fakeblock.FakeBlock;
 import com.spleefleague.core.utils.function.Dynamic;
+import com.spleefleague.fakeblocks.packet.FakeBlockHandler;
+import com.spleefleague.fakeblocks.representations.FakeArea;
+import com.spleefleague.fakeblocks.representations.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -116,7 +117,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
                 }
             }
         }
-        FakeBlockHandler.addArea(defaultSnow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
+        SpleefLeague.getInstance().getFakeBlockHandler().addArea(defaultSnow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
     }
 
     @DBLoad(fieldName = "sharedField")

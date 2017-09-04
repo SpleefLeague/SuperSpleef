@@ -18,7 +18,6 @@ import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.EntityBuilder;
-import com.spleefleague.core.listeners.FakeBlockHandler;
 import com.spleefleague.core.player.GeneralPlayer;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.Rank;
@@ -26,8 +25,9 @@ import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Battle;
 import com.spleefleague.core.utils.Area;
-import com.spleefleague.core.utils.fakeblock.FakeArea;
-import com.spleefleague.core.utils.fakeblock.FakeBlock;
+import com.spleefleague.fakeblocks.packet.FakeBlockHandler;
+import com.spleefleague.fakeblocks.representations.FakeArea;
+import com.spleefleague.fakeblocks.representations.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -63,12 +63,14 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     private final SpleefMode spleefMode;
     private final FakeArea spawnCages, field;
     private int pointsCup = 0;
+    private FakeBlockHandler fakeBlockHandler;
     
     protected SpleefBattle(Arena arena, List<SpleefPlayer> players) {
         this(arena, players, arena.getSpleefMode());
     }
 
     private SpleefBattle(Arena arena, List<SpleefPlayer> players, SpleefMode spleefMode) {
+        this.fakeBlockHandler = SpleefLeague.getInstance().getFakeBlockHandler();
         this.spleefMode = spleefMode;
         this.arena = arena;
         this.players = players;
@@ -155,9 +157,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         }
         sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
-        FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, sp.getPlayer());
-        FakeBlockHandler.addArea(spawnCages, sp.getPlayer());
-        FakeBlockHandler.addArea(field, sp.getPlayer());
+        fakeBlockHandler.removeArea(arena.getDefaultSnow(), false, sp.getPlayer());
+        fakeBlockHandler.addArea(spawnCages, sp.getPlayer());
+        fakeBlockHandler.addArea(field, sp.getPlayer());
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);
@@ -223,9 +225,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
     protected void resetPlayer(SpleefPlayer sp) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
-        FakeBlockHandler.removeArea(spawnCages, slp.getPlayer());
-        FakeBlockHandler.removeArea(field, false, slp.getPlayer());
-        FakeBlockHandler.addArea(arena.getDefaultSnow(), slp.getPlayer());
+        fakeBlockHandler.removeArea(spawnCages, slp.getPlayer());
+        fakeBlockHandler.removeArea(field, false, slp.getPlayer());
+        fakeBlockHandler.addArea(arena.getDefaultSnow(), slp.getPlayer());
         if (spectators.contains(sp)) {
             spectators.remove(sp);
         } else {
@@ -266,7 +268,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         for (FakeBlock blocks : field.getBlocks()) {
             blocks.setType(Material.SNOW_BLOCK);
         }
-        FakeBlockHandler.update(field);
+        fakeBlockHandler.update(field);
     }
 
     public void cancel() {
@@ -296,9 +298,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 SuperSpleef.getInstance().getNormalSpleefBattleManager().add(this);   
             }
             String playerNames = "";
-            FakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
-            FakeBlockHandler.addArea(field, players.toArray(new SpleefPlayer[players.size()]));
-            FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
+            fakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
+            fakeBlockHandler.addArea(field, players.toArray(new SpleefPlayer[players.size()]));
+            fakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
 
             for (int i = 0; i < players.size(); i++) {
                 SpleefPlayer sp = players.get(i);
@@ -339,7 +341,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             SpleefBattle.this.onStart();
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
             getSpawnCageBlocks();
-            FakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
+            fakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
             hidePlayers();
             startClock();
             startRound();
@@ -430,14 +432,14 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         for (FakeBlock block : spawnCages.getBlocks()) {
             block.setType(Material.GLASS);
         }
-        FakeBlockHandler.update(spawnCages);
+        fakeBlockHandler.update(spawnCages);
     }
 
     private void removeSpawnCages() {
         for (FakeBlock block : spawnCages.getBlocks()) {
             block.setType(Material.AIR);
         }
-        FakeBlockHandler.update(spawnCages);
+        fakeBlockHandler.update(spawnCages);
     }
 
     private void getSpawnCageBlocks() {

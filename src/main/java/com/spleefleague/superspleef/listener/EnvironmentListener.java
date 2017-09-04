@@ -6,10 +6,10 @@
 package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.listeners.FakeBlockHandler;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
+import com.spleefleague.fakeblocks.packet.FakeBlockHandler;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
@@ -66,11 +66,12 @@ public class EnvironmentListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onJoin(PlayerJoinEvent event) {
+        FakeBlockHandler handler = SpleefLeague.getInstance().getFakeBlockHandler();
         for (Arena arena : Arena.getAll()) {
-            FakeBlockHandler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
+            handler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
         }
         for (Arena arena : TeamSpleefArena.getAll()) {
-            FakeBlockHandler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
+            handler.addArea(arena.getDefaultSnow(), false, event.getPlayer());
         }
     }
 }

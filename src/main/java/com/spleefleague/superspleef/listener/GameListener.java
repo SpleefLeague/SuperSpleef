@@ -6,10 +6,10 @@
 package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.events.FakeBlockBreakEvent;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
+import com.spleefleague.fakeblocks.events.FakeBlockBreakEvent;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;

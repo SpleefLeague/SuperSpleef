@@ -75,6 +75,11 @@
     </build>
     <repositories>
         <repository>
+            <id>spleefleague-maven</id>
+            <name>spleefleague-maven</name>
+            <url>https://maven.spleefleague.com</url>
+        </repository>
+        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -88,6 +93,12 @@
         </repository>
     </repositories>
     <dependencies>
+        <dependency>
+            <groupId>com.spleefleague</groupId>
+            <artifactId>fakeblocks</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.spleefleague</groupId>
             <artifactId>annotations</artifactId>

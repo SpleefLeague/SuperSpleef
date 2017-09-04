@@ -5,13 +5,10 @@
  */
 package com.spleefleague.superspleef.player;
 
-import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.DBSave;
-import com.spleefleague.core.io.Settings;
-import com.spleefleague.core.queue.Battle;
 import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.queue.RatedPlayer;
+import com.spleefleague.entitybuilder.DBLoad;
+import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;

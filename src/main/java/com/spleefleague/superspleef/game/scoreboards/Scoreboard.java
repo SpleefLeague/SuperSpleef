@@ -5,10 +5,10 @@
  */
 package com.spleefleague.superspleef.game.scoreboards;
 
-import com.spleefleague.core.io.DBEntity;
-import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.DBLoadable;
-import com.spleefleague.core.io.TypeConverter;
+import com.spleefleague.core.io.typeconverters.LocationConverter;
+import com.spleefleague.entitybuilder.DBEntity;
+import com.spleefleague.entitybuilder.DBLoad;
+import com.spleefleague.entitybuilder.DBLoadable;
 import java.util.HashMap;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -23,7 +23,7 @@ public class Scoreboard extends DBEntity implements DBLoadable {
 
     private Integer[] orientation;
     private Vector offsetVector;
-    @DBLoad(fieldName = "location", typeConverter = TypeConverter.LocationConverter.class)
+    @DBLoad(fieldName = "location", typeConverter = LocationConverter.class)
     private Location corner; //upper left
     private ScoreboardDefinition definition;
     private int[] scores;

@@ -5,11 +5,11 @@
  */
 package com.spleefleague.superspleef.game.signs;
 
-import com.spleefleague.core.io.DBEntity;
-import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.DBLoadable;
-import com.spleefleague.core.io.EntityBuilder;
-import com.spleefleague.core.io.TypeConverter;
+import com.spleefleague.core.io.typeconverters.LocationConverter;
+import com.spleefleague.entitybuilder.DBEntity;
+import com.spleefleague.entitybuilder.DBLoad;
+import com.spleefleague.entitybuilder.DBLoadable;
+import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
@@ -36,7 +36,7 @@ public class GameSign extends DBEntity implements DBLoadable {
 
     }
 
-    @DBLoad(fieldName = "location", typeConverter = TypeConverter.LocationConverter.class)
+    @DBLoad(fieldName = "location", typeConverter = LocationConverter.class)
     private void setSign(Location location) {
         this.location = location;
     }

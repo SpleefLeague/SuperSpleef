@@ -7,8 +7,8 @@ package com.spleefleague.superspleef.game;
 
 import com.mongodb.client.MongoCursor;
 import com.spleefleague.core.events.BattleStartEvent;
-import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.EntityBuilder;
+import com.spleefleague.entitybuilder.DBLoad;
+import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Collection;

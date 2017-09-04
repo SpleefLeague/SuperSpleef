@@ -5,10 +5,10 @@
  */
 package com.spleefleague.superspleef.game.scoreboards;
 
-import com.spleefleague.core.io.DBEntity;
-import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.DBLoadable;
-import com.spleefleague.core.io.DBSaveable;
+import com.spleefleague.entitybuilder.DBEntity;
+import com.spleefleague.entitybuilder.DBLoad;
+import com.spleefleague.entitybuilder.DBLoadable;
+import com.spleefleague.entitybuilder.DBSaveable;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

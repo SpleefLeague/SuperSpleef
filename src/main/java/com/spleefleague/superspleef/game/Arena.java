@@ -8,18 +8,17 @@ package com.spleefleague.superspleef.game;
 import com.mongodb.client.MongoCursor;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
-import com.spleefleague.core.io.DBEntity;
-import com.spleefleague.core.io.DBLoad;
-import com.spleefleague.core.io.DBLoadable;
-import com.spleefleague.core.io.DBSave;
-import com.spleefleague.core.io.DBSaveable;
-import com.spleefleague.core.io.EntityBuilder;
-import com.spleefleague.core.io.TypeConverter;
+import com.spleefleague.core.io.typeconverters.LocationConverter;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.core.utils.function.Dynamic;
-import com.spleefleague.fakeblocks.packet.FakeBlockHandler;
+import com.spleefleague.entitybuilder.DBEntity;
+import com.spleefleague.entitybuilder.DBLoad;
+import com.spleefleague.entitybuilder.DBLoadable;
+import com.spleefleague.entitybuilder.DBSave;
+import com.spleefleague.entitybuilder.DBSaveable;
+import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.fakeblocks.representations.FakeArea;
 import com.spleefleague.fakeblocks.representations.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
@@ -64,7 +63,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "paused")
     @DBSave(fieldName = "paused")
     private boolean paused = false;
-    @DBLoad(fieldName = "spectatorSpawn", typeConverter = TypeConverter.LocationConverter.class)
+    @DBLoad(fieldName = "spectatorSpawn", typeConverter = LocationConverter.class)
     private Location spectatorSpawn; //null -> default world spawn
     @DBLoad(fieldName = "isDefault")
     private boolean defaultArena = false;
@@ -91,7 +90,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return defaultSnow;
     }
     
-    @DBLoad(fieldName = "spawns", typeConverter = TypeConverter.LocationConverter.class, priority = 1)
+    @DBLoad(fieldName = "spawns", typeConverter = LocationConverter.class, priority = 1)
     private void setSpawns(Location[] spawns) {
         this.spawns = spawns;
         this.requiredPlayers = spawns.length;//Will be overwritten if requiredPlayers value exists

@@ -13,7 +13,6 @@ import com.spleefleague.core.chat.Theme;
 import com.spleefleague.commands.command.CommandLoader;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
-import com.spleefleague.core.io.EntityBuilder;
 import com.spleefleague.core.menus.SLMenu;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.GamePlugin;
@@ -39,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
+import com.spleefleague.entitybuilder.EntityBuilder;
 
 /**
  * @author Jonas

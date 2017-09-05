@@ -130,7 +130,17 @@ public class spleef extends BasicCommand {
         arena.startBattle(SpleefPlayers, StartReason.FORCE);
         success(sender, "You started a battle on the arena " + arena.getName());
     }
-
+    
+    @Endpoint
+    public void reloadArena(SLPlayer sender, @LiteralArg(value = "load") String l, @StringArg String arenaName) {
+        if(!Arena.reload(arenaName)) {
+            error(sender, "This arena does not exist.");
+        }
+        else {
+            success(sender, "Arena reloaded.");
+        }
+    }
+    
     @Endpoint(target = {PLAYER})
     public void challenge(SLPlayer sender, @LiteralArg(value = "challenge", aliases = {"c"}) String l, @StringArg String arenaName, @PlayerArg Player[] players) {
         if (checkQueuesClosed(sender)) {

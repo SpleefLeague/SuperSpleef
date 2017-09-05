@@ -22,6 +22,7 @@ import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.entity.Player;
 
@@ -39,7 +40,6 @@ public class teamspleef extends BasicCommand {
     public teamspleef(CorePlugin plugin, String name, String usage) {
         super(SuperSpleef.getInstance(), new teamspleefDispatcher(), name, usage, Rank.DEFAULT);
     }
-
     
     private boolean checkQueuesClosed(Player p) {
         if (!SuperSpleef.getInstance().queuesOpen()) {
@@ -66,7 +66,7 @@ public class teamspleef extends BasicCommand {
             sendUsage(sender);
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        TeamSpleefArena arena = TeamSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;
@@ -99,7 +99,7 @@ public class teamspleef extends BasicCommand {
         if (checkIngame(sender)) {
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        TeamSpleefArena arena = TeamSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;
@@ -182,7 +182,7 @@ public class teamspleef extends BasicCommand {
             sendUsage(sender);
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        TeamSpleefArena arena = TeamSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;

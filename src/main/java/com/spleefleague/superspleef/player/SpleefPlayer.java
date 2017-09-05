@@ -12,6 +12,7 @@ import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
+import com.spleefleague.superspleef.game.powerspleef.Shovel;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -29,7 +30,10 @@ public class SpleefPlayer extends RatedPlayer {
     private boolean ingame, frozen, requestingReset, requestingEndgame, dead;
     private Set<Arena> visitedArenas;
     private Set<String> visitedArenas_broken;
-
+    @DBLoad(fieldName = "availableShovels")
+    @DBSave(fieldName = "availableShovels")
+    private Set<Shovel> availableShovels;
+    
     public SpleefPlayer() {
         visitedArenas = new HashSet<>();
         visitedArenas_broken = new HashSet<>();
@@ -77,6 +81,10 @@ public class SpleefPlayer extends RatedPlayer {
                 visitedArenas_broken.add(name);
             }
         }
+    }
+
+    public Set<Shovel> getAvailableShovels() {
+        return availableShovels;
     }
 
     public void setIngame(boolean ingame) {

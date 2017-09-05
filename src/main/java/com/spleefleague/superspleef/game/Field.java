@@ -4,6 +4,7 @@ import com.spleefleague.core.utils.Area;
 import com.spleefleague.entitybuilder.DBEntity;
 import com.spleefleague.entitybuilder.DBLoad;
 import com.spleefleague.entitybuilder.DBLoadable;
+import com.spleefleague.entitybuilder.TypeConverter.UUIDStringConverter;
 import java.util.UUID;
 
 /**
@@ -12,7 +13,7 @@ import java.util.UUID;
  */
 public class Field extends DBEntity implements DBLoadable {
 
-    @DBLoad(fieldName = "uuid")
+    @DBLoad(fieldName = "uuid", typeConverter = UUIDStringConverter.class)
     private UUID uuid;
     @DBLoad(fieldName = "field")
     private Area[] field;

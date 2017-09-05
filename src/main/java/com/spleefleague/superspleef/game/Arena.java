@@ -26,6 +26,8 @@ import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -106,7 +108,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
                 }
             }
             FakeArea.registerFakeArea(field.getUUID(), snow);    
-            SpleefLeague.getInstance().getFakeBlockHandler().addArea(defaultSnow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
+            SpleefLeague.getInstance().getFakeBlockHandler().addArea(snow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
         }
         this.defaultSnow = snow;
     }
@@ -240,6 +242,15 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return null;
     }
 
+    @Override
+    public final boolean equals(Object o) {
+        if(o instanceof QueueableArena) {
+            QueueableArena other = (QueueableArena) o;
+            return other.getName().equalsIgnoreCase(getName());
+        }
+        return false;
+    }
+
     private static Map<String, Arena> arenas;
 
     public static Arena byName(String name) {
@@ -257,40 +268,98 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     public static Collection<? extends Arena> getAll() {
         return arenas.values();
     }
+    
+    /**
+     * 
+     * @param name Name of the arena to reload
+     * @return true if the arena exists
+     */
+    public static boolean reload(String name) {
+        Document d = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("name", name)).first();
+        if(d == null) {
+            return false;
+        }
+        else {
+            Arena arena = loadArena(d);
+            if (arena == null) return false;
+            Arena old = Arena.byName(name);
+            if(old != null) {
+                recursiveCopy(arena, old, Arena.class);
+            }
+            else {
+                if(arena.getSpleefMode() == SpleefMode.NORMAL) {
+                    addArena(arena, true);
+                }
+                else if(arena.getSpleefMode() == SpleefMode.MULTI) {
+                    addArena(arena, false);
+                }
+                else {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    
+    private static void addArena(Arena arena, boolean classic) {
+        arenas.put(arena.getName(), arena);
+        if (classic) {
+            SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
+        }
+        else {
+            SuperSpleef.getInstance().getMultiSpleefBattleManager().registerArena(arena);
+        }
+    }
+    
+    private static void recursiveCopy(Object src, Object target, Class targetClass) {
+        Class srcClass = src.getClass();
+        while(true) {
+            for(java.lang.reflect.Field f : srcClass.getDeclaredFields()) {
+                try {
+                    f.setAccessible(true);
+                    f.set(target, f.get(src));
+                } catch (Exception ex) {
+                    Logger.getLogger(Arena.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            if(srcClass == Object.class || srcClass == targetClass) {
+                break;
+            }
+            srcClass = srcClass.getSuperclass();
+            if(srcClass == null) {
+                break;
+            }
+        }
+    }
 
     public static void init() {
         arenas = new HashMap<>();
         MongoCursor<Document> normalDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
         while (normalDbc.hasNext()) {
-            Document doc = normalDbc.next();
+            Document d = normalDbc.next();
             try {
-                Arena arena = EntityBuilder.load(doc, Arena.class);
-                arenas.put(arena.getName(), arena);
-                SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
+                Arena arena = loadArena(d);
+                if (arena == null) continue;
+                addArena(arena, true);
             } catch(Exception e) {
-                SuperSpleef.getInstance().log("Error loading arena: " + doc.getString("name"));
+                SuperSpleef.getInstance().log("Error loading " + d.get("name"));
             }
         }
         MongoCursor<Document> multiDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "MULTI")).iterator();
         while (multiDbc.hasNext()) {
-            Document doc = multiDbc.next();
+            Document d = multiDbc.next();
             try {
-               Arena arena = EntityBuilder.load(doc, Arena.class);
-                arenas.put(arena.getName(), arena);
-                SuperSpleef.getInstance().getMultiSpleefBattleManager().registerArena(arena);
+                Arena arena = loadArena(d);
+                if (arena == null) continue;
+                addArena(arena, false);
             } catch(Exception e) {
-                SuperSpleef.getInstance().log("Error loading arena: " + doc.getString("name"));
+                SuperSpleef.getInstance().log("Error loading " + d.get("name"));
             }
         }
         SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
     }
-
-    @Override
-    public final boolean equals(Object o) {
-        if(o instanceof QueueableArena) {
-            QueueableArena other = (QueueableArena) o;
-            return other.getName().equalsIgnoreCase(getName());
-        }
-        return false;
+    
+    private static Arena loadArena(Document doc) {
+        return EntityBuilder.load(doc, Arena.class);
     }
 }

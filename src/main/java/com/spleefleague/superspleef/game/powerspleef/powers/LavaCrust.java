@@ -10,7 +10,7 @@ import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,13 +25,13 @@ public class LavaCrust extends Power {
     
     private BukkitTask task;
     
-    private LavaCrust() {
-        super(PowerType.LAVA_CRUST, 20 * 10);
+    private LavaCrust(SpleefPlayer sp) {
+        super(PowerType.LAVA_CRUST, sp, 20 * 10);
     }
 
     @Override
-    public boolean execute(SpleefPlayer player) {
-        SpleefBattle battle = player.getCurrentBattle();
+    public boolean execute() {
+        SpleefBattle battle = getPlayer().getCurrentBattle();
         FakeArea area = battle.getField();
         double maxDistanceSquared = 0;
         Collection<Location> fakeBlockLocations = area
@@ -40,9 +40,9 @@ public class LavaCrust extends Power {
                 .map(fb -> fb.getLocation())
                 .collect(Collectors.toSet());
         for(Location block : fakeBlockLocations) {
-            maxDistanceSquared = Math.min(maxDistanceSquared, block.distanceSquared(player.getLocation()));
+            maxDistanceSquared = Math.min(maxDistanceSquared, block.distanceSquared(getPlayer().getLocation()));
         }
-        Optional<Location> target = player
+        Optional<Location> target = getPlayer()
                 .getLineOfSight(null, (int)Math.ceil(maxDistanceSquared))
                 .stream()
                 .map(b -> b.getLocation())
@@ -77,7 +77,7 @@ public class LavaCrust extends Power {
         }
     }
     
-    public static Supplier<LavaCrust> getSupplier() {
-        return () -> new LavaCrust();
+    public static Function<SpleefPlayer, ? extends Power> getSupplier() {
+        return (sp) -> new LavaCrust(sp);
     }
 }

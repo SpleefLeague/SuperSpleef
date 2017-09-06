@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 
@@ -18,25 +19,31 @@ public abstract class Power {
     private int cooldown;
     private final int maxCooldown;
     private final PowerType type;
+    private final SpleefPlayer player;
     
-    public Power(PowerType type, int maxCooldown) {
+    public Power(PowerType type, SpleefPlayer player, int maxCooldown) {
         this.type = type;
         this.maxCooldown = maxCooldown;
+        this.player = player;
     }
 
     public PowerType getType() {
         return type;
     }
+
+    public SpleefPlayer getPlayer() {
+        return player;
+    }
     
-    public void tryRun(SpleefPlayer player) {
-        boolean hasRun = execute(player);
+    public void tryRun() {
+        boolean hasRun = execute();
         if(hasRun) {
             this.cooldown = maxCooldown;
             onCooldown.add(this);
         }
     }
     
-    public abstract boolean execute(SpleefPlayer player);
+    public abstract boolean execute();
     public abstract void cancel();
     
     public boolean isOnCooldown() {
@@ -49,10 +56,10 @@ public abstract class Power {
     
     private static Set<Power> onCooldown;
     
-    protected static Supplier<Power> emptyPower() {
-        return () -> new Power(PowerType.NO_POWER, 0) {
+    protected static Function<SpleefPlayer, ? extends Power> emptyPower() {
+        return (sp) -> new Power(PowerType.NO_POWER, sp, 0) {
             @Override
-            public boolean execute(SpleefPlayer player) {
+            public boolean execute() {
                 return false;
             }
 

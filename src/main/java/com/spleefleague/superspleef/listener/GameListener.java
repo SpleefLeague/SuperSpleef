@@ -13,7 +13,9 @@ import com.spleefleague.fakeblocks.events.FakeBlockBreakEvent;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
+import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -98,9 +100,13 @@ public class GameListener implements Listener {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if (sp.isIngame()) {
             event.setCancelled(event.getClickedBlock() != null && event.getClickedBlock().getType() != Material.SNOW_BLOCK);
+            SpleefBattle battle = sp.getCurrentBattle();
+            if(battle.getSpleefMode() == SpleefMode.POWER) {
+                ((PowerSpleefBattle)battle).handlePowerRequest(sp);
+            }
         }
     }
-
+    
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(FakeBlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
@@ -137,11 +143,6 @@ public class GameListener implements Listener {
     }
 
     private <T> boolean strongContains(Collection<T> col, T object) {
-        for (T t : col) {
-            if (t == object) {
-                return true;
-            }
-        }
-        return false;
+        return col.stream().anyMatch(t -> t == object);
     }
 }

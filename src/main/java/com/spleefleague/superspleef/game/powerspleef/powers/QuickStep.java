@@ -1,36 +1,51 @@
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
+import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 
 /**
  *
  * @author balsfull
  */
-public class QuickStep extends Power {
+public class QuickStep extends Power implements Listener {
     
     private final double STRENGTH = 1;
+    private Vector direction;
     
-    private QuickStep() {
-        super(PowerType.QUICK_STEP, 20 * 5);
+    private QuickStep(SpleefPlayer player) {
+        super(PowerType.QUICK_STEP, player, 20 * 5);
+        Bukkit.getPluginManager().registerEvents(this, SuperSpleef.getInstance());
+        direction = player.getLocation().getDirection().normalize();
     }
 
     @Override
-    public boolean execute(SpleefPlayer player) {
-        Vector direction = player.getLocation().getDirection().normalize().multiply(STRENGTH);
-        player.setVelocity(direction);
+    public boolean execute() {
+        getPlayer().setVelocity(direction.multiply(STRENGTH));
         return true;
     }
     
-    public static Supplier<QuickStep> getSupplier() {
-        return () -> new QuickStep();
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        direction = event.getTo().toVector().subtract(event.getFrom().toVector());
+    }
+    
+    public static Function<SpleefPlayer, ? extends Power> getSupplier() {
+        return (sp) -> new QuickStep(sp);
     }
 
     @Override
     public void cancel() {
-    
+        HandlerList.unregisterAll(this);
     }
+    
+    
 }

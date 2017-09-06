@@ -5,9 +5,11 @@
  */
 package com.spleefleague.superspleef.game.powerspleef;
 
-import com.spleefleague.core.events.BattleEndEvent;
+import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.NormalSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -15,34 +17,19 @@ import com.spleefleague.superspleef.player.SpleefPlayer;
  */
 public class PowerSpleefBattle extends NormalSpleefBattle {
 
-    @Override
-    public void removePlayer(SpleefPlayer sp, boolean surrender) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void end(SpleefPlayer winner, BattleEndEvent.EndReason reason) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    protected void onStart() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    protected void updateScoreboardTime() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void onArenaLeave(SpleefPlayer player) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void onScoreboardUpdate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    private HashMap<SpleefPlayer, Power> powers;
     
+    public PowerSpleefBattle(Arena arena, List<SpleefPlayer> players) {
+        super(arena, players);
+        for(SpleefPlayer sp : players) {
+            powers.put(sp, sp.getPowerType().createPower(sp));
+        }
+    }
+
+    public void handlePowerRequest(SpleefPlayer sp) {
+        Power power = powers.get(sp);
+        if(!power.isOnCooldown()) {
+            power.tryRun();
+        }
+    }
 }

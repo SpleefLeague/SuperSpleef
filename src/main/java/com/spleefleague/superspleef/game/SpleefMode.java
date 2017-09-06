@@ -13,5 +13,6 @@ public enum SpleefMode {
     NORMAL,
     TEAM,
     MULTI,
-    SWC;
+    SWC,
+    POWER;
 }

@@ -448,7 +448,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         }
     }
 
-    private FakeArea getCageBlocks(Location loc, Material m) {
+    public FakeArea getCageBlocks(Location loc, Material m) {
         loc = loc.getBlock().getLocation();
         FakeArea area = new FakeArea();
         for (int x = -1; x <= 1; x++) {

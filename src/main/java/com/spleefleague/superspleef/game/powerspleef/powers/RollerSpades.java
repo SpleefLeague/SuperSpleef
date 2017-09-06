@@ -9,7 +9,7 @@ import com.spleefleague.fakeblocks.chunk.BlockData;
 import com.spleefleague.fakeblocks.representations.FakeBlock;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,17 +29,18 @@ public class RollerSpades extends Power {
     };
     private BukkitTask task;
     
-    private RollerSpades() {
-        super(PowerType.ROLLER_SPADES, 20 * 20);
+    private RollerSpades(SpleefPlayer sp) {
+        super(PowerType.ROLLER_SPADES, sp, 20 * 20);
     }
 
     @Override
-    public boolean execute(SpleefPlayer player) {
+    public boolean execute() {
         task = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), new Runnable() {
             
             private final Set<DegeneratingBlock> affected = new HashSet<>();
             private int timer = duration;
             private boolean modified;
+            private final SpleefPlayer player = getPlayer();
             
             @Override
             public void run() {
@@ -62,9 +63,6 @@ public class RollerSpades extends Power {
                             db.backingBlock.setDamageValue((byte)0);
                         }
                         modified = true;
-                    }
-                    else {
-                        db.durationLeft--;
                     }
                 }
                 affected.removeIf(db -> db.state > transition.length);
@@ -98,8 +96,8 @@ public class RollerSpades extends Power {
         }
     }
     
-    public static Supplier<RollerSpades> getSupplier() {
-        return () -> new RollerSpades();
+    public static Function<SpleefPlayer, ? extends Power> getSupplier() {
+        return (sp) -> new RollerSpades(sp);
     }
     
     private class DegeneratingBlock {
@@ -133,6 +131,5 @@ public class RollerSpades extends Power {
         public void setDurationLeft(int durationLeft) {
             this.durationLeft = durationLeft;
         }
-        
     }
 }

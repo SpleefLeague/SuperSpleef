@@ -47,29 +47,28 @@ public abstract class Power {
         return cooldown;
     }
     
-    private static Map<String, Supplier<? extends Power>> powers;
     private static Set<Power> onCooldown;
     
-    public Power getByName(String name) {
-        Supplier<? extends Power> power = powers.get(name);
-        if(power == null) {
-            return null;
-        }
-        else {
-            return power.get();
-        }
+    protected static Supplier<Power> emptyPower() {
+        return () -> new Power(PowerType.NO_POWER, 0) {
+            @Override
+            public boolean execute(SpleefPlayer player) {
+                return false;
+            }
+
+            @Override
+            public void cancel() {}
+        };
     }
     
-    public static void addPower(String name, Supplier<? extends Power> supplier) {
-        powers.put(name, supplier);
-    }
-    
-    static {
-        powers = new HashMap<>();
-        onCooldown = new HashSet<>();
+    public static void init() {
         Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), () -> {
             onCooldown.forEach(p -> p.cooldown--);
             onCooldown.removeIf(p -> p.cooldown <= 0);
         }, 0, 1);
+    }
+    
+    static {
+        onCooldown = new HashSet<>();
     }
 }

@@ -8,21 +8,22 @@ import org.bukkit.Material;
  */
 public enum Shovel {
 
-    DIAMOND("Diamond Shovel", Material.DIAMOND_SPADE),
-    GOLD("Golden Shovel", Material.GOLD_SPADE, PowerType.LAVA_CRUST);
+    DIAMOND("Diamond Shovel", Material.DIAMOND_SPADE, Material.DIAMOND_SPADE),
+    GOLD("Golden Shovel", Material.GOLD_SPADE, Material.GOLD_SPADE, PowerType.LAVA_CRUST);
 
     private final String name;
-    private final Material type;
+    private final Material icon, ingame;
     private final byte data;
     private final PowerType[] uniquePowers;
     
-    private Shovel(String name, Material type, PowerType... unique) {
-        this(name, type, (byte)0, unique);
+    private Shovel(String name, Material ingame, Material icon, PowerType... unique) {
+        this(name, ingame, icon, (byte)0, unique);
     }
     
-    private Shovel(String name, Material type, byte data, PowerType... unique) {
+    private Shovel(String name, Material ingame, Material icon, byte data, PowerType... unique) {
         this.name = name;
-        this.type = type;
+        this.ingame = ingame;
+        this.icon = icon;
         this.data = data;
         this.uniquePowers = unique;
     }
@@ -35,10 +36,17 @@ public enum Shovel {
     }
 
     /**
+     * @return the menu icon
+     */
+    public Material getIcon() {
+        return icon;
+    }
+
+    /**
      * @return the type
      */
     public Material getType() {
-        return type;
+        return ingame;
     }
 
     /**

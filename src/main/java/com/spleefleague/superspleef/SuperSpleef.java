@@ -38,7 +38,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
+import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
+import com.spleefleague.entitybuilder.DBEntity;
+import com.spleefleague.entitybuilder.DBSave;
+import com.spleefleague.entitybuilder.DBSaveable;
 import com.spleefleague.entitybuilder.EntityBuilder;
+import com.spleefleague.superspleef.game.powerspleef.Power;
+import com.spleefleague.superspleef.game.powerspleef.PowerType;
+import com.spleefleague.superspleef.game.powerspleef.Shovel;
+import com.spleefleague.superspleef.game.powerspleef.powers.LavaCrust;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import org.bson.Document;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * @author Jonas
@@ -81,6 +94,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         SignListener.init();
         EnvironmentListener.init();
         GameSign.initialize();
+        Power.init();
         CommandLoader.loadCommands(this, "com.spleefleague.superspleef.commands");
     }
 
@@ -285,12 +299,15 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
     private void createGameMenu() {
         InventoryMenuTemplateBuilder menu = SLMenu
                 .getNewGamemodeMenu()
-                .displayName("SuperSpleef")
+                .displayName("Spleef")
                 .displayIcon(Material.SNOW_BLOCK)
-                .exitOnClickOutside(true)
+                .exitOnClickOutside(true);
+        InventoryMenuTemplateBuilder arenaMenu = menu()
+                .displayName("Arenas")
+                .displayIcon(Material.MAP)
                 .visibilityController((slp) -> (queuesOpen));
         Arena.getAll().stream().forEach((arena) -> {
-            menu.component(item()
+            arenaMenu.component(item()
                     .displayName(arena.getName())
                     .description(arena.getDynamicDescription())
                     .displayIcon(
@@ -307,6 +324,40 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
                         }
                     }));
         });
+        InventoryMenuTemplateBuilder shovelMenu = menu()
+                .displayName("Shovels")
+                .displayIcon(Material.GOLD_SPADE);
+        Arrays.stream(Shovel.values()).forEach((shovel) -> {
+            InventoryMenuTemplateBuilder powerupMenu = menu()
+                    .displayName(shovel.getName())
+                    .displayIcon(shovel.getType())
+                    //.displayItem(new ItemStack(shovel.getType(), shovel.getData()))
+                    .visibilityController((slp) -> {
+//                            SpleefPlayer sp = playerManager.get(slp);
+//                            if(sp != null) {
+//                                return sp.getAvailableShovels().contains(shovel);
+//                            }
+//                            return false;
+                        return true;
+                    });
+            Collection<PowerType> totalPowerTypes = new LinkedHashSet<>(Arrays.asList(shovel.getUniquePowers()));
+            totalPowerTypes.addAll(PowerType.defaultPowers);
+            for(PowerType pt : totalPowerTypes) {
+                powerupMenu.component(item()
+                        .displayName(pt.getDisplayName())
+                        .displayIcon(pt.getType())
+                        //.displayItem(new ItemStack(pt.getType(), pt.getData()))
+                        .onClick((event) -> {
+                            SpleefPlayer sp = playerManager.get(event.getPlayer());
+                            sp.setActiveShovel(shovel);
+                            sp.setActivePower(pt);
+                        })
+                );
+            }
+            shovelMenu.component(powerupMenu);
+        });
+        menu.component(arenaMenu);
+        menu.component(shovelMenu);
     }
 
     @Override

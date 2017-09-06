@@ -12,6 +12,8 @@ import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
+import com.spleefleague.superspleef.game.powerspleef.Power;
+import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.game.powerspleef.Shovel;
 import org.bson.Document;
 
@@ -33,6 +35,12 @@ public class SpleefPlayer extends RatedPlayer {
     @DBLoad(fieldName = "availableShovels")
     @DBSave(fieldName = "availableShovels")
     private Set<Shovel> availableShovels;
+    @DBLoad(fieldName = "activeShovel")
+    @DBSave(fieldName = "activeShovel")
+    private Shovel activeShovel;
+    @DBLoad(fieldName = "activePower")
+    @DBSave(fieldName = "activePower")
+    private PowerType activePower;
     
     public SpleefPlayer() {
         visitedArenas = new HashSet<>();
@@ -85,6 +93,22 @@ public class SpleefPlayer extends RatedPlayer {
 
     public Set<Shovel> getAvailableShovels() {
         return availableShovels;
+    }
+
+    public Shovel getActiveShovel() {
+        return activeShovel;
+    }
+
+    public PowerType getPowerType() {
+        return activePower;
+    }
+
+    public void setActiveShovel(Shovel activeShovel) {
+        this.activeShovel = activeShovel;
+    }
+
+    public void setActivePower(PowerType activePower) {
+        this.activePower = activePower;
     }
 
     public void setIngame(boolean ingame) {
@@ -157,6 +181,11 @@ public class SpleefPlayer extends RatedPlayer {
     @Override
     public void setDefaults() {
         super.setDefaults();
+        this.activeShovel = Shovel.DIAMOND;
+        this.activePower = PowerType.NO_POWER;
+        this.availableShovels = new HashSet<>();
+        this.availableShovels.add(Shovel.DIAMOND);
+        this.availableShovels.add(Shovel.GOLD);
         this.rating = 1000;
         this.playTo = -1;
         this.frozen = false;

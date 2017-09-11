@@ -19,9 +19,10 @@ import com.spleefleague.entitybuilder.DBLoadable;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
 import com.spleefleague.entitybuilder.EntityBuilder;
-import com.spleefleague.fakeblocks.representations.FakeArea;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
+import com.spleefleague.fakeblocks.packet.FakeArea;
+import com.spleefleague.fakeblocks.packet.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
@@ -72,8 +73,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private int maxRating = 5;
     @DBLoad(fieldName = "area")
     private Area area;
-    @DBLoad(fieldName = "spleefMode")
-    private SpleefMode spleefMode = SpleefMode.NORMAL;
+    //@DBLoad(fieldName = "spleefMode")
+    private SpleefMode spleefMode = SpleefMode.POWER;
     
     private int runningGames = 0;
     private FakeArea defaultSnow;
@@ -235,13 +236,19 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     public SpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
         if (!isOccupied()) { //Shouldn't be necessary
-            SpleefBattle battle = new NormalSpleefBattle(this, players);
+            SpleefBattle battle;
+            if(this.getSpleefMode() == SpleefMode.POWER) {
+                battle = new PowerSpleefBattle(this, players);
+            }
+            else {
+                battle = new NormalSpleefBattle(this, players);
+            }
             battle.start(reason);
             return battle;
         }
         return null;
     }
-
+    
     @Override
     public final boolean equals(Object o) {
         if(o instanceof QueueableArena) {

@@ -1,19 +1,14 @@
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.fakeblocks.representations.FakeArea;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
+import com.spleefleague.fakeblocks.packet.FakeArea;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.Collection;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -37,9 +32,9 @@ public class EyeOfTheStorm extends Power {
         SpleefLeague.getInstance().getFakeBlockHandler().addArea(iceCage, true, battle.getActivePlayers().toArray(new SpleefPlayer[0]));
         SpleefLeague.getInstance().getFakeBlockHandler().addArea(iceCage, true, battle.getSpectators().toArray(new SpleefPlayer[0]));
         task = Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
-            areaAround.forEach(fb -> fb.setType(Material.AIR));
-            SpleefLeague.getInstance().getFakeBlockHandler().update(area);
-        }, duration);
+            iceCage.getBlocks().forEach(fb -> fb.setType(Material.AIR));
+            SpleefLeague.getInstance().getFakeBlockHandler().update(iceCage);
+        }, 60);
         return true;
     }
 
@@ -51,6 +46,6 @@ public class EyeOfTheStorm extends Power {
     }
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {
-        return (sp) -> new LavaCrust(sp);
+        return (sp) -> new EyeOfTheStorm(sp);
     }
 }

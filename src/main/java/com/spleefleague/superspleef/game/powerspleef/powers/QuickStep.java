@@ -18,7 +18,7 @@ import org.bukkit.util.Vector;
  */
 public class QuickStep extends Power implements Listener {
     
-    private final double STRENGTH = 1;
+    private final double STRENGTH = 1.8;
     private Vector direction;
     
     private QuickStep(SpleefPlayer player) {
@@ -35,7 +35,20 @@ public class QuickStep extends Power implements Listener {
     
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        direction = event.getTo().toVector().subtract(event.getFrom().toVector());
+        if(event.getFrom().distanceSquared(event.getTo()) > 0) {
+            direction = event.getTo()
+                    .toVector()
+                    .subtract(event.getFrom().toVector())
+                    .setY(0)
+                    .normalize();
+        }
+        else {
+            direction = event.getPlayer()
+                    .getLocation()
+                    .getDirection()
+                    .setY(0)
+                    .normalize();
+        }
     }
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {

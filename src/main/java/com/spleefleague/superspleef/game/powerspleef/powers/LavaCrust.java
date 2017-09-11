@@ -1,8 +1,8 @@
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.fakeblocks.representations.FakeArea;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
+import com.spleefleague.fakeblocks.packet.FakeArea;
+import com.spleefleague.fakeblocks.packet.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.Power;
@@ -51,9 +51,9 @@ public class LavaCrust extends Power {
         if(!target.isPresent()) {
             return false;
         }
-        int radius = 5;
+        int radius = 7;
         int duration = 20 * 3;
-        double probability = 0.8;
+        double probability = 0.5;
         
         Collection<FakeBlock> areaAround = area
                 .getBlocks()

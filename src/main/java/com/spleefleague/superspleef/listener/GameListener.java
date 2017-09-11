@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Collection;
+import org.bukkit.event.block.Action;
 
 /**
  *
@@ -97,11 +98,15 @@ public class GameListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
+        System.out.println("Interact");
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if (sp.isIngame()) {
+            System.out.println("Ingame");
             event.setCancelled(event.getClickedBlock() != null && event.getClickedBlock().getType() != Material.SNOW_BLOCK);
             SpleefBattle battle = sp.getCurrentBattle();
-            if(battle.getSpleefMode() == SpleefMode.POWER) {
+            System.out.println(event.getAction());
+            if(battle.getSpleefMode() == SpleefMode.POWER && event.getAction() == Action.RIGHT_CLICK_AIR) {
+                System.out.println("Power battle");
                 ((PowerSpleefBattle)battle).handlePowerRequest(sp);
             }
         }

@@ -41,7 +41,7 @@ public class EyeOfTheStorm extends Power {
         }
         task = Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
             iceCage.forEach(fb -> fb.setType(Material.AIR));
-        }, 2 * 20);
+        }, 3 * 20);
         return true;
     }
 

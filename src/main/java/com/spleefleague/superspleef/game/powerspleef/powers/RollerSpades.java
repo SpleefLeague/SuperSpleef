@@ -4,9 +4,9 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import com.spleefleague.superspleef.game.scoreboards.BlockData;
 import com.spleefleague.virtualworld.api.FakeBlock;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
@@ -42,6 +42,7 @@ public class RollerSpades extends Power {
             
             @Override
             public void run() {
+                System.out.println("Timer: " + timer);
                 timer--;
                 if(timer <= 0 && affected.isEmpty()) {
                     task.cancel();
@@ -60,7 +61,7 @@ public class RollerSpades extends Power {
                         }
                     }
                 }
-                affected.removeIf(db -> db.state > transition.length);
+                affected.removeIf(db -> db.state >= transition.length);
                 affected.forEach(db -> db.durationLeft--);
                 Location loc = player.getLocation().subtract(0, -1, 0).getBlock().getLocation();
                 player
@@ -70,9 +71,15 @@ public class RollerSpades extends Power {
                         .filter((block) -> (block.getLocation().equals(loc)))
                         .findAny()
                         .ifPresent(fb -> {
-                            affected.add(new DegeneratingBlock(0, degenerationDuration, fb));
-                            fb.setType(transition[0]);
-                        });
+                                if(fb.getType() != Material.AIR) {
+                                    DegeneratingBlock db = new DegeneratingBlock(0, degenerationDuration, fb);
+                                    if(!affected.contains(db)) {
+                                        affected.add(db);
+                                        fb.setType(transition[0]);
+                                    }
+                                    
+                                }
+                            });
             }
         }, 0, 1);
         return true;
@@ -120,5 +127,32 @@ public class RollerSpades extends Power {
         public void setDurationLeft(int durationLeft) {
             this.durationLeft = durationLeft;
         }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 59 * hash + Objects.hashCode(this.backingBlock);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final DegeneratingBlock other = (DegeneratingBlock) obj;
+            if (!Objects.equals(this.backingBlock, other.backingBlock)) {
+                return false;
+            }
+            return true;
+        }
+        
+        
     }
 }

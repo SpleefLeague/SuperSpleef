@@ -19,6 +19,7 @@ import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.event.FakeBlockBreakEvent;
 import java.util.Arrays;
+import java.util.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -27,14 +28,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.Collection;
-import java.util.Optional;
 
 /**
  *
@@ -100,11 +100,15 @@ public class GameListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
+        System.out.println("Interact");
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if (sp.isIngame()) {
+            System.out.println("Ingame");
             event.setCancelled(event.getClickedBlock() != null && event.getClickedBlock().getType() != Material.SNOW_BLOCK);
             SpleefBattle battle = sp.getCurrentBattle();
-            if(battle.getSpleefMode() == SpleefMode.POWER) {
+            System.out.println(event.getAction());
+            if(battle.getSpleefMode() == SpleefMode.POWER && event.getAction() == Action.RIGHT_CLICK_AIR) {
+                System.out.println("Power battle");
                 ((PowerSpleefBattle)battle).handlePowerRequest(sp);
             }
         }

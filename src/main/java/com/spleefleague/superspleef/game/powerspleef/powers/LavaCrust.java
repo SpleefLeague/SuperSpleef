@@ -49,9 +49,9 @@ public class LavaCrust extends Power {
         if(!target.isPresent()) {
             return false;
         }
-        int radius = 5;
+        int radius = 7;
         int duration = 20 * 3;
-        double probability = 0.8;
+        double probability = 0.5;
         
         Collection<FakeBlock> areaAround = fieldBlocks
                 .stream()

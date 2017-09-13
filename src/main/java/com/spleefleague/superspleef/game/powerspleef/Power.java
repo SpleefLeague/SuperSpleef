@@ -38,6 +38,7 @@ public abstract class Power {
     public void tryRun() {
         boolean hasRun = execute();
         if(hasRun) {
+            System.out.println("It has been activated");
             this.cooldown = maxCooldown;
             onCooldown.add(this);
         }

@@ -10,6 +10,7 @@ import com.spleefleague.superspleef.game.NormalSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -17,10 +18,11 @@ import java.util.List;
  */
 public class PowerSpleefBattle extends NormalSpleefBattle {
 
-    private HashMap<SpleefPlayer, Power> powers;
+    private Map<SpleefPlayer, Power> powers;
     
     public PowerSpleefBattle(Arena arena, List<SpleefPlayer> players) {
         super(arena, players);
+        this.powers = new HashMap<>();
         for(SpleefPlayer sp : players) {
             powers.put(sp, sp.getPowerType().createPower(sp));
         }
@@ -28,8 +30,19 @@ public class PowerSpleefBattle extends NormalSpleefBattle {
 
     public void handlePowerRequest(SpleefPlayer sp) {
         Power power = powers.get(sp);
+        System.out.println("Checking cooldown for " + power.getType().getDisplayName());
         if(!power.isOnCooldown()) {
+            System.out.println("It's available");
             power.tryRun();
         }
+    }
+    
+    @Override
+    public void resetPlayer(SpleefPlayer sp) {
+        Power power = powers.get(sp);
+        if(power != null) {
+            power.cancel();
+        }
+        super.resetPlayer(sp);
     }
 }

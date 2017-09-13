@@ -39,19 +39,13 @@ import java.util.List;
 
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
-import com.spleefleague.entitybuilder.DBEntity;
-import com.spleefleague.entitybuilder.DBSave;
-import com.spleefleague.entitybuilder.DBSaveable;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.game.powerspleef.Shovel;
-import com.spleefleague.superspleef.game.powerspleef.powers.LavaCrust;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import org.bson.Document;
-import org.bukkit.inventory.ItemStack;
 
 /**
  * @author Jonas

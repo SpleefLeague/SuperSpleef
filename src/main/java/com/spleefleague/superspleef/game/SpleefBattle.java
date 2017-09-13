@@ -17,7 +17,6 @@ import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
-import com.spleefleague.core.player.GeneralPlayer;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;

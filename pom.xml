@@ -95,7 +95,7 @@
     <dependencies>
         <dependency>
             <groupId>com.spleefleague</groupId>
-            <artifactId>fakeblocks</artifactId>
+            <artifactId>virtualworld</artifactId>
             <version>1.0</version>
             <scope>provided</scope>
         </dependency>

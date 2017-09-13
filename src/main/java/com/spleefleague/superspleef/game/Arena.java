@@ -6,7 +6,6 @@
 package com.spleefleague.superspleef.game;
 
 import com.mongodb.client.MongoCursor;
-import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.typeconverters.LocationConverter;
 import com.spleefleague.core.player.SLPlayer;
@@ -19,8 +18,6 @@ import com.spleefleague.entitybuilder.DBLoadable;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
 import com.spleefleague.entitybuilder.EntityBuilder;
-import com.spleefleague.fakeblocks.representations.FakeArea;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -30,12 +27,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bson.Document;
-import org.bukkit.Bukkit;
+import org.bson.types.ObjectId;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -74,9 +68,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private Area area;
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.NORMAL;
-    
     private int runningGames = 0;
-    private FakeArea defaultSnow;
 
     public Location[] getSpawns() {
         return spawns;
@@ -84,10 +76,6 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     public Area getBorder() {
         return border;
-    }
-
-    public FakeArea getDefaultSnow() {
-        return defaultSnow;
     }
     
     @DBLoad(fieldName = "spawns", typeConverter = LocationConverter.class, priority = 1)
@@ -97,24 +85,12 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     }
     
     @DBLoad(fieldName = "field")
-    public void setField(Field field) {
-        this.field = field;
-        FakeArea snow = FakeArea.getFakeArea(field.getUUID());
-        if(snow == null) {
-            snow = new FakeArea();
-            for (Area f : field.getField()) {
-                for (Block block : f.getBlocks()) {
-                    snow.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
-                }
-            }
-            FakeArea.registerFakeArea(field.getUUID(), snow);    
-            SpleefLeague.getInstance().getFakeBlockHandler().addArea(snow, false, Bukkit.getOnlinePlayers().toArray(new Player[0]));
-        }
-        this.defaultSnow = snow;
+    public void setField(ObjectId id) {
+        this.field = Field.getField(id);
     }
     
-    public Area[] getField() {
-        return field.getField();
+    public Field getField() {
+        return field;
     }
 
     public Location getSpectatorSpawn() {

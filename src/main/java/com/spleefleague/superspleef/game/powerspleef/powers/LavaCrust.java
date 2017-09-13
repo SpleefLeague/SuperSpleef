@@ -1,13 +1,11 @@
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
-import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.fakeblocks.representations.FakeArea;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.virtualworld.api.FakeBlock;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
@@ -32,11 +30,11 @@ public class LavaCrust extends Power {
     @Override
     public boolean execute() {
         SpleefBattle battle = getPlayer().getCurrentBattle();
-        FakeArea area = battle.getField();
+        Collection<FakeBlock> fieldBlocks = battle.getFieldBlocks();
         double maxDistanceSquared = 0;
-        Collection<Location> fakeBlockLocations = area
-                .getBlocks()
+        Collection<Location> fakeBlockLocations = fieldBlocks
                 .stream()
+                .filter(fb -> fb.getType() != Material.AIR)
                 .map(fb -> fb.getLocation())
                 .collect(Collectors.toSet());
         for(Location block : fakeBlockLocations) {
@@ -55,17 +53,15 @@ public class LavaCrust extends Power {
         int duration = 20 * 3;
         double probability = 0.8;
         
-        Collection<FakeBlock> areaAround = area
-                .getBlocks()
+        Collection<FakeBlock> areaAround = fieldBlocks
                 .stream()
+                .filter(fb -> fb.getType() != Material.AIR)
                 .filter(fb -> fb.getLocation().distanceSquared(target.get()) <= radius*radius)
                 .filter(fb -> Math.random() < probability)
                 .collect(Collectors.toSet());
         areaAround.forEach(fb -> fb.setType(Material.OBSIDIAN));
-        SpleefLeague.getInstance().getFakeBlockHandler().update(area);
         task = Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
             areaAround.forEach(fb -> fb.setType(Material.AIR));
-            SpleefLeague.getInstance().getFakeBlockHandler().update(area);
         }, duration);
         return true;
     }

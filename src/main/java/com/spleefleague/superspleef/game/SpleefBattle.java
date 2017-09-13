@@ -25,17 +25,18 @@ import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Battle;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.entitybuilder.EntityBuilder;
-import com.spleefleague.fakeblocks.packet.FakeBlockHandler;
-import com.spleefleague.fakeblocks.representations.FakeArea;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.virtualworld.VirtualWorld;
+import com.spleefleague.virtualworld.api.FakeBlock;
+import com.spleefleague.virtualworld.api.FakeWorld;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NBTTagString;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.util.Vector;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -52,6 +53,7 @@ import java.util.*;
  */
 public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
+    private static final int FAKE_WORLD_PRIORITY = 10;
     private final Arena arena;
     private final List<SpleefPlayer> players, spectators;
     private final Map<SpleefPlayer, PlayerData> data;
@@ -61,32 +63,35 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     private Scoreboard scoreboard;
     private boolean inCountdown = false;
     private final SpleefMode spleefMode;
-    private final FakeArea spawnCages, field;
+    private final FakeWorld fakeWorld;
+    private final Collection<FakeBlock> fieldBlocks;
     private int pointsCup = 0;
-    private FakeBlockHandler fakeBlockHandler;
+    private final Collection<Vector> spawnCageDefinition;
     
     protected SpleefBattle(Arena arena, List<SpleefPlayer> players) {
         this(arena, players, arena.getSpleefMode());
     }
 
     private SpleefBattle(Arena arena, List<SpleefPlayer> players, SpleefMode spleefMode) {
-        this.fakeBlockHandler = SpleefLeague.getInstance().getFakeBlockHandler();
         this.spleefMode = spleefMode;
         this.arena = arena;
         this.players = players;
         this.spectators = new ArrayList<>();
         this.data = new LinkedHashMap<>();
-        this.spawnCages = new FakeArea();
-        this.field = new FakeArea();
-        for (Area f : arena.getField()) {
+        this.spawnCageDefinition = generateSpawnCageDefinition();
+        this.fakeWorld = VirtualWorld.getInstance().getFakeWorldManager().createWorld(arena.getSpawns()[0].getWorld());
+        this.fieldBlocks = new HashSet<>();
+        for (Area f : arena.getField().getAreas()) {
             for (Block block : f.getBlocks()) {
-                this.field.addBlock(new FakeBlock(block.getLocation(), Material.SNOW_BLOCK));
+                FakeBlock fb = this.fakeWorld.getBlockAt(block.getLocation());
+                fb.setType(Material.SNOW_BLOCK);
+                this.fieldBlocks.add(fb);
             }
         }
         this.cc = ChatChannel.createTemporaryChannel("GAMECHANNEL" + this.hashCode(), null, Rank.DEFAULT, false, false);
         this.pointsCup = this.arena.getMaxRating();
     }
-
+    
     public abstract void removePlayer(SpleefPlayer sp, boolean surrender);
 
     public abstract void end(SpleefPlayer winner, EndReason reason);
@@ -102,6 +107,18 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     @Override
     public Arena getArena() {
         return arena;
+    }
+    
+    public FakeWorld getFakeWorld() {
+        return fakeWorld;
+    }
+    
+    public Collection<FakeBlock> getFieldBlocks() {
+        return fieldBlocks;
+    }
+    
+    public Collection<Vector> getCageDefinition() {
+        return spawnCageDefinition;
     }
     
     public SpleefMode getSpleefMode() {
@@ -157,9 +174,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         }
         sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
-        fakeBlockHandler.removeArea(arena.getDefaultSnow(), false, sp.getPlayer());
-        fakeBlockHandler.addArea(spawnCages, sp.getPlayer());
-        fakeBlockHandler.addArea(field, sp.getPlayer());
+        VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);
@@ -225,9 +240,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
     protected void resetPlayer(SpleefPlayer sp) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
-        fakeBlockHandler.removeArea(spawnCages, slp.getPlayer());
-        fakeBlockHandler.removeArea(field, false, slp.getPlayer());
-        fakeBlockHandler.addArea(arena.getDefaultSnow(), slp.getPlayer());
+        VirtualWorld.getInstance().getFakeWorldManager().removeWorld(sp.getPlayer(), fakeWorld);
         if (spectators.contains(sp)) {
             spectators.remove(sp);
         } else {
@@ -265,10 +278,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     public void resetField() {
-        for (FakeBlock blocks : field.getBlocks()) {
-            blocks.setType(Material.SNOW_BLOCK);
-        }
-        fakeBlockHandler.update(field);
+        fieldBlocks.forEach(fb -> fb.setType(Material.SNOW_BALL));
     }
 
     public void cancel() {
@@ -298,12 +308,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 SuperSpleef.getInstance().getNormalSpleefBattleManager().add(this);   
             }
             String playerNames = "";
-            fakeBlockHandler.removeArea(arena.getDefaultSnow(), false, players.toArray(new SpleefPlayer[players.size()]));
-            fakeBlockHandler.addArea(field, players.toArray(new SpleefPlayer[players.size()]));
-            fakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
-
             for (int i = 0; i < players.size(); i++) {
                 SpleefPlayer sp = players.get(i);
+                VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
                 if (i == 0) {
                     playerNames = ChatColor.RED + sp.getName();
                 } else if (i == players.size() - 1) {
@@ -340,8 +347,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             }
             SpleefBattle.this.onStart();
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
-            getSpawnCageBlocks();
-            fakeBlockHandler.addArea(spawnCages, GeneralPlayer.toBukkitPlayer(players.toArray(new SpleefPlayer[players.size()])));
+            setSpawnCageBlock(Material.SNOW_BLOCK);
             hidePlayers();
             startClock();
             startRound();
@@ -370,7 +376,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public void startRound() {
         inCountdown = true;
         resetField();
-        createSpawnCages();
+        setSpawnCageBlock(Material.SNOW_BLOCK);
         for (SpleefPlayer sp : getActivePlayers()) {
             sp.setFrozen(true);
             sp.setRequestingReset(false);
@@ -408,7 +414,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                     //sp.teleport(getData(sp).getSpawn().clone().add(0, 0.3, 0));
                     sp.setFrozen(false);
                 }
-                removeSpawnCages();
+                setSpawnCageBlock(Material.AIR);
                 inCountdown = false;
             }
         };
@@ -428,49 +434,32 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         clock.runTaskTimer(SuperSpleef.getInstance(), 0, 1);
     }
 
-    private void createSpawnCages() {
-        for (FakeBlock block : spawnCages.getBlocks()) {
-            block.setType(Material.GLASS);
-        }
-        fakeBlockHandler.update(spawnCages);
-    }
-
-    private void removeSpawnCages() {
-        for (FakeBlock block : spawnCages.getBlocks()) {
-            block.setType(Material.AIR);
-        }
-        fakeBlockHandler.update(spawnCages);
-    }
-
-    private void getSpawnCageBlocks() {
-        for (Location spawn : arena.getSpawns()) {
-            spawnCages.add(getCageBlocks(spawn, Material.AIR));
+    private void setSpawnCageBlock(Material type) {
+        for (Location spawn : this.arena.getSpawns()) {
+            for (Vector vector : spawnCageDefinition) {
+                fakeWorld.getBlockAt(spawn.clone().add(vector)).setType(type);
+            }
         }
     }
 
-    public FakeArea getCageBlocks(Location loc, Material m) {
-        loc = loc.getBlock().getLocation();
-        FakeArea area = new FakeArea();
+    public Collection<Vector> generateSpawnCageDefinition() {
+        Collection<Vector> col = new ArrayList<>();
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 if (x == 0 && z == 0) {
-                    area.addBlock(new FakeBlock(loc.clone().add(x, 2, z), m));
+                    col.add(new Vector(x, 2, z));
                 } else {
                     for (int y = 0; y <= 2; y++) {
-                        area.addBlock(new FakeBlock(loc.clone().add(x, y, z), m));
+                        col.add(new Vector(x, y, z));
                     }
                 }
             }
         }
-        return area;
+        return col;
     }
 
     public boolean isInCountdown() {
         return inCountdown;
-    }
-
-    public FakeArea getField() {
-        return field;
     }
 
     protected void saveGameHistory(SpleefPlayer winner) {

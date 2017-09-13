@@ -1,12 +1,11 @@
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
-import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import com.spleefleague.fakeblocks.chunk.BlockData;
-import com.spleefleague.fakeblocks.representations.FakeBlock;
+import com.spleefleague.superspleef.game.scoreboards.BlockData;
+import com.spleefleague.virtualworld.api.FakeBlock;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -23,9 +22,9 @@ public class RollerSpades extends Power {
 
     private final int duration = 8 * 20;
     private final int degenerationDuration = 2 * 20;
-    private final BlockData[] transition = new BlockData[]{
-        new BlockData(Material.STONE, (byte)0),
-        new BlockData(Material.COAL, (byte)0)
+    private final Material[] transition = new Material[]{
+        Material.STONE,
+        Material.COAL
     };
     private BukkitTask task;
     
@@ -39,7 +38,6 @@ public class RollerSpades extends Power {
             
             private final Set<DegeneratingBlock> affected = new HashSet<>();
             private int timer = duration;
-            private boolean modified;
             private final SpleefPlayer player = getPlayer();
             
             @Override
@@ -49,20 +47,17 @@ public class RollerSpades extends Power {
                     task.cancel();
                     return;
                 }
-                modified = false;
                 for(DegeneratingBlock db : affected) {
                     if(db.durationLeft == 0) {
                         db.state++;
                         db.durationLeft = degenerationDuration;
                         if(db.state < transition.length) {
-                            db.backingBlock.setType(transition[db.state].getType());
-                            db.backingBlock.setDamageValue(transition[db.state].getDamage());
+                            db.backingBlock.setType(transition[db.state]);
                         }
                         else {
                             db.backingBlock.setType(Material.AIR);
-                            db.backingBlock.setDamageValue((byte)0);
+                            db.backingBlock.setData((byte)0);
                         }
-                        modified = true;
                     }
                 }
                 affected.removeIf(db -> db.state > transition.length);
@@ -70,20 +65,14 @@ public class RollerSpades extends Power {
                 Location loc = player.getLocation().subtract(0, -1, 0).getBlock().getLocation();
                 player
                         .getCurrentBattle()
-                        .getField()
-                        .getBlocks()
+                        .getFieldBlocks()
                         .stream()
                         .filter((block) -> (block.getLocation().equals(loc)))
                         .findAny()
                         .ifPresent(fb -> {
                             affected.add(new DegeneratingBlock(0, degenerationDuration, fb));
-                            fb.setType(transition[0].getType());
-                            fb.setDamageValue(transition[0].getDamage());
-                            modified = true;
+                            fb.setType(transition[0]);
                         });
-                if(modified) {
-                    SpleefLeague.getInstance().getFakeBlockHandler().update(player.getCurrentBattle().getField());
-                }
             }
         }, 0, 1);
         return true;

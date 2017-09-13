@@ -9,14 +9,16 @@ import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
-import com.spleefleague.fakeblocks.events.FakeBlockBreakEvent;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.Field;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.virtualworld.event.FakeBlockBreakEvent;
+import java.util.Arrays;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -32,6 +34,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  *
@@ -110,11 +113,29 @@ public class GameListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(FakeBlockBreakEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        if (sp.isIngame()) {
-            if (sp.getCurrentBattle().isInCountdown()) {
-                event.setCancelled(true);
-            } else {
-                event.setCancelled(!strongContains(sp.getCurrentBattle().getField().getBlocks(), event.getBlock()));
+        boolean isDefaultSnow = false;
+        for(Field field : Field.getDefaultFields()) {
+            if(field.getDefaultWorld() == event.getBlock().getWorld()) {
+                isDefaultSnow = true;
+                break;
+            }
+        }
+        if (isDefaultSnow) {
+            event.setCancelled(true);
+        }
+        else {
+            Optional<SpleefBattle> battle = Arrays
+                    .stream(SuperSpleef.getInstance().getBattleManagers())
+                    .flatMap(b -> b.getAll().stream())
+                    .filter(b -> b.getFakeWorld() == event.getBlock().getWorld())
+                    .findAny();
+            if(battle.isPresent()) {
+                if(sp.isIngame() && sp.getCurrentBattle() == battle.get()) {
+                    event.setCancelled(battle.get().isInCountdown());
+                }
+                else {
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -140,9 +161,5 @@ public class GameListener implements Listener {
                 event.setCancelled(true);
             }
         }
-    }
-
-    private <T> boolean strongContains(Collection<T> col, T object) {
-        return col.stream().anyMatch(t -> t == object);
     }
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
 import com.spleefleague.entitybuilder.EntityBuilder;
+import com.spleefleague.superspleef.game.Field;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.game.powerspleef.Shovel;
@@ -78,6 +79,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
                 arena.startBattle(players, StartReason.QUEUE);
             }
         };
+        Field.init();
         Arena.init();
         TeamSpleefArena.init();
         createGameMenu();

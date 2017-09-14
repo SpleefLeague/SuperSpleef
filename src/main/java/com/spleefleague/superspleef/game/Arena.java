@@ -68,7 +68,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "area")
     private Area area;
     @DBLoad(fieldName = "spleefMode")
-    private SpleefMode spleefMode = SpleefMode.POWER;
+    private SpleefMode spleefMode = SpleefMode.NORMAL;
     private int runningGames = 0;
 
     public Location[] getSpawns() {

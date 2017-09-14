@@ -54,12 +54,10 @@ public class Field extends DBEntity implements DBLoadable {
     }
     
     @Override
-    public void onDone() {
-        Location high = areas[0].getHigh();
-        Location low = areas[0].getLow();
-        double minX = low.getX(), minY = low.getY(), minZ = low.getZ();
-        double maxX = high.getX(), maxY = high.getY(), maxZ = high.getZ();
-        for (int i = 1; i < areas.length; i++) {
+    public void done() {
+        double minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+        double maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+        for (int i = 0; i < areas.length; i++) {
             minX = Math.min(minX, areas[i].getLow().getX());
             minY = Math.min(minY, areas[i].getLow().getY());
             minZ = Math.min(minZ, areas[i].getLow().getZ());
@@ -67,8 +65,8 @@ public class Field extends DBEntity implements DBLoadable {
             maxY = Math.max(maxY, areas[i].getHigh().getY());
             maxZ = Math.max(maxZ, areas[i].getHigh().getZ());
         }
-        this.high = new Location(high.getWorld(), maxX, maxY, maxZ);
-        this.low = new Location(low.getWorld(), minX, minY, minZ);
+        this.high = new Location(areas[0].getHigh().getWorld(), maxX, maxY, maxZ);
+        this.low = new Location(areas[0].getLow().getWorld(), minX, minY, minZ);
         if(!defaultVisible) {
             return;
         }
@@ -77,7 +75,8 @@ public class Field extends DBEntity implements DBLoadable {
         this.defaultWorld = fwm.createWorld(high.getWorld(), vArea);
         for(Area area : this.areas) {
             for (Block block : area.getBlocks()) {
-                defaultWorld.getBlockAt(block.getLocation()).setType(Material.SNOW_BLOCK);
+                FakeBlock fb = defaultWorld.getBlockAt(block.getLocation());
+                fb.setType(Material.SNOW_BLOCK);
             }
         }
     }

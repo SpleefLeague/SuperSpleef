@@ -277,7 +277,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     public void resetField() {
-        fieldBlocks.forEach(fb -> fb.setType(Material.SNOW_BALL));
+        fieldBlocks.forEach(fb -> fb.setType(Material.SNOW_BLOCK));
     }
 
     public void cancel() {
@@ -329,7 +329,6 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 p.setGameMode(GameMode.ADVENTURE);
                 p.closeInventory();
                 p.getInventory().clear();
-//                p.getInventory().setArmorContents(null);
                 p.getInventory().addItem(getShovel());
                 for (PotionEffect effect : p.getActivePotionEffects()) {
                     p.removePotionEffect(effect.getType());
@@ -346,7 +345,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             }
             SpleefBattle.this.onStart();
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
-            setSpawnCageBlock(Material.SNOW_BLOCK);
+            setSpawnCageBlock(Material.GLASS);
             hidePlayers();
             startClock();
             startRound();
@@ -375,7 +374,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public void startRound() {
         inCountdown = true;
         resetField();
-        setSpawnCageBlock(Material.SNOW_BLOCK);
+        setSpawnCageBlock(Material.GLASS);
         for (SpleefPlayer sp : getActivePlayers()) {
             sp.setFrozen(true);
             sp.setRequestingReset(false);

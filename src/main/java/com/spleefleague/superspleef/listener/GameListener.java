@@ -17,7 +17,9 @@ import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.TeamSpleefArena;
 import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.virtualworld.api.FakeWorld;
 import com.spleefleague.virtualworld.event.FakeBlockBreakEvent;
+import com.spleefleague.virtualworld.event.FakeBlockPlaceEvent;
 import java.util.Arrays;
 import java.util.Optional;
 import org.bukkit.Bukkit;
@@ -139,7 +141,35 @@ public class GameListener implements Listener {
             }
         }
     }
-
+    
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockPlace(FakeBlockPlaceEvent event) {
+        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
+        FakeWorld target = event.getBlock().getWorld();
+        for(Field field : Field.getDefaultFields()) {
+            if(field.getDefaultWorld() == target) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+        if(sp.isIngame()) {
+            if(sp.getCurrentBattle().getFakeWorld() == target) {
+                event.setCancelled(true);
+            }
+        }
+        else {
+            boolean isIngame = Arrays.stream(SuperSpleef.getInstance().getBattleManagers())
+                    .flatMap(bm -> bm.getAll().stream())
+                    .map(battle -> battle.getFakeWorld())
+                    .filter(fw -> fw == target)
+                    .findAny()
+                    .isPresent();
+            if(isIngame) {
+                event.setCancelled(true);
+            }
+        }
+    }
+    
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());

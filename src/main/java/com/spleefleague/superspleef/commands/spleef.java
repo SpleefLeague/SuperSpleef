@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.bukkit.command.CommandSender;
 
 /**
  *
@@ -51,8 +52,8 @@ public class spleef extends BasicCommand {
         return false;
     }
 
-    private boolean checkIngame(Player p) {
-        if (GamePlugin.isIngameGlobal(p)) {
+    private boolean checkIngame(CommandSender p) {
+        if (p instanceof Player && GamePlugin.isIngameGlobal((Player)p)) {
             error(p, "You are currently ingame!");
             return true;
         }
@@ -100,13 +101,16 @@ public class spleef extends BasicCommand {
     }
 
     @Endpoint(target = {PLAYER, CONSOLE, COMMAND_BLOCK})
-    public void forcestart(SLPlayer sender, @LiteralArg(value = "match") String l, @StringArg String arenaName, @PlayerArg Player[] players) {
+    public void forcestart(CommandSender sender, @LiteralArg(value = "match") String l, @StringArg String arenaName, @PlayerArg Player[] players) {
         if (checkIngame(sender)) {
             return;
         }
-        if (!sender.getRank().hasPermission(Rank.MODERATOR) && sender.getRank() != Rank.ORGANIZER) {
-            sendUsage(sender);
-            return;
+        if(sender instanceof SLPlayer) {
+            SLPlayer slp = (SLPlayer)sender;
+            if (!slp.getRank().hasPermission(Rank.MODERATOR) && slp.getRank() != Rank.ORGANIZER) {
+                sendUsage(sender);
+                return;
+            }
         }
         Arena arena = Arena.byName(arenaName);
         if (arena == null) {
@@ -220,19 +224,22 @@ public class spleef extends BasicCommand {
     }
 
     @Endpoint(target = {PLAYER, CONSOLE})
-    public void pause(SLPlayer sender, @LiteralArg(value = "pause") String l, @StringArg String arenaName) {
+    public void pause(CommandSender sender, @LiteralArg(value = "pause") String l, @StringArg String arenaName) {
         handlePause(sender, true, arenaName);
     }
 
     @Endpoint(target = {PLAYER, CONSOLE})
-    public void unpause(SLPlayer sender, @LiteralArg(value = "unpause") String l, @StringArg String arenaName) {
+    public void unpause(CommandSender sender, @LiteralArg(value = "unpause") String l, @StringArg String arenaName) {
         handlePause(sender, false, arenaName);
     }
 
-    private void handlePause(SLPlayer sender, boolean pauseValue, @StringArg String arenaName) {
-        if (!sender.getRank().hasPermission(Rank.MODERATOR) && sender.getRank() != Rank.ORGANIZER) {
-            sendUsage(sender);
-            return;
+    private void handlePause(CommandSender sender, boolean pauseValue, @StringArg String arenaName) {
+        if(sender instanceof SLPlayer) {
+            SLPlayer slp = (SLPlayer)sender;
+            if (!slp.getRank().hasPermission(Rank.MODERATOR) && slp.getRank() != Rank.ORGANIZER) {
+                sendUsage(sender);
+                return;
+            }
         }
         Arena arena = Arena.byName(arenaName);
         if (arena == null) {

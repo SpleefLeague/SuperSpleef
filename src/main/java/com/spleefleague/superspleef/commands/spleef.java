@@ -5,6 +5,8 @@
  */
 package com.spleefleague.superspleef.commands;
 
+import static com.spleefleague.annotations.CommandSource.COMMAND_BLOCK;
+import static com.spleefleague.annotations.CommandSource.CONSOLE;
 import static com.spleefleague.annotations.CommandSource.PLAYER;
 import com.spleefleague.annotations.Endpoint;
 import com.spleefleague.annotations.LiteralArg;
@@ -97,7 +99,7 @@ public class spleef extends BasicCommand {
         success(sender, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
     }
 
-    @Endpoint(target = {PLAYER})
+    @Endpoint(target = {PLAYER, CONSOLE, COMMAND_BLOCK})
     public void forcestart(SLPlayer sender, @LiteralArg(value = "match") String l, @StringArg String arenaName, @PlayerArg Player[] players) {
         if (checkIngame(sender)) {
             return;
@@ -217,12 +219,12 @@ public class spleef extends BasicCommand {
         success(sender, "The players have been challenged.");
     }
 
-    @Endpoint(target = {PLAYER})
+    @Endpoint(target = {PLAYER, CONSOLE})
     public void pause(SLPlayer sender, @LiteralArg(value = "pause") String l, @StringArg String arenaName) {
         handlePause(sender, true, arenaName);
     }
 
-    @Endpoint(target = {PLAYER})
+    @Endpoint(target = {PLAYER, CONSOLE})
     public void unpause(SLPlayer sender, @LiteralArg(value = "unpause") String l, @StringArg String arenaName) {
         handlePause(sender, false, arenaName);
     }

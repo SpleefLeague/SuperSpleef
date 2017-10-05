@@ -6,6 +6,7 @@
 package com.spleefleague.superspleef.listener;
 
 import com.spleefleague.core.SpleefLeague;
+import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.utils.PlayerUtil;
@@ -31,6 +32,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -113,29 +116,75 @@ public class GameListener implements Listener {
     }
     
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockBreak(FakeBlockBreakEvent event) {
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        boolean isDefaultSnow = false;
-        for(Field field : Field.getDefaultFields()) {
-            if(field.getDefaultWorld() == event.getBlock().getWorld()) {
-                isDefaultSnow = true;
-                break;
+    public void onFakeBlockBreak(FakeBlockBreakEvent event) {
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+        if(slp.getState().equals(PlayerState.SPECTATING)) {
+            event.setCancelled(true);
+        } else if(slp.getState().equals(PlayerState.INGAME)) {
+            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
+            boolean isDefaultSnow = false;
+            for(Field field : Field.getDefaultFields()) {
+                if(field.getDefaultWorld() == event.getBlock().getWorld()) {
+                    isDefaultSnow = true;
+                    break;
+                }
+            }
+            if (isDefaultSnow) {
+                event.setCancelled(true);
+            }
+            else {
+                Optional<SpleefBattle> battle = Arrays
+                        .stream(SuperSpleef.getInstance().getBattleManagers())
+                        .flatMap(b -> b.getAll().stream())
+                        .filter(b -> b.getFakeWorld() == event.getBlock().getWorld())
+                        .findAny();
+                if(battle.isPresent()) {
+                    if(sp.isIngame() && sp.getCurrentBattle() == battle.get()) {
+                        event.setCancelled(battle.get().isInCountdown());
+                    }
+                    else {
+                        event.setCancelled(true);
+                    }
+                }
             }
         }
-        if (isDefaultSnow) {
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockBreak(BlockBreakEvent event) {
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+        if(slp.getState().equals(PlayerState.SPECTATING)) {
             event.setCancelled(true);
         }
-        else {
-            Optional<SpleefBattle> battle = Arrays
-                    .stream(SuperSpleef.getInstance().getBattleManagers())
-                    .flatMap(b -> b.getAll().stream())
-                    .filter(b -> b.getFakeWorld() == event.getBlock().getWorld())
-                    .findAny();
-            if(battle.isPresent()) {
-                if(sp.isIngame() && sp.getCurrentBattle() == battle.get()) {
-                    event.setCancelled(battle.get().isInCountdown());
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onFakeBlockPlace(FakeBlockPlaceEvent event) {
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+        if(slp.getState().equals(PlayerState.SPECTATING)) {
+            event.setCancelled(true);
+        } else if(slp.getState().equals(PlayerState.INGAME)) {
+            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
+            FakeWorld target = event.getBlock().getWorld();
+            for(Field field : Field.getDefaultFields()) {
+                if(field.getDefaultWorld() == target) {
+                    event.setCancelled(true);
+                    return;
                 }
-                else {
+            }
+            if(sp.isIngame()) {
+                if(sp.getCurrentBattle().getFakeWorld() == target) {
+                    event.setCancelled(true);
+                }
+            }
+            else {
+                boolean isIngame = Arrays.stream(SuperSpleef.getInstance().getBattleManagers())
+                        .flatMap(bm -> bm.getAll().stream())
+                        .map(battle -> battle.getFakeWorld())
+                        .filter(fw -> fw == target)
+                        .findAny()
+                        .isPresent();
+                if(isIngame) {
                     event.setCancelled(true);
                 }
             }
@@ -143,30 +192,10 @@ public class GameListener implements Listener {
     }
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onBlockPlace(FakeBlockPlaceEvent event) {
-        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-        FakeWorld target = event.getBlock().getWorld();
-        for(Field field : Field.getDefaultFields()) {
-            if(field.getDefaultWorld() == target) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-        if(sp.isIngame()) {
-            if(sp.getCurrentBattle().getFakeWorld() == target) {
-                event.setCancelled(true);
-            }
-        }
-        else {
-            boolean isIngame = Arrays.stream(SuperSpleef.getInstance().getBattleManagers())
-                    .flatMap(bm -> bm.getAll().stream())
-                    .map(battle -> battle.getFakeWorld())
-                    .filter(fw -> fw == target)
-                    .findAny()
-                    .isPresent();
-            if(isIngame) {
-                event.setCancelled(true);
-            }
+    public void onBlockPlace(BlockPlaceEvent event) {
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+        if(slp.getState().equals(PlayerState.SPECTATING)) {
+            event.setCancelled(true);
         }
     }
     

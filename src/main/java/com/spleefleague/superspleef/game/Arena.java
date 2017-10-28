@@ -42,7 +42,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private Area border;
     private Field field;
     private Location[] spawns;
-    @DBLoad(fieldName = "requiredPlayers", priority = 2)
+    @DBLoad(fieldName = "requiredPlayers", priority = 0)
     private int requiredPlayers;
     @DBLoad(fieldName = "creator")
     private String creator;

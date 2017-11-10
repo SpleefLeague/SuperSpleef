@@ -38,6 +38,12 @@ public class PowerSpleefBattle extends NormalSpleefBattle {
     }
     
     @Override
+    public void startRound() {
+        powers.values().forEach(Power::cancel);
+        super.startRound();
+    }
+    
+    @Override
     public void resetPlayer(SpleefPlayer sp) {
         Power power = powers.get(sp);
         if(power != null) {

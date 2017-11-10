@@ -31,15 +31,16 @@ public class LavaCrust extends Power {
     public boolean execute() {
         SpleefBattle battle = getPlayer().getCurrentBattle();
         Collection<FakeBlock> fieldBlocks = battle.getFieldBlocks();
-        double maxDistanceSquared = 0;
         Collection<Location> fakeBlockLocations = fieldBlocks
                 .stream()
                 .filter(fb -> fb.getType() != Material.AIR)
                 .map(fb -> fb.getLocation())
                 .collect(Collectors.toSet());
-        for(Location block : fakeBlockLocations) {
-            maxDistanceSquared = Math.min(maxDistanceSquared, block.distanceSquared(getPlayer().getLocation()));
-        }
+        double maxDistanceSquared = fakeBlockLocations
+                .stream()
+                .mapToDouble(l -> l.distanceSquared(getPlayer().getLocation()))
+                .max()
+                .orElse(0);
         Optional<Location> target = getPlayer()
                 .getLineOfSight(null, (int)Math.ceil(maxDistanceSquared))
                 .stream()

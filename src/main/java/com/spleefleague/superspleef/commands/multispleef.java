@@ -68,7 +68,7 @@ public class multispleef extends BasicCommand {
         }
         GamePlugin.dequeueGlobal(sender);
         SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(sender);
-        SuperSpleef.getInstance().getNormalSpleefBattleManager().queue(sjp);
+        SuperSpleef.getInstance().getMultiSpleefBattleManager().queue(sjp);
         success(sender, "You have been added to the queue");
     }
 
@@ -94,7 +94,7 @@ public class multispleef extends BasicCommand {
             error(p, "You have not visited this arena yet!");
             return;
         }
-        SuperSpleef.getInstance().getNormalSpleefBattleManager().queue(sjp, arena);
+        SuperSpleef.getInstance().getMultiSpleefBattleManager().queue(sjp, arena);
         success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
     }
 

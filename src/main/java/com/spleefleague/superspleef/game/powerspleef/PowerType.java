@@ -1,6 +1,7 @@
 package com.spleefleague.superspleef.game.powerspleef;
 
 import com.spleefleague.superspleef.game.powerspleef.powers.EyeOfTheStorm;
+import com.spleefleague.superspleef.game.powerspleef.powers.HeatBolts;
 import com.spleefleague.superspleef.game.powerspleef.powers.LavaCrust;
 import com.spleefleague.superspleef.game.powerspleef.powers.QuickStep;
 import com.spleefleague.superspleef.game.powerspleef.powers.RollerSpades;
@@ -21,7 +22,8 @@ public enum PowerType {
     ROLLER_SPADES("Roller Spades", Material.IRON_BOOTS, RollerSpades.getSupplier()),
     QUICK_STEP("Quick Step", Material.FEATHER, QuickStep.getSupplier()),
     LAVA_CRUST("Lava Crust", Material.MAGMA, LavaCrust.getSupplier()),
-    EYE_OF_THE_STORM("Eye of the Storm", Material.ICE, EyeOfTheStorm.getSupplier());
+    EYE_OF_THE_STORM("Eye of the Storm", Material.ICE, EyeOfTheStorm.getSupplier()),
+    HEAT_BOLTS("Heat Bolts", Material.MAGMA_CREAM, HeatBolts.getSupplier());
     
     private final String name;
     private final Material type;
@@ -60,7 +62,8 @@ public enum PowerType {
     static {
         defaultPowers = Collections.unmodifiableCollection(Arrays.asList(new PowerType[]{
             ROLLER_SPADES,
-            QUICK_STEP
+            QUICK_STEP,
+            HEAT_BOLTS
         }));
     }
 }

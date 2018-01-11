@@ -3,7 +3,6 @@ package com.spleefleague.superspleef.game.powerspleef.powers;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.Power;
-import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.api.FakeBlock;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class EyeOfTheStorm extends Power {
     private Collection<FakeBlock> iceCage;
     
     private EyeOfTheStorm(SpleefPlayer sp) {
-        super(PowerType.EYE_OF_THE_STORM, sp, 20 * 15);
+        super(/*PowerType.EYE_OF_THE_STORM*/null, sp, 20 * 15);
     }
 
     @Override
@@ -55,5 +54,10 @@ public class EyeOfTheStorm extends Power {
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {
         return (sp) -> new EyeOfTheStorm(sp);
+    }
+
+    @Override
+    public void destroy() {
+        cancel();
     }
 }

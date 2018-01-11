@@ -2,12 +2,9 @@ package com.spleefleague.superspleef.game.powerspleef;
 
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 
 /**
@@ -45,6 +42,7 @@ public abstract class Power {
     
     public abstract boolean execute();
     public abstract void cancel();
+    public abstract void destroy();
     
     public boolean isOnCooldown() {
         return cooldown > 0;
@@ -52,6 +50,10 @@ public abstract class Power {
     
     public int getCooldown() {
         return cooldown;
+    }
+    
+    public void setCooldown(int cooldown) {
+        this.cooldown = cooldown;
     }
     
     private static Set<Power> onCooldown;
@@ -65,6 +67,9 @@ public abstract class Power {
 
             @Override
             public void cancel() {}
+
+            @Override
+            public void destroy() {}
         };
     }
     

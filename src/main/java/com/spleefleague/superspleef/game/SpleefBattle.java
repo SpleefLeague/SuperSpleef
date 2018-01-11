@@ -23,8 +23,11 @@ import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Battle;
 import com.spleefleague.core.utils.Area;
+import com.spleefleague.core.utils.ServerType;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.powerspleef.Power;
+import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.game.signs.GameSign;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.VirtualWorld;
@@ -57,14 +60,14 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     private final List<SpleefPlayer> players, spectators;
     private final Map<SpleefPlayer, PlayerData> data;
     private final ChatChannel cc;
-    private int ticksPassed = 0, round = 0;
+    private int ticksPassed = 0, round = 0, pointsCap = 0;
     private BukkitRunnable clock;
     private Scoreboard scoreboard;
     private boolean inCountdown = false;
+    private boolean powersEnabled;
     private final SpleefMode spleefMode;
     private final FakeWorld fakeWorld;
     private final Collection<FakeBlock> fieldBlocks;
-    private int pointsCup = 0;
     private final Collection<Vector> spawnCageDefinition;
     
     protected SpleefBattle(Arena arena, List<SpleefPlayer> players) {
@@ -88,7 +91,11 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             }
         }
         this.cc = ChatChannel.createTemporaryChannel("GAMECHANNEL" + this.hashCode(), null, Rank.DEFAULT, false, false);
-        this.pointsCup = this.arena.getMaxRating();
+        this.pointsCap = this.arena.getMaxRating();
+        powersEnabled = SpleefLeague.getInstance().getServerType() == ServerType.TEST;//Change to true when feature goes live
+        for (int i = 0; powersEnabled && i < players.size(); i++) {
+            powersEnabled = players.get(i).getPowerType() != PowerType.NO_POWER;
+        }
     }
     
     public abstract void removePlayer(SpleefPlayer sp, boolean surrender);
@@ -163,9 +170,23 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     public int getPlayTo() {
-        return this.pointsCup;
+        return this.pointsCap;
     }
 
+    public boolean getPowersEnabled() {
+        return this.powersEnabled;
+    }
+    
+    public void handlePowerRequest(SpleefPlayer sp) {
+        if(!getPowersEnabled() || isInCountdown()) return;
+        Power power = data.get(sp).getPower();
+        System.out.println("Checking cooldown for " + power.getType().getDisplayName());
+        if(!power.isOnCooldown()) {
+            System.out.println("It's available");
+            power.tryRun();
+        }
+    }
+    
     public void addSpectator(SpleefPlayer sp) {
         Location spawn = arena.getSpectatorSpawn();
         if (spawn != null) {
@@ -251,6 +272,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.invalidatePlayToRequest();
             sp.closeInventory();
             data.get(sp).restoreOldData();
+            data.get(sp).getPower().destroy();
         }
         if (sp.getPlayer().getGameMode() == GameMode.SPECTATOR) {
             sp.getPlayer().setSpectatorTarget(null);
@@ -381,6 +403,9 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.setRequestingEndgame(false);
             sp.setDead(false);
             sp.setFireTicks(0);
+            Power power = data.get(sp).getPower();
+            power.cancel();
+            power.setCooldown(0);
             sp.teleport(this.data.get(sp).getSpawn());
             Player c = sp.getPlayer();
             for (SpleefPlayer sp2 : getActivePlayers()) {
@@ -474,10 +499,10 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     }
 
     public void changePointsCup(int value) {
-        pointsCup = value;
+        pointsCap = value;
         for(SpleefPlayer sp : getActivePlayers()) {
             PlayerData pd = this.data.get(sp);
-            if(pd.getPoints() >= pointsCup) {
+            if(pd.getPoints() >= pointsCap) {
                 end(sp, EndReason.NORMAL);
                 break;
             }
@@ -501,6 +526,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         private final Location spawn;
         private final SpleefPlayer sp;
         private final GameMode oldGamemode;
+        private final Power power;
         private final ItemStack[] oldInventory;
         private final ItemStack[] oldArmor;
 
@@ -508,6 +534,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             this.sp = sp;
             this.spawn = spawn;
             this.points = 0;
+            this.power = sp.getPowerType().createPower(sp);
             Player p = sp.getPlayer();
             oldGamemode = p.getGameMode();
             oldInventory = p.getInventory().getContents();
@@ -528,6 +555,10 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
 
         public SpleefPlayer getPlayer() {
             return sp;
+        }
+        
+        public Power getPower() {
+            return power;
         }
 
         public void restoreOldData() {

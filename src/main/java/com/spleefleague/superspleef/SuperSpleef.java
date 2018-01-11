@@ -47,6 +47,7 @@ import com.spleefleague.superspleef.game.powerspleef.Shovel;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * @author Jonas
@@ -323,11 +324,13 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         InventoryMenuTemplateBuilder shovelMenu = menu()
                 .displayName("Shovels")
                 .displayIcon(Material.GOLD_SPADE);
+        InventoryMenuTemplateBuilder powerMenu = menu()
+                .displayName("Powers")
+                .displayIcon(Material.BOOK);
         Arrays.stream(Shovel.values()).forEach((shovel) -> {
-            InventoryMenuTemplateBuilder powerupMenu = menu()
+            shovelMenu.component(item()
                     .displayName(shovel.getName())
-                    .displayIcon(shovel.getType())
-                    //.displayItem(new ItemStack(shovel.getType(), shovel.getData()))
+                    .displayItem(new ItemStack(shovel.getType(), shovel.getData(), shovel.getDamage()))
                     .visibilityController((slp) -> {
 //                            SpleefPlayer sp = playerManager.get(slp);
 //                            if(sp != null) {
@@ -335,25 +338,42 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
 //                            }
 //                            return false;
                         return true;
-                    });
-            Collection<PowerType> totalPowerTypes = new LinkedHashSet<>(Arrays.asList(shovel.getUniquePowers()));
-            totalPowerTypes.addAll(PowerType.defaultPowers);
-            for(PowerType pt : totalPowerTypes) {
-                powerupMenu.component(item()
-                        .displayName(pt.getDisplayName())
-                        .displayIcon(pt.getType())
-                        //.displayItem(new ItemStack(pt.getType(), pt.getData()))
-                        .onClick((event) -> {
-                            SpleefPlayer sp = playerManager.get(event.getPlayer());
-                            sp.setActiveShovel(shovel);
-                            sp.setActivePower(pt);
-                        })
-                );
-            }
-            shovelMenu.component(powerupMenu);
+                    })
+                    .onClick((event) -> {
+                        SpleefPlayer sp = playerManager.get(event.getPlayer());
+                        sp.setActiveShovel(shovel);
+                        event.getItem().getParent().update();
+                    }));
         });
+        for(PowerType powerType : PowerType.values()) {
+            powerMenu.component(item()
+                    .displayName(powerType.getDisplayName())
+                    .displayItem(new ItemStack(powerType.getType(), powerType.getData(), powerType.getDamage()))
+                    .description((slp) -> {
+                        SpleefPlayer sp = playerManager.get(slp);
+                        if(sp.getPowerType() == powerType) {
+                            return Arrays.asList(new String[]{ChatColor.GREEN + "Enabled"});
+                        }
+                        return Arrays.asList(new String[]{ChatColor.RED + "Disabled"});
+                    })
+                    .visibilityController((slp) -> {
+//                            SpleefPlayer sp = playerManager.get(slp);
+//                            if(sp != null) {
+//                                return sp.getAvailablePowers().contains(powerType);
+//                            }
+//                            return false;
+                        return true;
+                    })
+                    .onClick((event) -> {
+                        SpleefPlayer sp = playerManager.get(event.getPlayer());
+                        sp.setActivePower(powerType);
+                        event.getItem().getParent().update();
+                    })
+            );
+        }
         menu.component(arenaMenu);
         menu.component(shovelMenu);
+        menu.component(powerMenu);
     }
 
     @Override

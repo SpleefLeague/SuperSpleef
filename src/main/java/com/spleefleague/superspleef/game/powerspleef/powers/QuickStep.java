@@ -4,6 +4,8 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -22,7 +24,7 @@ public class QuickStep extends Power implements Listener {
     private Vector direction;
     
     private QuickStep(SpleefPlayer player) {
-        super(PowerType.QUICK_STEP, player, 20 * 5);
+        super(PowerType.QUICK_STEP, player, 10);
         Bukkit.getPluginManager().registerEvents(this, SuperSpleef.getInstance());
         direction = player.getLocation().getDirection().normalize();
     }
@@ -49,6 +51,7 @@ public class QuickStep extends Power implements Listener {
                     .setY(0)
                     .normalize();
         }
+        System.out.println(direction.getX() + " | " + direction.getZ());
     }
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {
@@ -57,8 +60,11 @@ public class QuickStep extends Power implements Listener {
 
     @Override
     public void cancel() {
+    
+    }
+
+    @Override
+    public void destroy() {
         HandlerList.unregisterAll(this);
     }
-    
-    
 }

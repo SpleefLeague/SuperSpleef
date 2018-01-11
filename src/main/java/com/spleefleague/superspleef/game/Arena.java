@@ -19,7 +19,6 @@ import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
@@ -212,13 +211,7 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
 
     public SpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
         if (!isOccupied()) { //Shouldn't be necessary
-            SpleefBattle battle;
-            if(this.getSpleefMode() == SpleefMode.POWER) {
-                battle = new PowerSpleefBattle(this, players);
-            }
-            else {
-                battle = new NormalSpleefBattle(this, players);
-            }
+            SpleefBattle battle = new NormalSpleefBattle(this, players);
             battle.start(reason);
             return battle;
         }

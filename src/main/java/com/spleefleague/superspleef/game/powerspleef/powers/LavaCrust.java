@@ -29,24 +29,14 @@ public class LavaCrust extends Power {
 
     @Override
     public boolean execute() {
-        SpleefBattle battle = getPlayer().getCurrentBattle();
-        Collection<FakeBlock> fieldBlocks = battle.getFieldBlocks();
-        Collection<Location> fakeBlockLocations = fieldBlocks
+        Location loc = getPlayer().getLocation().subtract(0, 1, 0).getBlock().getLocation();
+        Optional<FakeBlock> target = getPlayer()
+                .getCurrentBattle()
+                .getFieldBlocks()
                 .stream()
                 .filter(fb -> fb.getType() != Material.AIR)
-                .map(fb -> fb.getLocation())
-                .collect(Collectors.toSet());
-        double maxDistanceSquared = fakeBlockLocations
-                .stream()
-                .mapToDouble(l -> l.distanceSquared(getPlayer().getLocation()))
-                .max()
-                .orElse(0);
-        Optional<Location> target = getPlayer()
-                .getLineOfSight(null, (int)Math.ceil(maxDistanceSquared))
-                .stream()
-                .map(b -> b.getLocation())
-                .filter(l -> fakeBlockLocations.contains(l))
-                .findFirst();
+                .filter(fb -> (fb.getLocation().equals(loc)))
+                .findAny();
         if(!target.isPresent()) {
             return false;
         }
@@ -54,10 +44,10 @@ public class LavaCrust extends Power {
         int duration = 20 * 3;
         double probability = 0.5;
         
-        Collection<FakeBlock> areaAround = fieldBlocks
+        Collection<FakeBlock> areaAround = getPlayer().getCurrentBattle().getFieldBlocks()
                 .stream()
                 .filter(fb -> fb.getType() != Material.AIR)
-                .filter(fb -> fb.getLocation().distanceSquared(target.get()) <= radius*radius)
+                .filter(fb -> fb.getLocation().distanceSquared(target.get().getLocation()) <= radius*radius)
                 .filter(fb -> Math.random() < probability)
                 .collect(Collectors.toSet());
         areaAround.forEach(fb -> fb.setType(Material.OBSIDIAN));
@@ -72,6 +62,11 @@ public class LavaCrust extends Power {
         if(task != null) {
             task.cancel();
         }
+    }
+
+    @Override
+    public void destroy() {
+        cancel();
     }
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {

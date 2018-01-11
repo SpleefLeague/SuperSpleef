@@ -36,6 +36,9 @@ public class HeatBolts extends Power {
 
     @Override
     public boolean execute() {
+        if(destroyTask != null) {
+            destroyTask.cancel();
+        }
         SpleefBattle battle = getPlayer().getCurrentBattle();
         Collection<FakeBlock> fieldBlocks = battle.getFieldBlocks();
         Map<Location, FakeBlock> fakeBlockLocations = fieldBlocks
@@ -60,6 +63,7 @@ public class HeatBolts extends Power {
         destroyTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), () -> {
             if(!target.hasNext()) {
                 destroyTask.cancel();
+                destroyTask = null;
             }
             else {
                 target.next().setType(Material.AIR);
@@ -72,7 +76,13 @@ public class HeatBolts extends Power {
     public void cancel() {
         if(destroyTask != null) {
             destroyTask.cancel();
+            destroyTask = null;
         }
+    }
+
+    @Override
+    public void destroy() {
+        cancel();
     }
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {

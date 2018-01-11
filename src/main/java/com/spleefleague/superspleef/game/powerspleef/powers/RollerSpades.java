@@ -1,6 +1,7 @@
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -23,11 +24,10 @@ public class RollerSpades extends Power {
     private final int duration = 8 * 20;
     private final int degenerationDuration = 2 * 20;
     private final Material[] transition = new Material[]{
-        Material.STONE,
-        Material.COAL
+        Material.OBSIDIAN
     };
     private BukkitTask task;
-    
+
     private RollerSpades(SpleefPlayer sp) {
         super(PowerType.ROLLER_SPADES, sp, 20 * 20);
     }
@@ -35,51 +35,50 @@ public class RollerSpades extends Power {
     @Override
     public boolean execute() {
         task = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), new Runnable() {
-            
+
             private final Set<DegeneratingBlock> affected = new HashSet<>();
             private int timer = duration;
             private final SpleefPlayer player = getPlayer();
-            
+
             @Override
             public void run() {
-                System.out.println("Timer: " + timer);
                 timer--;
-                if(timer <= 0 && affected.isEmpty()) {
+                if (timer <= 0 && affected.isEmpty()) {
                     task.cancel();
                     return;
                 }
-                for(DegeneratingBlock db : affected) {
-                    if(db.durationLeft == 0) {
+                for (DegeneratingBlock db : affected) {
+                    if (db.durationLeft == 0) {
                         db.state++;
                         db.durationLeft = degenerationDuration;
-                        if(db.state < transition.length) {
+                        if (db.state < transition.length) {
                             db.backingBlock.setType(transition[db.state]);
-                        }
-                        else {
+                        } else {
                             db.backingBlock.setType(Material.AIR);
-                            db.backingBlock.setData((byte)0);
+                            db.backingBlock.setData((byte) 0);
                         }
                     }
                 }
                 affected.removeIf(db -> db.state >= transition.length);
                 affected.forEach(db -> db.durationLeft--);
-                Location loc = player.getLocation().subtract(0, -1, 0).getBlock().getLocation();
+                if(timer <= 0) {
+                    return;
+                }
+                Location loc = player.getLocation().subtract(0, 1, 0).getBlock().getLocation();
                 player
                         .getCurrentBattle()
                         .getFieldBlocks()
                         .stream()
-                        .filter((block) -> (block.getLocation().equals(loc)))
+                        .filter(fb -> fb.getType() != Material.AIR)
+                        .filter(fb -> (fb.getLocation().equals(loc)))
                         .findAny()
                         .ifPresent(fb -> {
-                                if(fb.getType() != Material.AIR) {
-                                    DegeneratingBlock db = new DegeneratingBlock(0, degenerationDuration, fb);
-                                    if(!affected.contains(db)) {
-                                        affected.add(db);
-                                        fb.setType(transition[0]);
-                                    }
-                                    
-                                }
-                            });
+                            DegeneratingBlock db = new DegeneratingBlock(0, degenerationDuration, fb);
+                            if (!affected.contains(db)) {
+                                affected.add(db);
+                                fb.setType(transition[0]);
+                            }
+                        });
             }
         }, 0, 1);
         return true;
@@ -87,22 +86,27 @@ public class RollerSpades extends Power {
 
     @Override
     public void cancel() {
-        if(task != null) {
+        if (task != null) {
             task.cancel();
         }
     }
-    
+
+    @Override
+    public void destroy() {
+        cancel();
+    }
+
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {
         return (sp) -> new RollerSpades(sp);
     }
-    
+
     private class DegeneratingBlock {
-        
+
         private int state;
         private int durationLeft;
         private final FakeBlock backingBlock;
 
-        public DegeneratingBlock(int state, int durationLeft, FakeBlock backingBlock ) {
+        public DegeneratingBlock(int state, int durationLeft, FakeBlock backingBlock) {
             this.state = state;
             this.durationLeft = durationLeft;
             this.backingBlock = backingBlock;
@@ -152,7 +156,6 @@ public class RollerSpades extends Power {
             }
             return true;
         }
-        
-        
+
     }
 }

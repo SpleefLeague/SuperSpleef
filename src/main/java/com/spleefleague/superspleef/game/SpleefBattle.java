@@ -26,6 +26,7 @@ import com.spleefleague.core.utils.Area;
 import com.spleefleague.core.utils.ServerType;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.cosmetics.Shovel;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.game.signs.GameSign;
@@ -48,6 +49,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /**
  *
@@ -351,7 +354,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 p.setGameMode(GameMode.ADVENTURE);
                 p.closeInventory();
                 p.getInventory().clear();
-                p.getInventory().addItem(getShovel());
+                p.getInventory().addItem(getShovel(sp));
                 for (PotionEffect effect : p.getActivePotionEffects()) {
                     p.removePotionEffect(effect.getType());
                 }
@@ -509,15 +512,21 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         }
     }
 
-    private static ItemStack getShovel() {
-        net.minecraft.server.v1_12_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.DIAMOND_SPADE));
+    private static ItemStack getShovel(SpleefPlayer sp) {
+        Shovel shovel = sp.getActiveShovel();
+        net.minecraft.server.v1_12_R1.ItemStack stack = CraftItemStack.asNMSCopy(shovel.toItemStack());
         NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
         NBTTagList list = new NBTTagList();
         list.add(new NBTTagString("minecraft:snow"));
         tag.set("CanDestroy", list);
-        tag.setBoolean("Unbreakable", true);
         stack.setTag(tag);
-        return CraftItemStack.asBukkitCopy(stack);
+        ItemStack is = CraftItemStack.asBukkitCopy(stack);
+        is.setDurability(shovel.getDamage());
+        ItemMeta im = is.getItemMeta();
+        im.setUnbreakable(true);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_UNBREAKABLE);
+        is.setItemMeta(im);
+        return is;
     }
 
     public static class PlayerData {

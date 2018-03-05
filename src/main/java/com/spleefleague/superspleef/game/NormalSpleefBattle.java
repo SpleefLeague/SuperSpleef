@@ -139,6 +139,10 @@ public class NormalSpleefBattle extends SpleefBattle {
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + Theme.INFO.buildTheme(false) + " has won the match!", getGameChannel());
         }
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
+        List<SpleefPlayer> active = getActivePlayers();//Change order -> preserve inventory if match is started with one player in multiple slots
+        for (int i = active.size() - 1; i >= 0; i--) {
+            resetPlayer(active.get(i));
+        }
         Lists.newArrayList(getActivePlayers()).forEach(this::resetPlayer);
         if (reason == EndReason.CANCEL) {
             if (reason == EndReason.CANCEL) {

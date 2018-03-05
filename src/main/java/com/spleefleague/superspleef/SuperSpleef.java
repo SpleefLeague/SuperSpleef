@@ -19,6 +19,7 @@ import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.plugin.PlayerHandling;
 import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.core.queue.RatedBattleManager;
+import com.spleefleague.core.utils.ServerType;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuTemplateBuilder;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
@@ -41,12 +42,10 @@ import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.game.Field;
+import com.spleefleague.superspleef.game.cosmetics.Shovel;
 import com.spleefleague.superspleef.game.powerspleef.Power;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
-import com.spleefleague.superspleef.game.powerspleef.Shovel;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -83,7 +82,6 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         Field.init();
         Arena.init();
         TeamSpleefArena.init();
-        createGameMenu();
         start = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_START");
         end = ChatChannel.valueOf("GAME_MESSAGE_SPLEEF_END");
         ConnectionListener.init();
@@ -91,8 +89,10 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         SignListener.init();
         EnvironmentListener.init();
         GameSign.initialize();
+        Shovel.init();
         Power.init();
         CommandLoader.loadCommands(this, "com.spleefleague.superspleef.commands");
+        createGameMenu();
     }
 
     @Override
@@ -323,28 +323,40 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         });
         InventoryMenuTemplateBuilder shovelMenu = menu()
                 .displayName("Shovels")
-                .displayIcon(Material.GOLD_SPADE);
+                .displayIcon(Material.GOLD_SPADE)
+                .staticComponent(4, 5, item()
+                        .displayItem((slp) -> {
+                            SpleefPlayer sp = playerManager.get(slp);
+                            return sp.getActiveShovel().toItemStack();
+                        })
+                );
+                
         InventoryMenuTemplateBuilder powerMenu = menu()
                 .displayName("Powers")
-                .displayIcon(Material.BOOK);
-        Arrays.stream(Shovel.values()).forEach((shovel) -> {
-            shovelMenu.component(item()
-                    .displayName(shovel.getName())
-                    .displayItem(new ItemStack(shovel.getType(), shovel.getData(), shovel.getDamage()))
-                    .visibilityController((slp) -> {
-//                            SpleefPlayer sp = playerManager.get(slp);
-//                            if(sp != null) {
-//                                return sp.getAvailableShovels().contains(shovel);
-//                            }
-//                            return false;
-                        return true;
-                    })
-                    .onClick((event) -> {
-                        SpleefPlayer sp = playerManager.get(event.getPlayer());
-                        sp.setActiveShovel(shovel);
-                        event.getItem().getParent().update();
-                    }));
-        });
+                .displayIcon(Material.BOOK)
+                .visibilityController((slp) -> SpleefLeague.getInstance().getServerType() == ServerType.TEST);
+        Shovel.getAll()
+                .stream()
+                .sorted((s1, s2) -> Short.compare(s1.getDamage(), s2.getDamage()))
+                .forEach((shovel) -> {
+                    shovelMenu.component(item()
+                            .displayItem((slp) -> {
+                                SpleefPlayer sp = playerManager.get(slp);
+                                if(shovel.isIsDefault() || sp.getAvailableShovels().contains(shovel)) {
+                                    return shovel.toItemStack();
+                                }
+                                return new ItemStack(Material.DIAMOND_AXE, 1, (short)12);//Lock (item not available)
+                            })
+                            .onClick((event) -> {
+                                SpleefPlayer sp = playerManager.get(event.getPlayer());
+                                if(!shovel.isIsDefault() && !sp.getAvailableShovels().contains(shovel)) {
+                                    return;
+                                }
+                                sp.setActiveShovel(shovel);
+                                event.getItem().getParent().update();
+                            })
+                    );
+                });
         for(PowerType powerType : PowerType.values()) {
             powerMenu.component(item()
                     .displayName(powerType.getDisplayName())

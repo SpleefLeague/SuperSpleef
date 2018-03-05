@@ -29,3 +29,7 @@ commands:
         description: Changes amount of wins needed to be reached to completely win the game
         usage:
             /<command> [wins]
+    shovel:
+        description: Create, add or remove shovels
+        usage:
+            /<command> <create|add|remove|reload> [target] [shovelId]

@@ -51,7 +51,6 @@ public class QuickStep extends Power implements Listener {
                     .setY(0)
                     .normalize();
         }
-        System.out.println(direction.getX() + " | " + direction.getZ());
     }
     
     public static Function<SpleefPlayer, ? extends Power> getSupplier() {

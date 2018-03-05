@@ -12,12 +12,11 @@ import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
-import com.spleefleague.superspleef.game.powerspleef.Power;
+import com.spleefleague.superspleef.game.cosmetics.Shovel;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
-import com.spleefleague.superspleef.game.powerspleef.Shovel;
+import java.util.ArrayList;
 import org.bson.Document;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,20 +30,16 @@ public class SpleefPlayer extends RatedPlayer {
     private int rating, playTo;
     private boolean ingame, frozen, requestingReset, requestingEndgame, dead;
     private Set<Arena> visitedArenas;
-    private Set<String> visitedArenas_broken;
-    @DBLoad(fieldName = "availableShovels")
-    @DBSave(fieldName = "availableShovels")
-    private Set<Shovel> availableShovels;
-    @DBLoad(fieldName = "activeShovel")
+    private Set<Shovel> unlockedShovels;
     @DBSave(fieldName = "activeShovel")
-    private Shovel activeShovel;
+    @DBLoad(fieldName = "activeShovel")
+    private short activeShovel;
     @DBLoad(fieldName = "activePower")
     @DBSave(fieldName = "activePower")
     private PowerType activePower;
     
     public SpleefPlayer() {
-        visitedArenas = new HashSet<>();
-        visitedArenas_broken = new HashSet<>();
+        this.visitedArenas = new HashSet<>();
         setDefaults();
     }
 
@@ -62,41 +57,17 @@ public class SpleefPlayer extends RatedPlayer {
     public int getRank() {
         return (int) SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("rating", new Document("$gt", rating))) + 1;
     }
-
-    @DBSave(fieldName = "visitedArenas")
-    private List<String> saveVisitedArenas() {
-        List<String> arenaNames = new ArrayList<>();
-        for (Arena arena : visitedArenas) {
-            if (arena != null) {
-                arenaNames.add(arena.getName());
-            }
-        }
-        for (String arena : visitedArenas_broken) {
-            if (arena != null) {
-                arenaNames.add(arena);
-            }
-        }
-        return arenaNames;
-    }
-
-    @DBLoad(fieldName = "visitedArenas")
-    private void loadVisitedArenas(List<String> arenaNames) {
-        for (String name : arenaNames) {
-            Arena arena = Arena.byName(name);
-            if (arena != null) {
-                visitedArenas.add(arena);
-            } else {
-                visitedArenas_broken.add(name);
-            }
-        }
-    }
-
+    
     public Set<Shovel> getAvailableShovels() {
-        return availableShovels;
+        return unlockedShovels;
     }
-
+    
     public Shovel getActiveShovel() {
-        return activeShovel;
+        Shovel shovel = Shovel.byDamageValue(activeShovel);
+        if(shovel == null) {
+            shovel = Shovel.DEFAULT_SHOVEL;
+        }
+        return shovel;
     }
 
     public PowerType getPowerType() {
@@ -104,7 +75,7 @@ public class SpleefPlayer extends RatedPlayer {
     }
 
     public void setActiveShovel(Shovel activeShovel) {
-        this.activeShovel = activeShovel;
+        this.activeShovel = activeShovel.getDamage();
     }
 
     public void setActivePower(PowerType activePower) {
@@ -161,6 +132,44 @@ public class SpleefPlayer extends RatedPlayer {
         }
         return battle;
     }
+    
+    @DBSave(fieldName = "availableShovels")
+    private List<Short> saveAvailableShovels() {
+        List<Short> shovelIds = new ArrayList<>();
+        for (Shovel shovel : unlockedShovels) {
+            shovelIds.add(shovel.getDamage());
+        }
+        return shovelIds;
+    }
+
+    @DBLoad(fieldName = "availableShovels")
+    private void loadAvailableShovels(List<Short> shovelIds) {
+        for (Short shovelId : shovelIds) {
+            Shovel shovel = Shovel.byDamageValue(shovelId);
+            if (shovel != null) {
+                unlockedShovels.add(shovel);
+            }
+        }
+    }
+
+    @DBSave(fieldName = "visitedArenas")
+    private List<String> saveVisitedArenas() {
+        List<String> arenaNames = new ArrayList<>();
+        for (Arena arena : visitedArenas) {
+            arenaNames.add(arena.getName());
+        }
+        return arenaNames;
+    }
+
+    @DBLoad(fieldName = "visitedArenas")
+    private void loadVisitedArenas(List<String> arenaNames) {
+        for (String name : arenaNames) {
+            Arena arena = Arena.byName(name);
+            if (arena != null) {
+                visitedArenas.add(arena);
+            }
+        }
+    }
 
     public Set<Arena> getVisitedArenas() {
         return visitedArenas;
@@ -181,11 +190,9 @@ public class SpleefPlayer extends RatedPlayer {
     @Override
     public void setDefaults() {
         super.setDefaults();
-        this.activeShovel = Shovel.DIAMOND;
+        this.activeShovel = Shovel.DEFAULT_SHOVEL.getDamage();
         this.activePower = PowerType.NO_POWER;
-        this.availableShovels = new HashSet<>();
-        this.availableShovels.add(Shovel.DIAMOND);
-        this.availableShovels.add(Shovel.GOLD);
+        this.unlockedShovels = new HashSet<>();
         this.rating = 1000;
         this.playTo = -1;
         this.frozen = false;

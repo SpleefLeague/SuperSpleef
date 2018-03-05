@@ -45,20 +45,20 @@ public class EnvironmentListener implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
-        if (slp != null && slp.getState() == PlayerState.IDLE) {
-            SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
-            for (Arena arena : Arena.getAll()) {
-                if (!sp.getVisitedArenas().contains(arena)) {
-                    if (arena.getArea().isInArea(event.getTo())) {
-                        sp.getVisitedArenas().add(arena);
-                        if(!arena.isDefaultArena()) {
-                            String title = ChatColor.GREEN + "You have discovered " + ChatColor.RED + arena.getName() + ChatColor.GREEN + "!";
-                            String subtitle = ChatColor.GRAY + String.valueOf(sp.getVisitedArenas().size()) + "/" + String.valueOf(Arena.getAll().size()) + ChatColor.GOLD + " Spleef arenas found!";
-                            PlayerUtil.sendTitle(event.getPlayer(), title, subtitle, 10, 40, 10);
-                            event.getPlayer().playSound(event.getTo(), Sound.ENTITY_FIREWORK_BLAST, 1, 0);
-                        }
-                        break;
+        if(slp == null || slp.getState() != PlayerState.IDLE) return;
+        SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
+        if(sp == null) return; //Only happens during reloads
+        for (Arena arena : Arena.getAll()) {
+            if (!sp.getVisitedArenas().contains(arena)) {
+                if (arena.getArea().isInArea(event.getTo())) {
+                    sp.getVisitedArenas().add(arena);
+                    if(!arena.isDefaultArena()) {
+                        String title = ChatColor.GREEN + "You have discovered " + ChatColor.RED + arena.getName() + ChatColor.GREEN + "!";
+                        String subtitle = ChatColor.GRAY + String.valueOf(Arena.getAll().stream().filter(a -> a.isAvailable(sp)).count()) + "/" + String.valueOf(Arena.getAll().size()) + ChatColor.GOLD + " Spleef arenas found!";
+                        PlayerUtil.sendTitle(event.getPlayer(), title, subtitle, 10, 40, 10);
+                        event.getPlayer().playSound(event.getTo(), Sound.ENTITY_FIREWORK_BLAST, 1, 0);
                     }
+                    break;
                 }
             }
         }

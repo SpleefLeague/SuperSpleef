@@ -5,6 +5,7 @@
  */
 package com.spleefleague.superspleef.commands;
 
+import static com.spleefleague.annotations.CommandSource.COMMAND_BLOCK;
 import static com.spleefleague.annotations.CommandSource.PLAYER;
 import com.spleefleague.annotations.Endpoint;
 import com.spleefleague.annotations.LiteralArg;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.bukkit.command.CommandSender;
 
 /**
  *
@@ -42,7 +44,7 @@ public class multispleef extends BasicCommand {
     }
 
     
-    private boolean checkQueuesClosed(Player p) {
+    private boolean checkQueuesClosed(CommandSender p) {
         if (!SuperSpleef.getInstance().queuesOpen()) {
             error(p, "All queues are currently paused!");
             return true;
@@ -57,45 +59,55 @@ public class multispleef extends BasicCommand {
         }
         return false;
     }
-
-    @Endpoint(target = {PLAYER})
-    public void queueGlobally(Player sender) {
+    
+    @Endpoint(target = {COMMAND_BLOCK})
+    public void forceQueueGlobally(CommandSender sender, @LiteralArg("queue") String l, @PlayerArg Player target) {
         if (checkQueuesClosed(sender)) {
             return;
         }
-        if (checkIngame(sender)) {
+        if (checkIngame(target)) {
             return;
         }
-        GamePlugin.dequeueGlobal(sender);
-        SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(sender);
+        GamePlugin.dequeueGlobal(target);
+        SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(target);
         SuperSpleef.getInstance().getMultiSpleefBattleManager().queue(sjp);
-        success(sender, "You have been added to the queue");
+        success(target, "You have been added to the queue");
     }
-
-    @Endpoint(target = {PLAYER})
-    public void queueArena(Player p, @StringArg String arenaName) {
-        if (checkQueuesClosed(p)) {
+    
+    @Endpoint(target = {COMMAND_BLOCK})
+    public void forceQueueArena(CommandSender sender, @LiteralArg("queue") String l, @PlayerArg Player target, @StringArg String arenaName) {
+        if (checkQueuesClosed(sender)) {
             return;
         }
-        if (checkIngame(p)) {
+        if (checkIngame(target)) {
             return;
         }
         Arena arena = Arena.byName(arenaName);
         if (arena == null) {
-            error(p, "This arena does not exist.");
+            error(target, "This arena does not exist.");
             return;
         }
         if (arena.isPaused()) {
-            error(p, "This arena is currently paused.");
+            error(target, "This arena is currently paused.");
             return;
         }
-        SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(p);
+        SpleefPlayer sjp = SuperSpleef.getInstance().getPlayerManager().get(target);
         if (!arena.isAvailable(sjp)) {
-            error(p, "You have not visited this arena yet!");
+            error(target, "You have not visited this arena yet!");
             return;
         }
         SuperSpleef.getInstance().getMultiSpleefBattleManager().queue(sjp, arena);
-        success(p, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
+        success(target, "You have been added to the queue for: " + ChatColor.GREEN + arena.getName());
+    }
+
+    @Endpoint(target = {PLAYER})
+    public void queueGlobally(Player sender) {
+        forceQueueGlobally(sender, "queue", sender);
+    }
+
+    @Endpoint(target = {PLAYER})
+    public void queueArena(Player sender, @StringArg String arenaName) {
+        forceQueueArena(sender, "queue", sender, arenaName);
     }
 
     @Endpoint(target = {PLAYER})

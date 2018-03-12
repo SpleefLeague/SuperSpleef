@@ -90,7 +90,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         EnvironmentListener.init();
         GameSign.initialize();
         Shovel.init();
-        Power.init();
+        Power.startSchedulers();
         CommandLoader.loadCommands(this, "com.spleefleague.superspleef.commands");
         createGameMenu();
     }

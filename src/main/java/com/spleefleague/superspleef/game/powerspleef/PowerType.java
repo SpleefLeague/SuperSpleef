@@ -1,11 +1,10 @@
 package com.spleefleague.superspleef.game.powerspleef;
 
-import com.spleefleague.superspleef.game.powerspleef.powers.EyeOfTheStorm;
-import com.spleefleague.superspleef.game.powerspleef.powers.HeatBolts;
-import com.spleefleague.superspleef.game.powerspleef.powers.LavaCrust;
-import com.spleefleague.superspleef.game.powerspleef.powers.QuickStep;
-import com.spleefleague.superspleef.game.powerspleef.powers.RollerSpades;
-import com.spleefleague.superspleef.game.powerspleef.powers.RunnerShoes;
+import com.spleefleague.superspleef.game.powerspleef.powers.IntoTheShadows;
+import com.spleefleague.superspleef.game.powerspleef.powers.Invisibility;
+import com.spleefleague.superspleef.game.powerspleef.powers.Dash;
+import com.spleefleague.superspleef.game.powerspleef.powers.Nuke;
+import com.spleefleague.superspleef.game.powerspleef.powers.Regenerate;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,13 +18,12 @@ import org.bukkit.Material;
  */
 public enum PowerType {
 
-    NO_POWER("Disable power", Material.BARRIER, Power.emptyPower()),
-    ROLLER_SPADES("Roller Spades", Material.DIAMOND_SPADE, 0, 1560, RollerSpades.getSupplier()),
-    QUICK_STEP("Quick Step", Material.DIAMOND_SPADE, 0, 1559, QuickStep.getSupplier()),
-    LAVA_CRUST("Lava Crust", Material.DIAMOND_SPADE, 0, 1558, LavaCrust.getSupplier()),
-    //EYE_OF_THE_STORM("Eye of the Storm", Material.DIAMOND_SPADE, 0, 1557, EyeOfTheStorm.getSupplier()),
-    HEAT_BOLTS("Heat Bolts", Material.DIAMOND_SPADE, 0, 1556, HeatBolts.getSupplier()),
-    RUNNER_SHOES("Runner Shoes", Material.DIAMOND_SPADE, 0, 1555, RunnerShoes.getSupplier());
+    EMPTY_POWER("NO POWER", Material.BARRIER, Power.emptyPower()),
+    INVISIBILITY("Invisibility", Material.DIAMOND_SPADE, 0, 1560, Invisibility.getSupplier()),
+    DASH("Dash", Material.DIAMOND_SPADE, 0, 1560, Dash.getSupplier()),
+    NUKE("Nuke", Material.DIAMOND_SPADE, 0, 1560, Nuke.getSupplier()),
+    REGENERATE("Regenerate", Material.DIAMOND_SPADE, 0, 1560, Regenerate.getSupplier()),
+    INTO_THE_SHADOWS("Into the Shadows", Material.DIAMOND_SPADE, 0, 1559, IntoTheShadows.getSupplier());
     
     private final String name;
     private final Material type;
@@ -73,9 +71,7 @@ public enum PowerType {
     
     static {
         defaultPowers = Collections.unmodifiableCollection(Arrays.asList(new PowerType[]{
-            ROLLER_SPADES,
-            QUICK_STEP,
-            HEAT_BOLTS
+            INVISIBILITY
         }));
     }
 }

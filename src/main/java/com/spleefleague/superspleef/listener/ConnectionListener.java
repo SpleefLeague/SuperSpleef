@@ -11,7 +11,6 @@ import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.events.GeneralPlayerLoadedEvent;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.superspleef.SuperSpleef;

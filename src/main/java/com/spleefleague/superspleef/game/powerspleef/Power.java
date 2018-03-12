@@ -1,86 +1,64 @@
 package com.spleefleague.superspleef.game.powerspleef;
 
-import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Function;
-import org.bukkit.Bukkit;
 
 /**
  *
  * @author balsfull
  */
 public abstract class Power {
-
-    private int cooldown;
-    private final int maxCooldown;
-    private final PowerType type;
-    private final SpleefPlayer player;
     
-    public Power(PowerType type, SpleefPlayer player, int maxCooldown) {
-        this.type = type;
-        this.maxCooldown = maxCooldown;
+    private final SpleefPlayer player;
+    private final PowerType powerType;
+    
+    public Power(SpleefPlayer player, PowerType powerType) {
         this.player = player;
+        this.powerType = powerType;
     }
 
-    public PowerType getType() {
-        return type;
+    public PowerType getPowerType() {
+        return powerType;
     }
-
+    
     public SpleefPlayer getPlayer() {
         return player;
     }
     
-    public void tryRun() {
-        boolean hasRun = execute();
-        if(hasRun) {
-            this.cooldown = maxCooldown;
-            onCooldown.add(this);
-        }
+    protected SpleefBattle getBattle() {
+        return getPlayer().getCurrentBattle();
     }
     
-    public abstract boolean execute();
-    public abstract void cancel();
-    public abstract void destroy();
-    
-    public boolean isOnCooldown() {
-        return cooldown > 0;
+    public void init() {
+        
     }
     
-    public int getCooldown() {
-        return cooldown;
+    public void cleanup() {
+        
     }
     
-    public void setCooldown(int cooldown) {
-        this.cooldown = cooldown;
+    public void initRound() {
+        
     }
     
-    private static Set<Power> onCooldown;
+    public void cleanupRound() {
+        
+    }
     
-    protected static Function<SpleefPlayer, ? extends Power> emptyPower() {
-        return (sp) -> new Power(PowerType.NO_POWER, sp, 0) {
+    public abstract boolean tryExecute();
+    
+    public static Function<SpleefPlayer, Power> emptyPower() {
+        return s -> new Power(s, PowerType.EMPTY_POWER) {
             @Override
-            public boolean execute() {
-                return false;
+            public boolean tryExecute() {
+                return true;
             }
-
-            @Override
-            public void cancel() {}
-
-            @Override
-            public void destroy() {}
         };
     }
     
-    public static void init() {
-        Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), () -> {
-            onCooldown.forEach(p -> p.cooldown--);
-            onCooldown.removeIf(p -> p.cooldown <= 0);
-        }, 0, 1);
-    }
-    
-    static {
-        onCooldown = new HashSet<>();
+    public static void startSchedulers() {
+        ChargePower.startSchedulers();
+        CooldownPower.startSchedulers();
     }
 }

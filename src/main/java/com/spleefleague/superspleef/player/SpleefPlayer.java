@@ -191,7 +191,7 @@ public class SpleefPlayer extends RatedPlayer {
     public void setDefaults() {
         super.setDefaults();
         this.activeShovel = Shovel.DEFAULT_SHOVEL.getDamage();
-        this.activePower = PowerType.NO_POWER;
+        this.activePower = PowerType.EMPTY_POWER;
         this.unlockedShovels = new HashSet<>();
         this.rating = 1000;
         this.playTo = -1;

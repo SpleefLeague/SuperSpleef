@@ -97,7 +97,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
         this.pointsCap = this.arena.getMaxRating();
         powersEnabled = SpleefLeague.getInstance().getServerType() == ServerType.TEST;//Change to true when feature goes live
         for (int i = 0; powersEnabled && i < players.size(); i++) {
-            powersEnabled = players.get(i).getPowerType() != PowerType.NO_POWER;
+            powersEnabled = players.get(i).getPowerType() != PowerType.EMPTY_POWER;
         }
     }
     
@@ -183,11 +183,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
     public void handlePowerRequest(SpleefPlayer sp) {
         if(!getPowersEnabled() || isInCountdown()) return;
         Power power = data.get(sp).getPower();
-        System.out.println("Checking cooldown for " + power.getType().getDisplayName());
-        if(!power.isOnCooldown()) {
-            System.out.println("It's available");
-            power.tryRun();
-        }
+        power.tryExecute();
     }
     
     public void addSpectator(SpleefPlayer sp) {
@@ -210,7 +206,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.showPlayer(spl.getPlayer());
         }
         spectators.add(sp);
-        hidePlayers(sp);
+        setVisibility(sp);
     }
 
     public boolean isSpectating(SpleefPlayer sjp) {
@@ -275,7 +271,8 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.invalidatePlayToRequest();
             sp.closeInventory();
             data.get(sp).restoreOldData();
-            data.get(sp).getPower().destroy();
+            data.get(sp).getPower().cleanupRound();
+            data.get(sp).getPower().cleanup();
         }
         if (sp.getPlayer().getGameMode() == GameMode.SPECTATOR) {
             sp.getPlayer().setSpectatorTarget(null);
@@ -344,7 +341,8 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 }
                 Player p = sp.getPlayer();
                 SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(p);
-                this.data.put(sp, new PlayerData(sp, arena.getSpawns()[i]));
+                PlayerData pd = new PlayerData(sp, arena.getSpawns()[i]);
+                this.data.putIfAbsent(sp, pd);
                 p.eject();
                 p.teleport(arena.getSpawns()[i]);
                 p.setHealth(p.getMaxHealth());
@@ -367,31 +365,36 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
                 p.setAllowFlight(false);
                 slp.addChatChannel(cc);
                 slp.setState(PlayerState.INGAME);
+                pd.getPower().init();
             }
             SpleefBattle.this.onStart();
             ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
             setSpawnCageBlock(Material.GLASS);
-            hidePlayers();
+            setVisibilityAllPlayers();
             startClock();
             startRound();
         }
     }
 
-    private void hidePlayers() {
+    private void setVisibilityAllPlayers() {
         List<SpleefPlayer> battlePlayers = getActivePlayers();
         battlePlayers.addAll(spectators);
         for (SpleefPlayer sjp : SuperSpleef.getInstance().getPlayerManager().getAll()) {
-            hidePlayers(sjp);
+            setVisibility(sjp);
         }
     }
 
-    protected void hidePlayers(SpleefPlayer target) {
+    public void setVisibility(SpleefPlayer target) {
         List<SpleefPlayer> battlePlayers = getActivePlayers();
         battlePlayers.addAll(spectators);
         for (SpleefPlayer active : battlePlayers) {
             if (!battlePlayers.contains(target)) {
                 target.hidePlayer(active.getPlayer());
                 active.hidePlayer(target.getPlayer());
+            }
+            else {
+                target.showPlayer(active.getPlayer());
+                active.showPlayer(target.getPlayer());
             }
         }
     }
@@ -407,8 +410,7 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             sp.setDead(false);
             sp.setFireTicks(0);
             Power power = data.get(sp).getPower();
-            power.cancel();
-            power.setCooldown(0);
+            power.cleanupRound();
             sp.teleport(this.data.get(sp).getSpawn());
             Player c = sp.getPlayer();
             for (SpleefPlayer sp2 : getActivePlayers()) {
@@ -438,6 +440,8 @@ public abstract class SpleefBattle implements Battle<Arena, SpleefPlayer> {
             public void onDone() {
                 for (SpleefPlayer sp : getActivePlayers()) {
                     //sp.teleport(getData(sp).getSpawn().clone().add(0, 0.3, 0));
+                    Power power = data.get(sp).getPower();
+                    power.initRound();
                     sp.setFrozen(false);
                 }
                 setSpawnCageBlock(Material.AIR);

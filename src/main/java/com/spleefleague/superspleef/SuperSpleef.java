@@ -40,6 +40,7 @@ import java.util.List;
 
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
+import com.spleefleague.core.utils.inventorymenu.InventoryMenuFlag;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.game.Field;
 import com.spleefleague.superspleef.game.cosmetics.Shovel;
@@ -298,7 +299,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
                 .getNewGamemodeMenu()
                 .displayName("Spleef")
                 .displayIcon(Material.SNOW_BLOCK)
-                .exitOnClickOutside(true);
+                .flags(InventoryMenuFlag.EXIT_ON_CLICK_OUTSIDE);
         InventoryMenuTemplateBuilder arenaMenu = menu()
                 .displayName("Arenas")
                 .displayIcon(Material.MAP)

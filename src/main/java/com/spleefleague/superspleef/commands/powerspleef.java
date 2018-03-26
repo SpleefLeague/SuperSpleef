@@ -7,15 +7,15 @@ package com.spleefleague.superspleef.commands;
 
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.spleef.NormalSpleefArena;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefArena;
 
 /**
  *
  * @author jonas
  */
-public class spleef extends spleefCommand<NormalSpleefArena> {
+public class powerspleef extends spleefCommand<PowerSpleefArena> {
     
-    public spleef(CorePlugin plugin, String name, String usage) {
-        super(plugin, name, usage, arena -> NormalSpleefArena.byName(arena), SuperSpleef.getInstance().getNormalSpleefBattleManager());
+    public powerspleef(CorePlugin plugin, String name, String usage) {
+        super(plugin, name, usage, arena -> PowerSpleefArena.byName(arena), SuperSpleef.getInstance().getPowerSpleefBattleManager());
     }
 }

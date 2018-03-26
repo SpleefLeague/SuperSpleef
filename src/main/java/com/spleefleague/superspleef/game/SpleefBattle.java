@@ -99,13 +99,17 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         this.pointsCap = this.arena.getMaxRating();
     }
     
+    protected abstract void addToBattleManager();
+    protected abstract void removeFromBattleManager();
+    
+    
     public void removePlayer(SpleefPlayer sp, RemoveReason reason) {
         if (reason == RemoveReason.QUIT) {
             for (SpleefPlayer pl : getActivePlayers()) {
-                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
+                pl.sendMessage(spleefMode.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
             }
             for (SpleefPlayer pl : getSpectators()) {
-                pl.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
+                pl.sendMessage(spleefMode.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
             }
         }
         resetPlayer(sp);
@@ -181,7 +185,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         saveGameHistory(winner, reason);
         if (reason == EndReason.CANCEL) {
             if (reason == EndReason.CANCEL) {
-                ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", getGameChannel());
+                ChatManager.sendMessage(spleefMode.getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", getGameChannel());
             }
         } else if (reason != EndReason.ENDGAME) {
             if (getArena().isRated()) {
@@ -190,7 +194,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             applyCoinChange(winner);
         }
         if(!this.getArena().isRated() && winner != null) {
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.RED + winner.getName() + Theme.INFO.buildTheme(false) + " has won the match!", getGameChannel());
+            ChatManager.sendMessage(spleefMode.getChatPrefix(), ChatColor.RED + winner.getName() + Theme.INFO.buildTheme(false) + " has won the match!", getGameChannel());
         }
         Lists.newArrayList(getSpectators()).forEach(this::resetPlayer);
         List<SpleefPlayer> active = getActivePlayers();//Change order -> preserve inventory if match is started with one player in multiple slots
@@ -237,7 +241,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             } else {
                 if (alive.size() == 1) {
                     setRound(getRound() + 1);
-                    ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.INFO.buildTheme(false) + alive.get(0).getName() + " has won round " + getRound(), getGameChannel());
+                    ChatManager.sendMessage(spleefMode.getChatPrefix(), Theme.INFO.buildTheme(false) + alive.get(0).getName() + " has won round " + getRound(), getGameChannel());
                     startRound();
                 }
             }
@@ -460,6 +464,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         resetField();
         arena.registerGameEnd();
         ChatManager.unregisterChannel(cc);
+        removeFromBattleManager();
     }
 
     public void resetField() {
@@ -478,6 +483,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         BattleStartEvent event = new BattleStartEvent(this, reason);
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
+            addToBattleManager();
             arena.registerGameStart();
             if (arena.getScoreboards() != null) {
                 for (com.spleefleague.superspleef.game.scoreboards.Scoreboard scoreboard : arena.getScoreboards()) {
@@ -524,7 +530,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
                 slp.setState(PlayerState.INGAME);
             }
             SpleefBattle.this.onStart();
-            ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
+            ChatManager.sendMessage(spleefMode.getChatPrefix(), Theme.SUCCESS.buildTheme(false) + "Beginning match on " + ChatColor.WHITE + arena.getName() + ChatColor.GREEN + " between " + ChatColor.RED + playerNames + ChatColor.GREEN + "!", SuperSpleef.getInstance().getStartMessageChannel());
             setSpawnCageBlock(Material.GLASS);
             setVisibilityAllPlayers();
             startClock();
@@ -580,10 +586,10 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             @Override
             public void run() {
                 if (secondsLeft > 0) {
-                    ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), secondsLeft + "...", cc);
+                    ChatManager.sendMessage(spleefMode.getChatPrefix(), secondsLeft + "...", cc);
                     secondsLeft--;
                 } else {
-                    ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), "GO!", cc);
+                    ChatManager.sendMessage(spleefMode.getChatPrefix(), "GO!", cc);
                     for (SpleefPlayer sp : getActivePlayers()) {
                         sp.setFrozen(false);
                     }

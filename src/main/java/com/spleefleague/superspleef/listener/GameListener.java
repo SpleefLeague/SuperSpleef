@@ -108,7 +108,7 @@ public class GameListener implements Listener {
         if (sp.isIngame()) {
             event.setCancelled(event.getClickedBlock() != null && event.getClickedBlock().getType() != Material.SNOW_BLOCK);
             SpleefBattle battle = sp.getCurrentBattle();
-            if(battle instanceof PowerSpleefBattle && event.getAction() == Action.RIGHT_CLICK_AIR) {
+            if(battle instanceof PowerSpleefBattle && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
                 ((PowerSpleefBattle)battle).requestPowerUse(sp);
             }
         }

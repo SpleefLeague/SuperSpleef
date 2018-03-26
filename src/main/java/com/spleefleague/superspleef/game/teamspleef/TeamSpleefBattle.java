@@ -11,7 +11,6 @@ import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
-import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.RemoveReason;
@@ -71,12 +70,12 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
         if (reason == RemoveReason.QUIT) {
             for (SpleefPlayer pl : getActivePlayers()) {
                 pl.sendMessage(
-                        SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
+                        getSpleefMode().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
                         " has left the game!");
             }
             for (SpleefPlayer pl : getSpectators()) {
                 pl.sendMessage(
-                        SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
+                        getSpleefMode().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
                         " has left the game!");
             }
         }
@@ -90,16 +89,14 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
         }else
             getPlayers().remove(sp);
     }
-    
+
     @Override
-    public void start(BattleStartEvent.StartReason reason) {
-        super.start(reason);
+    protected void addToBattleManager() {
         SuperSpleef.getInstance().getTeamSpleefBattleManager().add(this);
     }
-    
+
     @Override
-    public void cleanup() {
-        super.cleanup();
+    protected void removeFromBattleManager() {
         SuperSpleef.getInstance().getTeamSpleefBattleManager().remove(this);
     }
 
@@ -198,13 +195,13 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
     private void end(Team winner, EndReason reason) {
         if (reason == EndReason.CANCEL) {
             ChatManager.sendMessage(
-                    SuperSpleef.getInstance().getChatPrefix(),
+                    getSpleefMode().getChatPrefix(),
                     Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.",
                     getGameChannel()
             );
         } else if (reason != EndReason.ENDGAME) {
             ChatManager.sendMessage(
-                    SuperSpleef.getInstance().getChatPrefix(),
+                    getSpleefMode().getChatPrefix(),
                     Theme.INFO.buildTheme(false) + "Team " + winner.getName() + " has won the match.", getGameChannel()
             );
         }
@@ -233,7 +230,7 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
             wStr = "";
         }
         ChatManager.sendMessage(
-                SuperSpleef.getInstance().getChatPrefix(),
+                getSpleefMode().getChatPrefix(),
                 ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN +
                 " is over. " + wStr, SuperSpleef.getInstance().getEndMessageChannel()
         );
@@ -285,7 +282,7 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
                     if (winner.getPoints() < getPlayTo()) {
                         setRound(getRound() + 1);
                         ChatManager.sendMessage(
-                                SuperSpleef.getInstance().getChatPrefix(),
+                                getSpleefMode().getChatPrefix(),
                                 Theme.INFO.buildTheme(false) + "Team " + winner.getName() + ChatColor.YELLOW +
                                 " has won round " + getRound(), getGameChannel()
                         );
@@ -298,7 +295,7 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
                         giveTempSpectator(player);
                     }
                     ChatManager.sendMessage(
-                            SuperSpleef.getInstance().getChatPrefix(),
+                            getSpleefMode().getChatPrefix(),
                             Theme.INFO.buildTheme(false) + "Team " + team.getName() + ChatColor.YELLOW + " died.",
                             getGameChannel()
                     );

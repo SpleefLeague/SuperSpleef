@@ -6,7 +6,6 @@
 package com.spleefleague.superspleef.game.multispleef;
 
 import com.spleefleague.core.chat.ChatManager;
-import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
@@ -28,16 +27,14 @@ public class MultiSpleefBattle extends SpleefBattle<MultiSpleefArena> {
             this.changePointsCup((players.size() - 1) * 5);
         }
     }
-    
+
     @Override
-    public void start(BattleStartEvent.StartReason reason) {
-        super.start(reason);
+    protected void addToBattleManager() {
         SuperSpleef.getInstance().getMultiSpleefBattleManager().add(this);
     }
-    
+
     @Override
-    public void cleanup() {
-        super.cleanup();
+    protected void removeFromBattleManager() {
         SuperSpleef.getInstance().getMultiSpleefBattleManager().remove(this);
     }
     
@@ -76,7 +73,7 @@ public class MultiSpleefBattle extends SpleefBattle<MultiSpleefArena> {
             endScore.add(Integer.toString(getData(sp).getPoints()));
             playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating(mode) + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + (int)Math.ceil(ratingChanges[i]) + ChatColor.WHITE + " points. ";
         }
-        ChatManager.sendMessage(SuperSpleef.getInstance().getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over " + ChatColor.WHITE + "(" + endScore + ")" + ChatColor.GREEN + ". " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
+        ChatManager.sendMessage(mode.getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over " + ChatColor.WHITE + "(" + endScore + ")" + ChatColor.GREEN + ". " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
         this.getPlayers().forEach((p) -> {
             SuperSpleef.getInstance().getPlayerManager().save(p);
         });

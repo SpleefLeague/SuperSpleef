@@ -8,7 +8,7 @@ import com.spleefleague.commands.command.BasicCommand;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
-import com.spleefleague.core.utils.ModifiableFinal;
+import com.spleefleague.core.utils.Value;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -35,15 +35,15 @@ public class playto extends BasicCommand {
         sp.setPlayToRequest(to);
         SpleefBattle<?> battle = sp.getCurrentBattle();
         Set<SpleefPlayer> requesting = new HashSet<>();
-        ModifiableFinal<Integer> total = new ModifiableFinal<>(0);
+        Value<Integer> total = new Value<>(0);
         battle.getActivePlayers().forEach((SpleefPlayer spleefPlayer) -> {
-            total.setValue(total.getValue() + 1);
+            total.set(total.get() + 1);
             int request = spleefPlayer.getPlayToRequest();
             if (request != -1 && request == to) {
                 requesting.add(spleefPlayer);
             }
         });
-        if (requesting.size() == total.getValue()) {
+        if (requesting.size() == total.get()) {
             battle.getPlayers().forEach((SpleefPlayer spleefPlayer) -> {
                 spleefPlayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false) +
                         "The game has been set to first to " + to + ".");

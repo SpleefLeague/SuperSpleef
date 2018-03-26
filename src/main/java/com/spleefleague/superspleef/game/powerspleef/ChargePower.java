@@ -30,6 +30,11 @@ public abstract class ChargePower extends Power {
     }
     
     @Override
+    public void cleanup() {
+        refilling.remove(this);
+    }
+    
+    @Override
     public void initRound() {
         getPlayer().setExp(1);
         getPlayer().setLevel(charges);
@@ -81,7 +86,7 @@ public abstract class ChargePower extends Power {
                     cp.getPlayer().setExp(percentage);
                 }
                 else {
-                    float percentage = (float)(cp.currentChargeRefillProgess - cp.chargeRefillDelay) / (float)cp.chargeRefillDelay;
+                    float percentage = 1.0f - (float)(cp.chargeRefillDelay - cp.currentChargeRefillProgess) / (float)cp.chargeRefillDelay;
                     cp.getPlayer().setExp(percentage);
                 }
                 if(cp.charges >= cp.maxCharges && cp.currentCooldown <= 0) {

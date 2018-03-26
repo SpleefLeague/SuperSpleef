@@ -14,7 +14,8 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.Field;
 import com.spleefleague.superspleef.game.SpleefBattle;
-import com.spleefleague.superspleef.game.TeamSpleefArena;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
+import com.spleefleague.superspleef.game.teamspleef.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.api.FakeWorld;
 import com.spleefleague.virtualworld.event.FakeBlockBreakEvent;
@@ -107,8 +108,8 @@ public class GameListener implements Listener {
         if (sp.isIngame()) {
             event.setCancelled(event.getClickedBlock() != null && event.getClickedBlock().getType() != Material.SNOW_BLOCK);
             SpleefBattle battle = sp.getCurrentBattle();
-            if(battle.getPowersEnabled() && event.getAction() == Action.RIGHT_CLICK_AIR) {
-                battle.handlePowerRequest(sp);
+            if(battle instanceof PowerSpleefBattle && event.getAction() == Action.RIGHT_CLICK_AIR) {
+                ((PowerSpleefBattle)battle).requestPowerUse(sp);
             }
         }
     }
@@ -131,7 +132,7 @@ public class GameListener implements Listener {
                 event.setCancelled(true);
             }
             else {
-                Optional<SpleefBattle> battle = Arrays
+                Optional<? extends SpleefBattle> battle = Arrays
                         .stream(SuperSpleef.getInstance().getBattleManagers())
                         .flatMap(b -> b.getAll().stream())
                         .filter(b -> b.getFakeWorld() == event.getBlock().getWorld())

@@ -41,7 +41,7 @@ public class reset extends BasicCommand {
             error(sp, "You are currently not ingame.");
             return;
         }
-        SpleefBattle battle = sp.getCurrentBattle();
+        SpleefBattle<?> battle = sp.getCurrentBattle();
         battle.resetField();
 
         for (SpleefPlayer spleefplayer : battle.getAlivePlayers()) {
@@ -59,7 +59,7 @@ public class reset extends BasicCommand {
             sendUsage(slp);
             return;
         }
-        SpleefBattle battle = SuperSpleef.getInstance().getPlayerManager().get(target).getCurrentBattle();
+        SpleefBattle<?> battle = SuperSpleef.getInstance().getPlayerManager().get(target).getCurrentBattle();
         battle.resetField();
 
         for (SpleefPlayer spleefplayer : battle.getAlivePlayers()) {
@@ -78,7 +78,7 @@ public class reset extends BasicCommand {
             return;
         }
         sp.setRequestingReset(true);
-        SpleefBattle battle = sp.getCurrentBattle();
+        SpleefBattle<?> battle = sp.getCurrentBattle();
         battle.onScoreboardUpdate();
         int requesting = 0, total = 0;
         for (SpleefPlayer spleefplayer : battle.getActivePlayers()) {

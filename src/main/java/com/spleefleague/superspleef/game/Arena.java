@@ -5,7 +5,6 @@
  */
 package com.spleefleague.superspleef.game;
 
-import com.mongodb.client.MongoCursor;
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.typeconverters.LocationConverter;
 import com.spleefleague.core.player.SLPlayer;
@@ -16,15 +15,21 @@ import com.spleefleague.entitybuilder.DBLoad;
 import com.spleefleague.entitybuilder.DBLoadable;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
-import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.multispleef.MultiSpleefArena;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefArena;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
+import com.spleefleague.superspleef.game.spleef.NormalSpleefArena;
+import com.spleefleague.superspleef.game.teamspleef.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -35,7 +40,7 @@ import org.bukkit.Location;
  *
  * @author Jonas
  */
-public class Arena extends DBEntity implements DBLoadable, DBSaveable, QueueableArena<SpleefPlayer> {
+public abstract class Arena<B extends SpleefBattle> extends DBEntity implements DBLoadable, DBSaveable, QueueableArena<SpleefPlayer> {
 
     @DBLoad(fieldName = "border")
     private Area border;
@@ -47,6 +52,8 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     private String creator;
     @DBLoad(fieldName = "name")
     private String name;
+    @DBLoad(fieldName = "description")
+    private List<String> description = Collections.emptyList();
     @DBLoad(fieldName = "rated")
     private boolean rated = true;
     @DBLoad(fieldName = "queued")
@@ -63,19 +70,24 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @DBLoad(fieldName = "isDefault")
     private boolean defaultArena = false;
     @DBLoad(fieldName = "maxRating")
-    private int maxRating = 5;
+    private int maxRating = -1;
     @DBLoad(fieldName = "area")
     private Area area;
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.NORMAL;
     private int runningGames = 0;
-
+    
     public Location[] getSpawns() {
         return spawns;
     }
 
     public Area getBorder() {
         return border;
+    }
+
+    @Override
+    public List<String> getDescription() {
+        return description;
     }
     
     @DBLoad(fieldName = "spawns", typeConverter = LocationConverter.class, priority = 1)
@@ -203,20 +215,13 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     @Override
     public void done() {
         if(maxRating == -1) {
-            if(spleefMode == SpleefMode.NORMAL) {
+            if(spleefMode != SpleefMode.MULTI) {
                 maxRating = 5;
             }
         }
     }
-
-    public SpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
-        if (!isOccupied()) { //Shouldn't be necessary
-            SpleefBattle battle = new NormalSpleefBattle(this, players);
-            battle.start(reason);
-            return battle;
-        }
-        return null;
-    }
+    
+    public abstract B startBattle(List<SpleefPlayer> player, StartReason reason);
     
     @Override
     public final boolean equals(Object o) {
@@ -227,67 +232,41 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
         return false;
     }
 
-    private static Map<String, Arena> arenas;
-
-    public static Arena byName(String name) {
-        Arena arena = arenas.get(name);
-        if (arena == null) {
-            for (Arena a : arenas.values()) {
-                if (a.getName().equalsIgnoreCase(name)) {
-                    arena = a;
-                }
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 71 * hash + Objects.hashCode(this.name);
+        return hash;
+    }
+    
+    public static Arena byName(String name, SpleefMode mode) {
+        switch(mode) {
+            case NORMAL: {
+                return NormalSpleefArena.byName(name);
+            }
+            case MULTI: {
+                return MultiSpleefArena.byName(name);
+            }
+            case TEAM: {
+                return TeamSpleefArena.byName(name);
+            }
+            case POWER: {
+                return PowerSpleefArena.byName(name);
             }
         }
-        return arena;
+        return null;
     }
 
     public static Collection<? extends Arena> getAll() {
-        return arenas.values();
+        return Stream.of(
+                NormalSpleefArena.getAll(),
+                MultiSpleefArena.getAll(),
+                TeamSpleefArena.getAll(),
+                PowerSpleefArena.getAll()
+        ).flatMap(c -> c.stream()).collect(Collectors.toList());  
     }
     
-    /**
-     * 
-     * @param name Name of the arena to reload
-     * @return true if the arena exists
-     */
-    public static boolean reload(String name) {
-        Document d = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("name", name)).first();
-        if(d == null) {
-            return false;
-        }
-        else {
-            Arena arena = loadArena(d);
-            if (arena == null) return false;
-            Arena old = Arena.byName(name);
-            if(old != null) {
-                recursiveCopy(arena, old, Arena.class);
-            }
-            else {
-                if(arena.getSpleefMode() == SpleefMode.NORMAL) {
-                    addArena(arena, true);
-                }
-                else if(arena.getSpleefMode() == SpleefMode.MULTI) {
-                    addArena(arena, false);
-                }
-                else {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-    
-    private static void addArena(Arena arena, boolean classic) {
-        arenas.put(arena.getName(), arena);
-        if (classic) {
-            SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
-        }
-        else {
-            SuperSpleef.getInstance().getMultiSpleefBattleManager().registerArena(arena);
-        }
-    }
-    
-    private static void recursiveCopy(Object src, Object target, Class targetClass) {
+    protected static void recursiveCopy(Object src, Object target, Class targetClass) {
         Class srcClass = src.getClass();
         while(true) {
             for(java.lang.reflect.Field f : srcClass.getDeclaredFields()) {
@@ -309,33 +288,56 @@ public class Arena extends DBEntity implements DBLoadable, DBSaveable, Queueable
     }
 
     public static void init() {
-        arenas = new HashMap<>();
-        MongoCursor<Document> normalDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "NORMAL")).iterator();
-        while (normalDbc.hasNext()) {
-            Document d = normalDbc.next();
+        Iterator<Document> arenaTypes = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").aggregate(Arrays.asList(
+                new Document("$unwind", new Document("path", "$spleefMode")),
+                new Document("$group", new Document("_id", "$spleefMode").append("arenas", new Document("$addToSet", "$$ROOT")))
+        )).iterator();
+        while(arenaTypes.hasNext()) {
+            Document arenas = arenaTypes.next();
+            List<Document> arenaInstances = arenas.get("arenas", List.class);
             try {
-                Arena arena = loadArena(d);
-                if (arena == null) continue;
-                addArena(arena, true);
-            } catch(Exception e) {
-                SuperSpleef.getInstance().log("Error loading " + d.get("name"));
+                SpleefMode mode = SpleefMode.valueOf(arenas.get("_id", String.class));
+                int amount;
+                switch(mode) {
+                    case NORMAL: {
+                        amount = loadArenas(arenaInstances, NormalSpleefArena::loadArena);
+                        break;
+                    }
+                    case MULTI: {
+                        amount = loadArenas(arenaInstances, MultiSpleefArena::loadArena);
+                        break;
+                    }
+                    case TEAM: {
+                        amount = loadArenas(arenaInstances, TeamSpleefArena::loadArena);
+                        break;
+                    }
+                    case POWER: {
+                        amount = loadArenas(arenaInstances, PowerSpleefArena::loadArena);
+                        break;
+                    }
+                    default: {
+                        continue;
+                    }
+                }
+                String modeName = mode.toString().substring(0, 1).toUpperCase().concat(mode.toString().substring(1).toLowerCase());
+                SuperSpleef.getInstance().log("Loaded " + amount + " " + modeName + " Spleef arenas.");
+            } catch(IllegalArgumentException e) {
+                System.err.println(arenas.get("_id") + " is not a valid spleef mode.");
             }
         }
-        MongoCursor<Document> multiDbc = SuperSpleef.getInstance().getPluginDB().getCollection("Arenas").find(new Document("spleefMode", "MULTI")).iterator();
-        while (multiDbc.hasNext()) {
-            Document d = multiDbc.next();
-            try {
-                Arena arena = loadArena(d);
-                if (arena == null) continue;
-                addArena(arena, false);
-            } catch(Exception e) {
-                SuperSpleef.getInstance().log("Error loading " + d.get("name"));
-            }
-        }
-        SuperSpleef.getInstance().log("Loaded " + arenas.size() + " arenas!");
     }
     
-    private static Arena loadArena(Document doc) {
-        return EntityBuilder.load(doc, Arena.class);
+    private static int loadArenas(List<Document> arenas, Consumer<Document> arenaCreator) {
+        int successCounter = 0;
+        for(Document arena : arenas) {
+            try {
+                arenaCreator.accept(arena);
+                successCounter++;
+            } catch(Exception e) {
+                System.err.println("Error loading arena " + arena.get("name") + " (" + arena.get("type") + ")");
+                e.printStackTrace();
+            }
+        }
+        return successCounter;
     }
 }

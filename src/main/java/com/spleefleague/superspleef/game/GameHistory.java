@@ -5,6 +5,7 @@
  */
 package com.spleefleague.superspleef.game;
 
+import com.spleefleague.core.events.BattleEndEvent.EndReason;
 import com.spleefleague.entitybuilder.DBEntity;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
@@ -26,15 +27,15 @@ public class GameHistory extends DBEntity implements DBSaveable {
     private final Date startDate;
     @DBSave(fieldName = "duration")
     private final int duration; //In ticks
-    @DBSave(fieldName = "cancelled")
-    private final boolean cancelled;
+    @DBSave(fieldName = "endReason")
+    private final EndReason endReason;
     @DBSave(fieldName = "spleefMode")
     private final SpleefMode spleefMode;
     @DBSave(fieldName = "arena")
     private final String arena;
 
-    protected GameHistory(SpleefBattle battle, SpleefPlayer winner) {
-        this.cancelled = winner == null;
+    protected GameHistory(SpleefBattle<?> battle, SpleefPlayer winner, EndReason endReason) {
+        this.endReason = endReason;
         players = new PlayerData[battle.getPlayers().size()];
         Collection<SpleefPlayer> activePlayers = battle.getActivePlayers();
         int i = 0;

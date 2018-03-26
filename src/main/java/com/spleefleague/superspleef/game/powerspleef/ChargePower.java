@@ -30,7 +30,7 @@ public abstract class ChargePower extends Power {
     }
     
     @Override
-    public void init() {
+    public void initRound() {
         getPlayer().setExp(1);
         getPlayer().setLevel(charges);
     }

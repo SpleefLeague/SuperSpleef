@@ -27,7 +27,7 @@ public abstract class CooldownPower extends Power {
     }
     
     @Override
-    public void init() {
+    public void initRound() {
         getPlayer().setLevel(0);
         getPlayer().setExp(1);
     }

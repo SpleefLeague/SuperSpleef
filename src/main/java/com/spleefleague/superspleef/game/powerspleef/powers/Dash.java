@@ -5,12 +5,16 @@
  */
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
+import com.spleefleague.core.utils.scheduler.PredicateScheduler;
+import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.powerspleef.CooldownPower;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.VirtualWorld;
+import com.spleefleague.virtualworld.api.FakeWorld;
 import java.util.function.Function;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -40,8 +44,12 @@ public class Dash extends CooldownPower {
             direction = direction.multiply(AIR_DAMPENING_FACTOR);
         }
         p.setVelocity(direction);
-        
-//        getPlayer().setVelocity(direction);
+        FakeWorld fw = getBattle().getFakeWorld();
+        PredicateScheduler.runTaskTimer(SuperSpleef.getInstance(), () -> {
+            fw.spawnParticle(Particle.FIREWORKS_SPARK, p.getLocation().subtract(0, 0.5, 0), 1, 0, 0, 0, 0);
+        }, 0, 3, (i) -> {
+            return i < 5 && !VirtualWorld.getInstance().isOnGround(p);
+        });
         
     }
     

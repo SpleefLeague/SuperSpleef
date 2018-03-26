@@ -14,9 +14,13 @@ import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.queue.BattleManager;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.RemoveReason;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
-import com.spleefleague.superspleef.game.SpleefMode;
+import com.spleefleague.superspleef.game.multispleef.MultiSpleefBattle;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
+import com.spleefleague.superspleef.game.spleef.NormalSpleefBattle;
+import com.spleefleague.superspleef.game.teamspleef.TeamSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
@@ -56,10 +60,10 @@ public class ConnectionListener implements Listener {
         }
         sp.invalidatePlayToRequest();
         if (sp.isIngame()) {
-            sp.getCurrentBattle().removePlayer(sp, false);
+            sp.getCurrentBattle().removePlayer(sp, RemoveReason.QUIT);
         } 
             
-        for (BattleManager<Arena, SpleefPlayer, SpleefBattle> bm : SuperSpleef.getInstance().getBattleManagers()) {
+        for (BattleManager<? extends Arena, SpleefPlayer, ? extends SpleefBattle> bm : SuperSpleef.getInstance().getBattleManagers()) {
             bm.dequeue(sp);
         }
     }
@@ -67,9 +71,9 @@ public class ConnectionListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         List<Player> ingamePlayers = new ArrayList<>();
-        List<SpleefBattle> toCancel = new ArrayList<>();//Workaround
-        for (BattleManager<Arena, SpleefPlayer, SpleefBattle> bm : SuperSpleef.getInstance().getBattleManagers()) {
-            for (SpleefBattle battle : bm.getAll()) {
+        List<SpleefBattle<?>> toCancel = new ArrayList<>();//Workaround
+        for (BattleManager<? extends Arena, SpleefPlayer, ? extends SpleefBattle> bm : SuperSpleef.getInstance().getBattleManagers()) {
+            for (SpleefBattle<?> battle : bm.getAll()) {
                 for (SpleefPlayer p : battle.getActivePlayers()) {
                     if (p.getPlayer() != null) {
                         event.getPlayer().hidePlayer(p.getPlayer());
@@ -82,17 +86,23 @@ public class ConnectionListener implements Listener {
                 }
             }
         }
-        for (SpleefBattle battle : toCancel) {
+        for (SpleefBattle<?> battle : toCancel) {
             for (SpleefPlayer p : battle.getActivePlayers()) {
                 if (p.getPlayer() != null) {
                     p.kickPlayer("An error has occured. Please reconnect");
                 }
             }
-            if(battle.getSpleefMode() == SpleefMode.MULTI) {
-                SuperSpleef.getInstance().getMultiSpleefBattleManager().remove(battle);
+            if(battle instanceof NormalSpleefBattle) {
+                SuperSpleef.getInstance().getNormalSpleefBattleManager().remove((NormalSpleefBattle)battle);
             }
-            else {
-                SuperSpleef.getInstance().getNormalSpleefBattleManager().remove(battle);
+            else if(battle instanceof MultiSpleefBattle) {
+                SuperSpleef.getInstance().getMultiSpleefBattleManager().remove((MultiSpleefBattle)battle);
+            }
+            else if(battle instanceof TeamSpleefBattle) {
+                SuperSpleef.getInstance().getTeamSpleefBattleManager().remove((TeamSpleefBattle)battle);
+            }
+            else if(battle instanceof PowerSpleefBattle) {
+                SuperSpleef.getInstance().getPowerSpleefBattleManager().remove((PowerSpleefBattle)battle);
             }
         }
         Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {

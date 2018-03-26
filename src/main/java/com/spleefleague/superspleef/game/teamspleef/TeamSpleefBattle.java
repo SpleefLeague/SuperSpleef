@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game;
+package com.spleefleague.superspleef.game.teamspleef;
 
 import com.google.common.collect.Lists;
 import com.spleefleague.core.SpleefLeague;
@@ -11,8 +11,11 @@ import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.core.events.BattleEndEvent;
 import com.spleefleague.core.events.BattleEndEvent.EndReason;
+import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.RemoveReason;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.*;
@@ -29,7 +32,7 @@ import java.util.Map.Entry;
 /**
  * @author Jonas
  */
-public class TeamSpleefBattle extends SpleefBattle {
+public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
 
     private static final Color[] colors = {
             Color.BLUE,
@@ -64,13 +67,8 @@ public class TeamSpleefBattle extends SpleefBattle {
     }
 
     @Override
-    public TeamSpleefArena getArena() {
-        return (TeamSpleefArena) super.getArena();
-    }
-
-    @Override
-    public void removePlayer(SpleefPlayer sp, boolean surrender) {
-        if (!surrender) {
+    public void removePlayer(SpleefPlayer sp, RemoveReason reason) {
+        if (reason == RemoveReason.QUIT) {
             for (SpleefPlayer pl : getActivePlayers()) {
                 pl.sendMessage(
                         SuperSpleef.getInstance().getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() +
@@ -86,11 +84,23 @@ public class TeamSpleefBattle extends SpleefBattle {
         handlePlayerDeath(sp, true);
         playerTeams.remove(sp);
         resetPlayer(sp);
-        ArrayList<SpleefPlayer> activePlayers = getActivePlayers();
+        List<SpleefPlayer> activePlayers = getActivePlayers();
         if (activePlayers.size() == 1) {
-            end(activePlayers.get(0), surrender ? EndReason.SURRENDER : EndReason.QUIT);
+            end(activePlayers.get(0), EndReason.valueOf(reason.name()));
         }else
             getPlayers().remove(sp);
+    }
+    
+    @Override
+    public void start(BattleStartEvent.StartReason reason) {
+        super.start(reason);
+        SuperSpleef.getInstance().getTeamSpleefBattleManager().add(this);
+    }
+    
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        SuperSpleef.getInstance().getTeamSpleefBattleManager().remove(this);
     }
 
     @Override
@@ -383,6 +393,12 @@ public class TeamSpleefBattle extends SpleefBattle {
             }
             sp.setChatArrowColor(t.getChatColor());
         }
+    }
+    
+
+    @Override
+    protected void applyRatingChange(SpleefPlayer winner) {
+        System.out.println("Not implemented yet!");
     }
 
     private class Team {

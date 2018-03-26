@@ -33,7 +33,7 @@ public class playto extends BasicCommand {
         }
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(slp);
         sp.setPlayToRequest(to);
-        SpleefBattle battle = sp.getCurrentBattle();
+        SpleefBattle<?> battle = sp.getCurrentBattle();
         Set<SpleefPlayer> requesting = new HashSet<>();
         ModifiableFinal<Integer> total = new ModifiableFinal<>(0);
         battle.getActivePlayers().forEach((SpleefPlayer spleefPlayer) -> {

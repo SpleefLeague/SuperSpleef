@@ -21,8 +21,7 @@ import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Arena;
-import com.spleefleague.superspleef.game.TeamSpleefArena;
+import com.spleefleague.superspleef.game.teamspleef.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.entity.Player;
 

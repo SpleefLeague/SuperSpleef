@@ -1,6 +1,5 @@
 package com.spleefleague.superspleef.game.powerspleef;
 
-import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.function.Function;
 
@@ -26,8 +25,8 @@ public abstract class Power {
         return player;
     }
     
-    protected SpleefBattle getBattle() {
-        return getPlayer().getCurrentBattle();
+    protected PowerSpleefBattle getBattle() {
+        return (PowerSpleefBattle)getPlayer().getCurrentBattle();
     }
     
     public void init() {

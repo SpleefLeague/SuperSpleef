@@ -7,12 +7,10 @@ package com.spleefleague.superspleef.game;
 
 /**
  *
- * @author Jonas
+ * @author jonas
  */
-public enum SpleefMode {
-    NORMAL,
-    TEAM,
-    MULTI,
-    POWER,
-    SWC;
+//Duplicates relevant values from com.spleefleague.core.event.BattleEndEvent.EndReason;
+public enum RemoveReason {
+    SURRENDER,
+    QUIT;
 }

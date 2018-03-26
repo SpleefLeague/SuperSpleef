@@ -61,8 +61,7 @@ public class Nuke extends CooldownPower {
     
     private List<FakeBlock> getTargetedBlocks() {
         SpleefPlayer sp = getPlayer();
-        SpleefBattle battle = getBattle();
-        return battle.getFieldBlocks()
+        return getBattle().getFieldBlocks()
                 .stream()
                 .filter(fb -> fb.getType() == Material.SNOW_BLOCK)
                 .filter(fb -> {

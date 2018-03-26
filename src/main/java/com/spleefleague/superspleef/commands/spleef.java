@@ -23,7 +23,7 @@ import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.spleef.NormalSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -82,7 +82,7 @@ public class spleef extends BasicCommand {
         if (checkIngame(target)) {
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        NormalSpleefArena arena = NormalSpleefArena.byName(arenaName);
         if (arena == null) {
             error(target, "This arena does not exist.");
             return;
@@ -122,7 +122,7 @@ public class spleef extends BasicCommand {
                 return;
             }
         }
-        Arena arena = Arena.byName(arenaName);
+        NormalSpleefArena arena = NormalSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;
@@ -147,16 +147,6 @@ public class spleef extends BasicCommand {
         success(sender, "You started a battle on the arena " + arena.getName());
     }
     
-    @Endpoint
-    public void reloadArena(SLPlayer sender, @LiteralArg(value = "load") String l, @StringArg String arenaName) {
-        if(!Arena.reload(arenaName)) {
-            error(sender, "This arena does not exist.");
-        }
-        else {
-            success(sender, "Arena reloaded.");
-        }
-    }
-    
     @Endpoint(target = {PLAYER})
     public void challenge(SLPlayer sender, @LiteralArg(value = "challenge", aliases = {"c"}) String l, @StringArg String arenaName, @PlayerArg Player[] players) {
         if (checkQueuesClosed(sender)) {
@@ -165,7 +155,7 @@ public class spleef extends BasicCommand {
         if (checkIngame(sender)) {
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        NormalSpleefArena arena = NormalSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;
@@ -251,7 +241,7 @@ public class spleef extends BasicCommand {
                 return;
             }
         }
-        Arena arena = Arena.byName(arenaName);
+        NormalSpleefArena arena = NormalSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;

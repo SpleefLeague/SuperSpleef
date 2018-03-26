@@ -22,7 +22,7 @@ import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.core.plugin.GamePlugin;
 import com.spleefleague.core.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.Arena;
+import com.spleefleague.superspleef.game.multispleef.MultiSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -82,7 +82,7 @@ public class multispleef extends BasicCommand {
         if (checkIngame(target)) {
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        MultiSpleefArena arena = MultiSpleefArena.byName(arenaName);
         if (arena == null) {
             error(target, "This arena does not exist.");
             return;
@@ -119,7 +119,7 @@ public class multispleef extends BasicCommand {
             sendUsage(sender);
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        MultiSpleefArena arena = MultiSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;
@@ -152,7 +152,7 @@ public class multispleef extends BasicCommand {
         if (checkIngame(sender)) {
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        MultiSpleefArena arena = MultiSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;
@@ -235,7 +235,7 @@ public class multispleef extends BasicCommand {
             sendUsage(sender);
             return;
         }
-        Arena arena = Arena.byName(arenaName);
+        MultiSpleefArena arena = MultiSpleefArena.byName(arenaName);
         if (arena == null) {
             error(sender, "This arena does not exist.");
             return;

@@ -5,12 +5,14 @@
  */
 package com.spleefleague.superspleef.game.powerspleef.powers;
 
-import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.CooldownPower;
+import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
 import com.spleefleague.superspleef.game.powerspleef.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
+import com.spleefleague.virtualworld.api.FakeWorld;
 import java.util.function.Function;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 
 /**
  *
@@ -27,7 +29,8 @@ public class Regenerate extends CooldownPower {
     @Override
     public void execute() {
         SpleefPlayer sp = getPlayer();
-        SpleefBattle battle = getBattle();
+        PowerSpleefBattle battle = getBattle();
+        FakeWorld fw = battle.getFakeWorld();
         battle.getFieldBlocks()
                 .stream()
                 .filter(fb -> fb.getType() == Material.AIR)
@@ -36,7 +39,11 @@ public class Regenerate extends CooldownPower {
                         .clone()
                         .add(0.5, 0, 0.5)
                         .distanceSquared(sp.getLocation().getBlock().getLocation()) <= range * range)
-                .forEach(fb -> fb.setType(Material.SNOW_BLOCK));
+                .forEach(fb -> {
+                    fb.setType(Material.SNOW_BLOCK);
+                    int count = (int)(Math.random() * 5);
+                    fw.spawnParticle(Particle.SNOW_SHOVEL, fb.getLocation().add(0.5, 0.5, 0.5), count, 0.5, 0.2, 0.5, 0);
+                });
     }
     
     public static Function<SpleefPlayer, Regenerate> getSupplier() {

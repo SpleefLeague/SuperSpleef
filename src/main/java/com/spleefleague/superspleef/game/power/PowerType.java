@@ -1,10 +1,10 @@
-package com.spleefleague.superspleef.game.powerspleef;
+package com.spleefleague.superspleef.game.power;
 
-import com.spleefleague.superspleef.game.powerspleef.powers.IntoTheShadows;
-import com.spleefleague.superspleef.game.powerspleef.powers.Invisibility;
-import com.spleefleague.superspleef.game.powerspleef.powers.Dash;
-import com.spleefleague.superspleef.game.powerspleef.powers.Nuke;
-import com.spleefleague.superspleef.game.powerspleef.powers.Regenerate;
+import com.spleefleague.superspleef.game.power.powers.IntoTheShadows;
+import com.spleefleague.superspleef.game.power.powers.Invisibility;
+import com.spleefleague.superspleef.game.power.powers.Dash;
+import com.spleefleague.superspleef.game.power.powers.Nuke;
+import com.spleefleague.superspleef.game.power.powers.Regenerate;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,19 +29,19 @@ public enum PowerType {
         "Turn yourself invisible.",
         "Cannot spleef while",
         "invisible!"
-    }, Material.DIAMOND_SPADE, 1560, Invisibility.getSupplier()),
+    }, Material.DIAMOND_AXE, 303, Invisibility.getSupplier()),
     DASH("Dash", new String[]{
         "No power selected"
-    }, Material.DIAMOND_SPADE, 1560, Dash.getSupplier()),
+    }, Material.DIAMOND_AXE, 301, Dash.getSupplier()),
     NUKE("Nuke", new String[]{
         "No power selected"
-    }, Material.DIAMOND_SPADE, 1560, Nuke.getSupplier()),
+    }, Material.DIAMOND_AXE, 304, Nuke.getSupplier()),
     REGENERATE("Regenerate", new String[]{
         "No power selected"
-    }, Material.DIAMOND_SPADE, 1560, Regenerate.getSupplier()),
+    }, Material.DIAMOND_AXE, 305, Regenerate.getSupplier()),
     INTO_THE_SHADOWS("Into the Shadows", new String[]{
         "No power selected"
-    }, Material.DIAMOND_SPADE, 1559, IntoTheShadows.getSupplier());
+    }, Material.DIAMOND_AXE, 302, IntoTheShadows.getSupplier());
     
     private final String name;
     private final List<String> description;

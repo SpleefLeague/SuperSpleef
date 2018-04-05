@@ -12,7 +12,7 @@ import org.bukkit.ChatColor;
  * @author Jonas
  */
 public enum SpleefMode {
-    NORMAL("ClassicSpleef"),
+    CLASSIC("ClassicSpleef"),
     TEAM("TeamSpleef"),
     MULTI("MultiSpleef"),
     POWER("PowerSpleef"),

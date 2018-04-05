@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.powerspleef.powers;
+package com.spleefleague.superspleef.game.power.powers;
 
 import com.spleefleague.core.utils.scheduler.PredicateScheduler;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.powerspleef.CooldownPower;
-import com.spleefleague.superspleef.game.powerspleef.PowerType;
+import com.spleefleague.superspleef.game.power.CooldownPower;
+import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.VirtualWorld;
 import com.spleefleague.virtualworld.api.FakeWorld;

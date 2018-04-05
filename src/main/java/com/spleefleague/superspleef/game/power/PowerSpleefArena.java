@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.teamspleef;
+package com.spleefleague.superspleef.game.power;
 
 import com.spleefleague.core.events.BattleStartEvent.StartReason;
-import com.spleefleague.entitybuilder.DBLoad;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
@@ -19,44 +18,37 @@ import org.bson.Document;
 
 /**
  *
- * @author Jonas
+ * @author jonas
  */
-public class TeamSpleefArena extends Arena<TeamSpleefBattle> {
-
-    @DBLoad(fieldName = "teamSizes")
-    private int[] teamSizes;
-
-    public int[] getTeamSizes() {
-        return teamSizes;
-    }
+public class PowerSpleefArena extends Arena<PowerSpleefBattle> {
 
     @Override
-    public TeamSpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
+    public PowerSpleefBattle startBattle(List<SpleefPlayer> players, StartReason reason) {
         if (!isOccupied()) { //Shouldn't be necessary
-            TeamSpleefBattle battle = new TeamSpleefBattle(this, players);
+            PowerSpleefBattle battle = new PowerSpleefBattle(this, players);
             battle.start(reason);
             return battle;
         }
         return null;
     }
     
-    private static final Map<String, TeamSpleefArena> arenas = new HashMap<>();
+    private static final Map<String, PowerSpleefArena> arenas = new HashMap<>();
     
-    public static Collection<TeamSpleefArena> getAll() {
+    public static Collection<PowerSpleefArena> getAll() {
         return arenas.values();
     }
     
-    public static TeamSpleefArena byName(String arena) {
+    public static PowerSpleefArena byName(String arena) {
         return arenas.get(arena.toLowerCase());
     }
     
     public static void loadArena(Document document) {
-        TeamSpleefArena arena = EntityBuilder.load(document, TeamSpleefArena.class);
+        PowerSpleefArena arena = EntityBuilder.load(document, PowerSpleefArena.class);
         if(arenas.containsKey(arena.getName().toLowerCase())) {
             Arena.recursiveCopy(arena, byName(arena.getName()), Arena.class);
         }
         else {
-            SuperSpleef.getInstance().getTeamSpleefBattleManager().registerArena(arena);
+            SuperSpleef.getInstance().getPowerSpleefBattleManager().registerArena(arena);
             arenas.put(arena.getName().toLowerCase(), arena);
         }
     }

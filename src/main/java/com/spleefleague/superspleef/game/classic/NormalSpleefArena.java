@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.spleef;
+package com.spleefleague.superspleef.game.classic;
 
 import com.spleefleague.core.events.BattleStartEvent;
 import com.spleefleague.entitybuilder.EntityBuilder;

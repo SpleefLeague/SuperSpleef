@@ -27,7 +27,7 @@ import com.spleefleague.core.queue.Battle;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.cosmetics.Shovel;
+import com.spleefleague.superspleef.cosmetics.Shovel;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.VirtualWorld;
 import com.spleefleague.virtualworld.api.FakeBlock;
@@ -58,6 +58,7 @@ import org.bukkit.scoreboard.Team;
 /**
  *
  * @author Jonas
+ * @param <A> Arena type
  */
 public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefPlayer> {
 
@@ -116,8 +117,6 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         List<SpleefPlayer> activePlayers = getActivePlayers();
         if (activePlayers.size() == 1) {
             end(activePlayers.get(0), EndReason.valueOf(reason.name()));
-        } else {
-            getPlayers().remove(sp);
         }
     }
     
@@ -187,7 +186,8 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             if (reason == EndReason.CANCEL) {
                 ChatManager.sendMessage(spleefMode.getChatPrefix(), Theme.INCOGNITO.buildTheme(false) + "The battle has been cancelled by a moderator.", getGameChannel());
             }
-        } else if (reason != EndReason.ENDGAME) {
+        } 
+        else if (reason != EndReason.ENDGAME) {
             if (getArena().isRated()) {
                 applyRatingChange(winner);
             }
@@ -225,13 +225,13 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
                     getScoreboard().getObjective("rounds").getScore(sp.getName()).setScore(playerdata.getPoints());
                 }
                 if (playerdata.getPoints() >= getPlayTo()) {
-                        if (maxScore == playerdata.getPoints()) {
-                            winner = null;
-                        } else if (maxScore < playerdata.getPoints()) {                        
-                            maxScore = playerdata.getPoints();
-                            winner = sp;
-                        }
+                    if (maxScore == playerdata.getPoints()) {
+                        winner = null;
+                    } else if (maxScore < playerdata.getPoints()) {                        
+                        maxScore = playerdata.getPoints();
+                        winner = sp;
                     }
+                }
             }
             if(winner == null && maxScore >= this.getPlayTo()) {
                 changePointsCup(maxScore + 1);
@@ -430,7 +430,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     public List<SpleefPlayer> getActivePlayers() {
         return players
                 .stream()
-                .filter(SpleefPlayer::isIngame)
+                .filter(sp -> !getData(sp).hasLeft())
                 .collect(Collectors.toList());
     }
 
@@ -448,6 +448,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             sp.invalidatePlayToRequest();
             sp.closeInventory();
             data.get(sp).restoreOldData();
+            data.get(sp).markAsLeft();
         }
         if (sp.getPlayer().getGameMode() == GameMode.SPECTATOR) {
             sp.getPlayer().setSpectatorTarget(null);
@@ -460,6 +461,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     }
 
     public void cleanup() {
+        players.clear();
         clock.cancel();
         resetField();
         arena.registerGameEnd();
@@ -662,6 +664,11 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     public int getDuration() {
         return ticksPassed;
     }
+    
+    protected void setPointsCup(int value) {
+        pointsCap = value;
+        reInitScoreboard();
+    }
 
     public void changePointsCup(int value) {
         pointsCap = value;
@@ -673,37 +680,6 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             }
         }
         reInitScoreboard();
-    }
-    
-    /**
-     * Calculates the rating change according to modified
-     * version of this formula 
-     * https://en.wikipedia.org/wiki/Elo_rating_system
-     * 
-     * @param p1 The rating of player 1
-     * @param p2 The rating of player 2
-     * @param compare -1 if p1 won, 0 if draw, 1 if p2 won
-     * @return The rating change from the position of p1, negate for p2
-    */
-    public static double calculateEloRatingChange(double p1, double p2, int compare) {
-        final double MAX_RATING = 40;
-        double elo = (1f / (1f + Math.pow(2f, ((p2 - p1) / 250f))));
-        double s;
-        if(compare < 0) {
-            s = 1;
-        }
-        else if(compare > 0) {
-            s = 0;
-        }
-        else {
-            s = 0.5;
-        }
-        double ratingChange = MAX_RATING * (s - elo);
-        if(compare != 0) {
-            double sign = Math.signum(ratingChange);
-            ratingChange = sign * Math.abs(ratingChange);
-        }
-        return ratingChange;
     }
 
     private static ItemStack getShovel(SpleefPlayer sp) {
@@ -726,6 +702,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     public static class PlayerData {
 
         private int points;
+        private boolean left = false;
         private final Location spawn;
         private final SpleefPlayer sp;
         private final GameMode oldGamemode;
@@ -740,6 +717,14 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             oldGamemode = p.getGameMode();
             oldInventory = p.getInventory().getContents();
             oldArmor = p.getInventory().getArmorContents();
+        }
+        
+        public void markAsLeft() {
+            left = true;
+        }
+        
+        public boolean hasLeft() {
+            return left;
         }
 
         public Location getSpawn() {

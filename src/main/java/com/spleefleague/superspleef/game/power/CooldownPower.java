@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.powerspleef;
+package com.spleefleague.superspleef.game.power;
 
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -28,6 +28,9 @@ public abstract class CooldownPower extends Power {
     
     @Override
     public void initRound() {
+        super.initRound();
+        onCooldown.remove(this);
+        currentCooldown = 0;
         getPlayer().setLevel(0);
         getPlayer().setExp(1);
     }
@@ -42,6 +45,14 @@ public abstract class CooldownPower extends Power {
         onCooldown.add(this);
         execute();
         return true;
+    }
+    
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        onCooldown.remove(this);
+        getPlayer().setExp(0);
+        getPlayer().setLevel(0);
     }
     
     public abstract void execute();

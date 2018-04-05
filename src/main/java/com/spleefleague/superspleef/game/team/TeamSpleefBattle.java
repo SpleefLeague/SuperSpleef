@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.teamspleef;
+package com.spleefleague.superspleef.game.team;
 
 import com.google.common.collect.Lists;
 import com.spleefleague.core.SpleefLeague;
@@ -41,6 +41,14 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
             Color.PURPLE,
             Color.ORANGE
     };
+    public static final ItemStack[] teamBlocks = {
+            new ItemStack(Material.WOOL, 1, (byte)11),
+            new ItemStack(Material.WOOL, 1, (byte)14),
+            new ItemStack(Material.WOOL, 1, (byte)4),
+            new ItemStack(Material.WOOL, 1, (byte)13),
+            new ItemStack(Material.WOOL, 1, (byte)10),
+            new ItemStack(Material.WOOL, 1, (byte)1)
+    };
     private static final ChatColor[] chatColors = {
             ChatColor.BLUE,
             ChatColor.RED,
@@ -57,7 +65,7 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
             ChatColor.DARK_PURPLE,
             ChatColor.WHITE
     };
-    private static final String[] names = {"Blue", "Red", "Yellow", "Green", "Purple", "Gold"};
+    public static final String[] names = {"Blue", "Red", "Yellow", "Green", "Purple", "Gold"};
     private Team[] teams;
     private Map<SpleefPlayer, Team> playerTeams;
 

@@ -119,7 +119,7 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
     }
 
     @Endpoint(target = {PLAYER, CONSOLE, COMMAND_BLOCK})
-    public void forcestart(CommandSender sender, @LiteralArg(value = "match") String l, @StringArg String arenaName, @PlayerArg Player[] players) {
+    public void forcestart(CommandSender sender, @LiteralArg(value = "match", aliases = {"m"}) String l, @StringArg String arenaName, @PlayerArg Player[] players) {
         if (checkIngame(sender)) {
             return;
         }

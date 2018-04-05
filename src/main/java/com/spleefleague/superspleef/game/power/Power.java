@@ -1,4 +1,4 @@
-package com.spleefleague.superspleef.game.powerspleef;
+package com.spleefleague.superspleef.game.power;
 
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.function.Function;

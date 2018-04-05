@@ -7,7 +7,7 @@ package com.spleefleague.superspleef.commands;
 
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.powerspleef.PowerSpleefArena;
+import com.spleefleague.superspleef.game.power.PowerSpleefArena;
 
 /**
  *

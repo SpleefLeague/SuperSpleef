@@ -19,7 +19,7 @@ import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.cosmetics.Shovel;
+import com.spleefleague.superspleef.cosmetics.Shovel;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.Arrays;
 import java.util.List;

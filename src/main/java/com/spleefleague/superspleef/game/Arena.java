@@ -16,11 +16,11 @@ import com.spleefleague.entitybuilder.DBLoadable;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
 import com.spleefleague.superspleef.SuperSpleef;
-import com.spleefleague.superspleef.game.multispleef.MultiSpleefArena;
-import com.spleefleague.superspleef.game.powerspleef.PowerSpleefArena;
+import com.spleefleague.superspleef.game.multi.MultiSpleefArena;
+import com.spleefleague.superspleef.game.power.PowerSpleefArena;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
-import com.spleefleague.superspleef.game.spleef.NormalSpleefArena;
-import com.spleefleague.superspleef.game.teamspleef.TeamSpleefArena;
+import com.spleefleague.superspleef.game.classic.NormalSpleefArena;
+import com.spleefleague.superspleef.game.team.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
 import java.util.*;
@@ -74,7 +74,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
     @DBLoad(fieldName = "area")
     private Area area;
     @DBLoad(fieldName = "spleefMode")
-    private SpleefMode spleefMode = SpleefMode.NORMAL;
+    private SpleefMode spleefMode = SpleefMode.CLASSIC;
     private int runningGames = 0;
     
     public Location[] getSpawns() {
@@ -241,7 +241,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
     
     public static Arena byName(String name, SpleefMode mode) {
         switch(mode) {
-            case NORMAL: {
+            case CLASSIC: {
                 return NormalSpleefArena.byName(name);
             }
             case MULTI: {
@@ -257,7 +257,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
         return null;
     }
 
-    public static Collection<? extends Arena> getAll() {
+    public static Collection<? extends Arena<?>> getAll() {
         return Stream.of(
                 NormalSpleefArena.getAll(),
                 MultiSpleefArena.getAll(),
@@ -299,7 +299,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
                 SpleefMode mode = SpleefMode.valueOf(arenas.get("_id", String.class));
                 int amount;
                 switch(mode) {
-                    case NORMAL: {
+                    case CLASSIC: {
                         amount = loadArenas(arenaInstances, NormalSpleefArena::loadArena);
                         break;
                     }

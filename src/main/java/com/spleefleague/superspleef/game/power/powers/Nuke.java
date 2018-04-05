@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.powerspleef.powers;
+package com.spleefleague.superspleef.game.power.powers;
 
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
-import com.spleefleague.superspleef.game.powerspleef.CooldownPower;
-import com.spleefleague.superspleef.game.powerspleef.PowerType;
+import com.spleefleague.superspleef.game.power.CooldownPower;
+import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.api.FakeBlock;
 import com.spleefleague.virtualworld.api.FakeWorld;
@@ -33,7 +33,7 @@ import org.bukkit.util.Vector;
 public class Nuke extends CooldownPower {
 
     private BukkitTask activeTask;
-    private final int range = 4;
+    private final int range = 5;
     
     public Nuke(SpleefPlayer sp, int cooldown) {
         super(sp, PowerType.NUKE, cooldown);
@@ -49,7 +49,7 @@ public class Nuke extends CooldownPower {
                 .map(fb -> fb.getLocation().clone().add(new Vector(0.5, 1, 0.5)))
                 .forEach(v -> fworld.spawnParticle(Particle.FLAME, v, 1, 0, 0, 0, 0));
         }, 0, 5);
-        Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> explode(), 70);
+        Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> explode(), 50);
     }
     
     @Override
@@ -72,7 +72,6 @@ public class Nuke extends CooldownPower {
                 .filter(fb -> fb
                         .getLocation()
                         .clone()
-                        .add(0.5, 0, 0.5)
                         .distanceSquared(sp.getLocation().getBlock().getLocation()) <= range * range)
                 .collect(Collectors.toList());
     }
@@ -92,7 +91,7 @@ public class Nuke extends CooldownPower {
         Collections.sort(blocks, (f1, f2) -> Double.compare(
                         f2.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation()), 
                         f1.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation())));
-        activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), getRegenRunnable(blocks), 10, 1);
+        activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), getRegenRunnable(blocks), 40, 1);
     }
     
     private Runnable getRegenRunnable(Collection<FakeBlock> regenBlocks) {
@@ -126,6 +125,6 @@ public class Nuke extends CooldownPower {
     }
     
     public static Function<SpleefPlayer, Nuke> getSupplier() {
-        return sp -> new Nuke(sp, 10);
+        return sp -> new Nuke(sp, 600);
     }
 }

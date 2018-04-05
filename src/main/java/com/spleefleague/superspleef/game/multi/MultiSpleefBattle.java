@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.multispleef;
+package com.spleefleague.superspleef.game.multi;
 
 import com.spleefleague.core.chat.ChatManager;
+import static com.spleefleague.core.queue.Battle.calculateEloRatingChange;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
@@ -24,7 +25,7 @@ public class MultiSpleefBattle extends SpleefBattle<MultiSpleefArena> {
     public MultiSpleefBattle(MultiSpleefArena arena, List<SpleefPlayer> players) {
         super(arena, players);
         if(arena.getMaxRating() == -1) {
-            this.changePointsCup((players.size() - 1) * 5);
+            this.setPointsCup((players.size() - 1) * 5);
         }
     }
 
@@ -49,32 +50,34 @@ public class MultiSpleefBattle extends SpleefBattle<MultiSpleefArena> {
     
     @Override
     protected void applyRatingChange(SpleefPlayer winner) {
-        double[] ratingChanges = new double[getPlayers().size()];
+        List<SpleefPlayer> players = getPlayers();
+        double[] ratingChanges = new double[players.size()];
         SpleefMode mode = getSpleefMode();
-        for (int i = 0; i < getPlayers().size(); i++) {
-            SpleefPlayer p1 = getPlayers().get(i);
+        for (int i = 0; i < players.size(); i++) {
+            SpleefPlayer p1 = players.get(i);
             int score1 = getData(p1).getPoints();
-            for (int j = i + 1; j < getPlayers().size(); j++) {
-                SpleefPlayer p2 = getPlayers().get(j);
+            for (int j = i + 1; j < players.size(); j++) {
+                SpleefPlayer p2 = players.get(j);
                 int score2 = getData(p2).getPoints();
-                double ratingChange = SpleefBattle.calculateEloRatingChange(p1.getRating(mode), p2.getRating(mode), Integer.compare(score2, score1));
+                double ratingChange = calculateEloRatingChange(p1.getRating(mode), p2.getRating(mode), Integer.compare(score2, score1));
                 ratingChanges[i] += ratingChange;
                 ratingChanges[j] -= ratingChange;
             }
         }
         for (int i = 0; i < ratingChanges.length; i++) {
             ratingChanges[i] /= ratingChanges.length - 1;
-            getPlayers().get(i).setRating(mode, (int)Math.ceil(ratingChanges[i]));
+            SpleefPlayer sp = players.get(i);
+            sp.setRating(mode, sp.getRating(mode) + (int)Math.ceil(ratingChanges[i]));
         }
         StringJoiner endScore = new StringJoiner("-");
         String playerList = "";
-        for (int i = 0; i < getPlayers().size(); i++) {
-            SpleefPlayer sp = getPlayers().get(i);
+        for (int i = 0; i < players.size(); i++) {
+            SpleefPlayer sp = players.get(i);
             endScore.add(Integer.toString(getData(sp).getPoints()));
             playerList += ChatColor.RED + sp.getName() + ChatColor.WHITE + " (" + sp.getRating(mode) + ")" + ChatColor.GREEN + " gets " + ChatColor.GRAY + (int)Math.ceil(ratingChanges[i]) + ChatColor.WHITE + " points. ";
         }
         ChatManager.sendMessage(mode.getChatPrefix(), ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN + " is over " + ChatColor.WHITE + "(" + endScore + ")" + ChatColor.GREEN + ". " + playerList, SuperSpleef.getInstance().getEndMessageChannel());
-        this.getPlayers().forEach((p) -> {
+        players.forEach((p) -> {
             SuperSpleef.getInstance().getPlayerManager().save(p);
         });
     }

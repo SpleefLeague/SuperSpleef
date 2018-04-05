@@ -14,8 +14,8 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
-import com.spleefleague.superspleef.game.cosmetics.Shovel;
-import com.spleefleague.superspleef.game.powerspleef.PowerType;
+import com.spleefleague.superspleef.cosmetics.Shovel;
+import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer.Rating.RatingTypeConverter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,9 +60,12 @@ public class SpleefPlayer extends GeneralPlayer {
     public int getRating(SpleefMode mode) {
         return this.rating.getRating(mode);
     }
-
-    public int getRank() {
-        return (int) SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(new Document("rating", new Document("$gt", rating))) + 1;
+    
+    public int getRank(SpleefMode mode) {
+        if(!rating.isRated(mode)) return -1;
+        Document query = new Document("rating.mode", mode.name())
+                .append("rating.rating", new Document("$gt", rating.getRating(mode)));
+        return (int) SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(query) + 1;
     }
     
     public Set<Shovel> getAvailableShovels() {
@@ -215,6 +218,10 @@ public class SpleefPlayer extends GeneralPlayer {
         
         public Rating() {
             this.rating = new HashMap<>();
+        }
+        
+        public boolean isRated(SpleefMode mode) {
+            return rating.containsKey(mode);
         }
         
         public int getRating(SpleefMode mode) {

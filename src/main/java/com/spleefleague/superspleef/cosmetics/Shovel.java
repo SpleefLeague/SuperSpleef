@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.cosmetics;
+package com.spleefleague.superspleef.cosmetics;
 
 import com.mongodb.client.MongoCursor;
 import com.spleefleague.entitybuilder.DBEntity;

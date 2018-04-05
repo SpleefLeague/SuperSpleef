@@ -1,38 +1,70 @@
 /*
-        
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.spleef;
+package com.spleefleague.superspleef.game.power;
 
 import com.spleefleague.core.chat.ChatManager;
+import static com.spleefleague.core.queue.Battle.calculateEloRatingChange;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.RemoveReason;
 import com.spleefleague.superspleef.game.SpleefBattle;
-import static com.spleefleague.superspleef.game.SpleefBattle.calculateEloRatingChange;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.bukkit.ChatColor;
 
 /**
  *
- * @author Jonas
+ * @author jonas
  */
-public class NormalSpleefBattle extends SpleefBattle<NormalSpleefArena> {
+public class PowerSpleefBattle extends SpleefBattle<PowerSpleefArena> {
     
-    public NormalSpleefBattle(NormalSpleefArena arena, List<SpleefPlayer> players) {
+    private final Map<SpleefPlayer, Power> powers;
+    
+    public PowerSpleefBattle(PowerSpleefArena arena, List<SpleefPlayer> players) {
         super(arena, players);
+        powers = players.stream().collect(Collectors.toMap(Function.identity(), sp -> sp.getPowerType().createPower(sp), (t, u) -> u));
+    }
+    
+    public void requestPowerUse(SpleefPlayer sp) {
+        if(!this.isInCountdown()) {
+            Power power = powers.get(sp);
+            power.tryExecute();
+        }
     }
 
     @Override
     protected void addToBattleManager() {
-        SuperSpleef.getInstance().getNormalSpleefBattleManager().add(this);
+        SuperSpleef.getInstance().getPowerSpleefBattleManager().add(this);
     }
 
     @Override
     protected void removeFromBattleManager() {
-        SuperSpleef.getInstance().getNormalSpleefBattleManager().remove(this);
+        SuperSpleef.getInstance().getPowerSpleefBattleManager().remove(this);
+    }
+    
+    @Override
+    public void resetPlayer(SpleefPlayer sp) {
+        super.resetPlayer(sp);
+        powers.get(sp).cleanupRound();
+        powers.get(sp).cleanup();
+    }
+    
+    @Override
+    public void removePlayer(SpleefPlayer sp, RemoveReason reason) {
+        super.removePlayer(sp, reason);
+        powers.remove(sp);
+    }
+    
+    @Override
+    public void onRoundStart() {
+        super.onRoundStart();
+        powers.values().forEach(Power::initRound);
     }
     
     @Override

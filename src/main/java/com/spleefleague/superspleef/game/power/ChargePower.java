@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.powerspleef;
+package com.spleefleague.superspleef.game.power;
 
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -31,11 +31,19 @@ public abstract class ChargePower extends Power {
     
     @Override
     public void cleanup() {
+        super.cleanup();
         refilling.remove(this);
+        getPlayer().setExp(0);
+        getPlayer().setLevel(0);
     }
     
     @Override
     public void initRound() {
+        super.initRound();
+        refilling.remove(this);
+        charges = maxCharges;
+        currentChargeRefillProgess = 0;
+        currentCooldown = 0;
         getPlayer().setExp(1);
         getPlayer().setLevel(charges);
     }

@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.spleefleague.superspleef.game.powerspleef.powers;
+package com.spleefleague.superspleef.game.power.powers;
 
-import com.spleefleague.superspleef.game.powerspleef.CooldownPower;
-import com.spleefleague.superspleef.game.powerspleef.PowerSpleefBattle;
-import com.spleefleague.superspleef.game.powerspleef.PowerType;
+import com.spleefleague.superspleef.game.power.CooldownPower;
+import com.spleefleague.superspleef.game.power.PowerSpleefBattle;
+import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.api.FakeWorld;
 import java.util.function.Function;
@@ -37,7 +37,6 @@ public class Regenerate extends CooldownPower {
                 .filter(fb -> fb
                         .getLocation()
                         .clone()
-                        .add(0.5, 0, 0.5)
                         .distanceSquared(sp.getLocation().getBlock().getLocation()) <= range * range)
                 .forEach(fb -> {
                     fb.setType(Material.SNOW_BLOCK);
@@ -47,6 +46,6 @@ public class Regenerate extends CooldownPower {
     }
     
     public static Function<SpleefPlayer, Regenerate> getSupplier() {
-        return s -> new Regenerate(s, 40);
+        return s -> new Regenerate(s, 350);
     }
 }

@@ -6,11 +6,11 @@
 package com.spleefleague.superspleef.menu;
 
 import com.spleefleague.core.SpleefLeague;
-import com.spleefleague.core.events.BattleStartEvent;
+import com.spleefleague.gameapi.events.BattleStartEvent;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.SLPlayer;
-import com.spleefleague.core.queue.Challenge;
-import com.spleefleague.core.queue.GameQueue;
+import com.spleefleague.gameapi.queue.Challenge;
+import com.spleefleague.gameapi.queue.GameQueue;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.dialog;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.dialogMenu;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
@@ -76,7 +76,7 @@ public class SpleefMenu {
     
     
     public static InventoryMenuTemplateBuilder createClassicSpleefMenu() {
-        return createArenaMenu(SuperSpleef.getInstance().getNormalSpleefBattleManager().getGameQueue(), true)
+        return createArenaMenu(SuperSpleef.getInstance().getClassicSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
                 .displayIcon(Material.DIAMOND_HOE)
                 .displayName("Classic Spleef")
@@ -119,13 +119,11 @@ public class SpleefMenu {
     
     private static void performChallenge(MenuChallenge builder, SpleefMode mode) {
         Collection<SLPlayer> targets = Arrays.asList(builder.getTarget());
-        Challenge challenge = new Challenge(builder.getSource(), builder.getTarget()) {
+        SpleefPlayer spSource = getSP(builder.getSource());
+        SpleefPlayer spTarget = getSP(builder.getTarget());
+        Challenge<SpleefPlayer> challenge = new Challenge<SpleefPlayer>(spSource, Arrays.asList(spTarget)) {
             @Override
-            public void start(SLPlayer[] accepted) {
-                List<SpleefPlayer> players = new ArrayList<>();
-                for (SLPlayer slpt : accepted) {
-                    players.add(getSP(slpt));
-                }
+            public void start(List<SpleefPlayer> players) {
                 Arena arena = builder.getArena();
                 if (arena == null) {
                     List<Arena> potentialArenas = Arena.getAll()
@@ -151,7 +149,6 @@ public class SpleefMenu {
                 arena.startBattle(players, BattleStartEvent.StartReason.CHALLENGE);
             }
         };
-        targets.forEach(s -> s.addChallenge(challenge));
         challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), builder.getArena() == null ? null : builder.getArena().getName(), targets);
     }
     
@@ -247,7 +244,7 @@ public class SpleefMenu {
         GameQueue<? extends Arena, SpleefPlayer> queue = null;
         switch (mode) {
             case CLASSIC:
-                queue = SuperSpleef.getInstance().getNormalSpleefBattleManager().getGameQueue();
+                queue = SuperSpleef.getInstance().getClassicSpleefBattleManager().getGameQueue();
                 break;
             case MULTI:
                 queue = SuperSpleef.getInstance().getMultiSpleefBattleManager().getGameQueue();

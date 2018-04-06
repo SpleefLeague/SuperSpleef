@@ -5,18 +5,17 @@
  */
 package com.spleefleague.superspleef.player;
 
-import com.spleefleague.core.player.GeneralPlayer;
-import com.spleefleague.core.queue.BattleManager;
+import com.spleefleague.gameapi.queue.BattleManager;
 import com.spleefleague.entitybuilder.DBLoad;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.TypeConverter;
+import com.spleefleague.gameapi.player.RatedPlayer;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.cosmetics.Shovel;
 import com.spleefleague.superspleef.game.power.PowerType;
-import com.spleefleague.superspleef.player.SpleefPlayer.Rating.RatingTypeConverter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.bson.Document;
@@ -31,11 +30,8 @@ import java.util.stream.Collectors;
  *
  * @author Jonas
  */
-public class SpleefPlayer extends GeneralPlayer {
+public class SpleefPlayer extends RatedPlayer<SpleefMode> {
 
-    @DBSave(fieldName = "rating", typeConverter = RatingTypeConverter.class)
-    @DBLoad(fieldName = "rating", typeConverter = RatingTypeConverter.class)
-    private Rating rating;
     private int playTo;
     private boolean ingame, frozen, requestingReset, requestingEndgame, dead;
     private Set<Arena> visitedArenas;
@@ -48,24 +44,9 @@ public class SpleefPlayer extends GeneralPlayer {
     private PowerType activePower;
     
     public SpleefPlayer() {
+        super(SpleefMode.class, SuperSpleef.getInstance().getPluginDB().getCollection("Players"));
         this.visitedArenas = new HashSet<>();
-        this.rating = new Rating();
         setDefaults();
-    }
-
-    public void setRating(SpleefMode mode, int rating) {
-        this.rating.setRating(mode, rating);
-    }
-
-    public int getRating(SpleefMode mode) {
-        return this.rating.getRating(mode);
-    }
-    
-    public int getRank(SpleefMode mode) {
-        if(!rating.isRated(mode)) return -1;
-        Document query = new Document("rating.mode", mode.name())
-                .append("rating.rating", new Document("$gt", rating.getRating(mode)));
-        return (int) SuperSpleef.getInstance().getPluginDB().getCollection("Players").count(query) + 1;
     }
     
     public Set<Shovel> getAvailableShovels() {

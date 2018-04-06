@@ -5,7 +5,7 @@
  */
 package com.spleefleague.superspleef.game.classic;
 
-import com.spleefleague.core.events.BattleStartEvent;
+import com.spleefleague.gameapi.events.BattleStartEvent;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
@@ -48,7 +48,7 @@ public class NormalSpleefArena extends Arena<NormalSpleefBattle> {
             Arena.recursiveCopy(arena, byName(arena.getName()), Arena.class);
         }
         else {
-            SuperSpleef.getInstance().getNormalSpleefBattleManager().registerArena(arena);
+            SuperSpleef.getInstance().getClassicSpleefBattleManager().registerArena(arena);
             arenas.put(arena.getName().toLowerCase(), arena);
         }
     }

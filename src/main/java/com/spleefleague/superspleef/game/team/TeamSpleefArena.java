@@ -5,7 +5,7 @@
  */
 package com.spleefleague.superspleef.game.team;
 
-import com.spleefleague.core.events.BattleStartEvent.StartReason;
+import com.spleefleague.gameapi.events.BattleStartEvent.StartReason;
 import com.spleefleague.entitybuilder.DBLoad;
 import com.spleefleague.entitybuilder.EntityBuilder;
 import com.spleefleague.superspleef.SuperSpleef;

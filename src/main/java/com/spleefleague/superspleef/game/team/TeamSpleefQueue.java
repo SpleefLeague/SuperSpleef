@@ -5,7 +5,7 @@
  */
 package com.spleefleague.superspleef.game.team;
 
-import com.spleefleague.core.queue.RatedGameQueue;
+import com.spleefleague.gameapi.queue.RatedGameQueue;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
 import java.util.Collection;

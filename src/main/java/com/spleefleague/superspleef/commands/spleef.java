@@ -16,6 +16,6 @@ import com.spleefleague.superspleef.game.classic.NormalSpleefArena;
 public class spleef extends spleefCommand<NormalSpleefArena> {
     
     public spleef(CorePlugin plugin, String name, String usage) {
-        super(plugin, name, usage, arena -> NormalSpleefArena.byName(arena), SuperSpleef.getInstance().getNormalSpleefBattleManager());
+        super(plugin, name, usage, arena -> NormalSpleefArena.byName(arena), SuperSpleef.getInstance().getClassicSpleefBattleManager());
     }
 }

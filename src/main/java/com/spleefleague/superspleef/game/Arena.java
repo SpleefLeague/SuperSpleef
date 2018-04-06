@@ -5,10 +5,10 @@
  */
 package com.spleefleague.superspleef.game;
 
-import com.spleefleague.core.events.BattleStartEvent.StartReason;
+import com.spleefleague.gameapi.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.io.typeconverters.LocationConverter;
 import com.spleefleague.core.player.SLPlayer;
-import com.spleefleague.core.queue.QueueableArena;
+import com.spleefleague.gameapi.queue.QueueableArena;
 import com.spleefleague.core.utils.Area;
 import com.spleefleague.entitybuilder.DBEntity;
 import com.spleefleague.entitybuilder.DBLoad;
@@ -39,6 +39,7 @@ import org.bukkit.Location;
 /**
  *
  * @author Jonas
+ * @param <B>
  */
 public abstract class Arena<B extends SpleefBattle> extends DBEntity implements DBLoadable, DBSaveable, QueueableArena<SpleefPlayer> {
 

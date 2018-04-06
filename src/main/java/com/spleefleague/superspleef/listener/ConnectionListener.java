@@ -12,7 +12,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.core.player.SLPlayer;
-import com.spleefleague.core.queue.BattleManager;
+import com.spleefleague.gameapi.queue.BattleManager;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.RemoveReason;
 import com.spleefleague.superspleef.game.Arena;
@@ -93,7 +93,7 @@ public class ConnectionListener implements Listener {
                 }
             }
             if(battle instanceof NormalSpleefBattle) {
-                SuperSpleef.getInstance().getNormalSpleefBattleManager().remove((NormalSpleefBattle)battle);
+                SuperSpleef.getInstance().getClassicSpleefBattleManager().remove((NormalSpleefBattle)battle);
             }
             else if(battle instanceof MultiSpleefBattle) {
                 SuperSpleef.getInstance().getMultiSpleefBattleManager().remove((MultiSpleefBattle)battle);

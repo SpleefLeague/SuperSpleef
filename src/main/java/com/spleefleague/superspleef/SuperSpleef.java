@@ -11,14 +11,14 @@ import com.spleefleague.core.chat.ChatChannel;
 import com.spleefleague.core.chat.ChatManager;
 import com.spleefleague.core.chat.Theme;
 import com.spleefleague.commands.command.CommandLoader;
-import com.spleefleague.core.events.BattleEndEvent.EndReason;
-import com.spleefleague.core.events.BattleStartEvent.StartReason;
+import com.spleefleague.gameapi.events.BattleEndEvent.EndReason;
+import com.spleefleague.gameapi.events.BattleStartEvent.StartReason;
 import com.spleefleague.core.menus.SLMenu;
-import com.spleefleague.core.player.PlayerManager;
-import com.spleefleague.core.plugin.GamePlugin;
+import com.spleefleague.core.player.DBPlayerManager;
+import com.spleefleague.gameapi.GamePlugin;
 import com.spleefleague.core.plugin.PlayerHandling;
-import com.spleefleague.core.queue.BattleManager;
-import com.spleefleague.core.queue.RatedBattleManager;
+import com.spleefleague.gameapi.queue.BattleManager;
+import com.spleefleague.gameapi.queue.RatedBattleManager;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
@@ -46,6 +46,7 @@ import com.spleefleague.superspleef.game.team.TeamSpleefBattle;
 import com.spleefleague.superspleef.game.team.TeamSpleefQueue;
 import com.spleefleague.superspleef.menu.SpleefMenu;
 import java.util.Arrays;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 /**
@@ -54,8 +55,8 @@ import java.util.stream.Collectors;
 public class SuperSpleef extends GamePlugin implements PlayerHandling {
 
     private static SuperSpleef instance;
-    private PlayerManager<SpleefPlayer> playerManager;
-    private BattleManager<NormalSpleefArena, SpleefPlayer, NormalSpleefBattle> battleManagerNormalSpleef;
+    private DBPlayerManager<SpleefPlayer> playerManager;
+    private BattleManager<NormalSpleefArena, SpleefPlayer, NormalSpleefBattle> battleManagerClassicSpleef;
     private BattleManager<MultiSpleefArena, SpleefPlayer, MultiSpleefBattle> battleManagerMultiSpleef;
     private BattleManager<TeamSpleefArena, SpleefPlayer, TeamSpleefBattle> battleManagerTeamSpleef;
     private BattleManager<PowerSpleefArena, SpleefPlayer, PowerSpleefBattle> battleManagerPowerSpleef;
@@ -70,8 +71,8 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
     @Override
     public void start() {
         instance = this;
-        this.playerManager = new PlayerManager(this, SpleefPlayer.class);
-        this.battleManagerNormalSpleef = new RatedBattleManager<>(
+        this.playerManager = new DBPlayerManager(this, SpleefPlayer.class);
+        this.battleManagerClassicSpleef = new RatedBattleManager<>(
                 m -> m.getQueue().startBattle(m.getPlayers(), StartReason.QUEUE), 
                 sp -> sp.getRating(SpleefMode.CLASSIC)
         );
@@ -113,12 +114,12 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         return SpleefLeague.getInstance().getMongo().getDatabase("SuperSpleef");
     }
 
-    public PlayerManager<SpleefPlayer> getPlayerManager() {
+    public DBPlayerManager<SpleefPlayer> getPlayerManager() {
         return playerManager;
     }
 
-    public BattleManager<NormalSpleefArena, SpleefPlayer, NormalSpleefBattle> getNormalSpleefBattleManager() {
-        return battleManagerNormalSpleef;
+    public BattleManager<NormalSpleefArena, SpleefPlayer, NormalSpleefBattle> getClassicSpleefBattleManager() {
+        return battleManagerClassicSpleef;
     }
 
     public BattleManager<MultiSpleefArena, SpleefPlayer, MultiSpleefBattle> getMultiSpleefBattleManager() {
@@ -253,13 +254,19 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
 
     @Override
     public void printStats(Player p, Player target) {
-        SpleefPlayer sp = playerManager.get(target);
-        p.sendMessage(Theme.INFO + sp.getName() + "'s Spleef stats");
+        SpleefPlayer sjp = playerManager.get(target);
+        StringJoiner sj = new StringJoiner("\n");
+        sj.add(Theme.INFO + sjp.getName() + "'s Spleef stats");
+        boolean print = false;
         for (SpleefMode mode : SpleefMode.values()) {
-            int rank = sp.getRank(mode);
+            print = true;
+            int rank = sjp.getRank(mode);
             if(rank == -1) continue;
-            int rating = sp.getRating(mode);
-            p.sendMessage(mode.getChatPrefix() + ChatColor.GRAY + " Rating: " + ChatColor.YELLOW + rating + ChatColor.GRAY + " (" + ChatColor.GOLD + "#" + rank + ChatColor.GRAY + ")");
+            int rating = sjp.getRating(mode);
+            sj.add(mode.getChatPrefix() + ChatColor.GRAY + " Rating: " + ChatColor.YELLOW + rating + ChatColor.GRAY + " (" + ChatColor.GOLD + "#" + rank + ChatColor.GRAY + ")");
+        }
+        if(print) {
+            target.sendMessage(sj.toString());
         }
     }
 
@@ -421,7 +428,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
     @Override
     public BattleManager<? extends Arena, SpleefPlayer, ? extends SpleefBattle>[] getBattleManagers() {
         return new BattleManager[]{ 
-            battleManagerNormalSpleef,
+            battleManagerClassicSpleef,
             battleManagerMultiSpleef,
             battleManagerTeamSpleef,
             battleManagerPowerSpleef

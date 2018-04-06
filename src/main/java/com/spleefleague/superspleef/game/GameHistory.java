@@ -5,7 +5,7 @@
  */
 package com.spleefleague.superspleef.game;
 
-import com.spleefleague.core.events.BattleEndEvent.EndReason;
+import com.spleefleague.gameapi.events.BattleEndEvent.EndReason;
 import com.spleefleague.entitybuilder.DBEntity;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;

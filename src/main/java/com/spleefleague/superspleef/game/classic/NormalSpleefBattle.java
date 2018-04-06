@@ -7,7 +7,7 @@
 package com.spleefleague.superspleef.game.classic;
 
 import com.spleefleague.core.chat.ChatManager;
-import static com.spleefleague.core.queue.Battle.calculateEloRatingChange;
+import static com.spleefleague.gameapi.queue.Battle.calculateEloRatingChange;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
@@ -27,12 +27,12 @@ public class NormalSpleefBattle extends SpleefBattle<NormalSpleefArena> {
 
     @Override
     protected void addToBattleManager() {
-        SuperSpleef.getInstance().getNormalSpleefBattleManager().add(this);
+        SuperSpleef.getInstance().getClassicSpleefBattleManager().add(this);
     }
 
     @Override
     protected void removeFromBattleManager() {
-        SuperSpleef.getInstance().getNormalSpleefBattleManager().remove(this);
+        SuperSpleef.getInstance().getClassicSpleefBattleManager().remove(this);
     }
     
     @Override

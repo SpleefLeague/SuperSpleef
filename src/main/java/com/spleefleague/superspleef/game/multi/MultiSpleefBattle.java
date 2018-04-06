@@ -6,7 +6,7 @@
 package com.spleefleague.superspleef.game.multi;
 
 import com.spleefleague.core.chat.ChatManager;
-import static com.spleefleague.core.queue.Battle.calculateEloRatingChange;
+import static com.spleefleague.gameapi.queue.Battle.calculateEloRatingChange;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;

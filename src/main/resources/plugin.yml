@@ -3,7 +3,7 @@ author: SpleefLeague
 authors: [Joba, Akaiyo, Manuman]
 main: com.spleefleague.superspleef.SuperSpleef
 version: 1.0
-depend: [SpleefLeagueCore, Commands]
+depend: [SpleefLeagueCore, Commands, GameAPI]
 loadbefore: [SuperJump]
 commands:    
     spleef:

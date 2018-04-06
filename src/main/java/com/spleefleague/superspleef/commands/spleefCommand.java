@@ -12,17 +12,16 @@ import com.spleefleague.annotations.Endpoint;
 import com.spleefleague.annotations.LiteralArg;
 import com.spleefleague.annotations.PlayerArg;
 import com.spleefleague.annotations.StringArg;
-import com.spleefleague.core.SpleefLeague;
 import com.spleefleague.commands.command.BasicCommand;
-import com.spleefleague.core.events.BattleStartEvent.StartReason;
-import com.spleefleague.core.player.PlayerManager;
+import com.spleefleague.gameapi.events.BattleStartEvent.StartReason;
+import com.spleefleague.core.player.DBPlayerManager;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
 import com.spleefleague.core.plugin.CorePlugin;
-import com.spleefleague.core.plugin.GamePlugin;
-import com.spleefleague.core.queue.BattleManager;
-import com.spleefleague.core.queue.Challenge;
+import com.spleefleague.gameapi.GamePlugin;
+import com.spleefleague.gameapi.queue.BattleManager;
+import com.spleefleague.gameapi.queue.Challenge;
 import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
@@ -147,7 +146,7 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
             }
             return;
         }
-        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        DBPlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
         List<SpleefPlayer> SpleefPlayers = Arrays.stream(players)
                 .map(pm::get)
                 .collect(Collectors.toList());
@@ -184,49 +183,41 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
             }
             return;
         }
-        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
-        SpleefPlayer sendersjp = pm.get(sender);
+        DBPlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        SpleefPlayer challenger = pm.get(sender);
         if (sender.getState() == PlayerState.INGAME) {
             error(sender, "You are currently ingame.");
             return;
         }
-        if (!arena.isAvailable(sendersjp)) {
+        if (!arena.isAvailable(challenger)) {
             error(sender, "You have not discovered this arena yet.");
         }
-        List<SLPlayer> challenged = new ArrayList<>();
+        List<SpleefPlayer> challenged = new ArrayList<>();
         for (Player player : players) {
-            SpleefPlayer sjp = pm.get(player);
-            SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(player);
-            if (sjp == sendersjp) {
+            SpleefPlayer sp = pm.get(player);
+            if (sp == challenger) {
                 error(sender, "You cannot challenge yourself.");
                 return;
             }
-            if (challenged.contains(slp)) {
-                error(sender, "You cannot challenge " + sjp.getName() + " more than once.");
+            if (challenged.contains(sp)) {
+                error(sender, "You cannot challenge " + sp.getName() + " more than once.");
                 return;
             }
-            if (slp.getState() == PlayerState.INGAME) {
+            if (GamePlugin.isIngameGlobal(player)) {
                 error(sender, player.getName() + " is currently ingame.");
                 return;
             }
-            if (!arena.isAvailable(sjp)) {
+            if (!arena.isAvailable(sp)) {
                 error(sender, player.getName() + " has not discovered this arena yet.");
             }
-            challenged.add(slp);
+            challenged.add(sp);
         }
-        Challenge challenge = new Challenge(sender, challenged.toArray(new SLPlayer[0])) {
+        Challenge<SpleefPlayer> challenge = new Challenge<SpleefPlayer>(challenger, challenged) {
             @Override
-            public void start(SLPlayer[] accepted) {
-                List<SpleefPlayer> players = new ArrayList<>();
-                for (SLPlayer slpt : accepted) {
-                    players.add(SuperSpleef.getInstance().getPlayerManager().get(slpt));
-                }
-                arena.startBattle(players, StartReason.CHALLENGE);
+            public void start(List<SpleefPlayer> accepted) {
+                arena.startBattle(accepted, StartReason.CHALLENGE);
             }
         };
-        challenged.forEach((slpt) -> {
-            slpt.addChallenge(challenge);
-        });
         challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), arena.getName(), Arrays.asList(players));
         success(sender, "The players have been challenged.");
     }

@@ -72,7 +72,21 @@
                 </executions>
             </plugin>
         </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.10</version>
+            </extension>
+        </extensions>
     </build>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spleefleague-maven</id>
+            <name>spleefleague-maven</name>
+            <url>https://maven.spleefleague.com</url>
+        </pluginRepository>
+    </pluginRepositories>
     <repositories>
         <repository>
             <id>spleefleague-maven</id>
@@ -142,4 +156,11 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>ssh-repository</id>
+            <name>ssh-repository</name>
+            <url>scpexe://maven.spleefleague.com/var/www/maven</url>
+        </repository>
+    </distributionManagement>
 </project>

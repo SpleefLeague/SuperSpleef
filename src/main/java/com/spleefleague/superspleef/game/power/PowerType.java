@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,25 +23,43 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public enum PowerType {
 
-    EMPTY_POWER("NO POWER", new String[]{
-        "No power selected"
+    EMPTY_POWER("No power", new String[]{
+        ChatColor.GOLD + "No power selected"
     }, Material.BARRIER, Power.emptyPower()),
-    INVISIBILITY("Invisibility", new String[]{
-        "Turn yourself invisible.",
-        "Cannot spleef while",
-        "invisible!"
+    
+    INVISIBILITY("Frost Cloak", new String[]{
+        ChatColor.GOLD + "You vanish from your opponent's sight,",
+        ChatColor.GOLD + "but you lose the ability to break blocks",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "20s",
+        ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "3.5s",
     }, Material.DIAMOND_AXE, 303, Invisibility.getSupplier()),
+    
     DASH("Dash", new String[]{
-        "No power selected"
+        ChatColor.GOLD + "Quickly dashes you forward",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "2s",
+        ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "3",
+        ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "10s"
     }, Material.DIAMOND_AXE, 301, Dash.getSupplier()),
-    NUKE("Nuke", new String[]{
-        "No power selected"
+    
+    NUKE("Melting Burst", new String[]{
+        ChatColor.GOLD + "Destroys the blocks surrounding you",
+        ChatColor.GOLD + "after a short delay. The blocks ",
+        ChatColor.GOLD + "regenerate right afterwards",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "30s",
+        ChatColor.AQUA + "Delay: " + ChatColor.GRAY + "2.5s"
     }, Material.DIAMOND_AXE, 304, Nuke.getSupplier()),
-    REGENERATE("Regenerate", new String[]{
-        "No power selected"
+    
+    REGENERATE("Regeneration", new String[]{
+        ChatColor.GOLD + "Regenerates the blocks around you",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "17.5s",
     }, Material.DIAMOND_AXE, 305, Regenerate.getSupplier()),
+    
     INTO_THE_SHADOWS("Into the Shadows", new String[]{
-        "No power selected"
+        ChatColor.GOLD + "Conceals you from your opponent",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "2s",
+        ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "1s",
+        ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "5",
+        ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "10s"
     }, Material.DIAMOND_AXE, 302, IntoTheShadows.getSupplier());
     
     private final String name;

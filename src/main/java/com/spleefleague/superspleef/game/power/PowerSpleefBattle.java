@@ -51,8 +51,12 @@ public class PowerSpleefBattle extends SpleefBattle<PowerSpleefArena> {
     @Override
     public void resetPlayer(SpleefPlayer sp) {
         super.resetPlayer(sp);
-        powers.get(sp).cleanupRound();
-        powers.get(sp).cleanup();
+        //Spectators don't have powers
+        Power power = powers.get(sp);
+        if(power != null) {
+            power.cleanupRound();
+            power.cleanup();
+        }
     }
     
     @Override

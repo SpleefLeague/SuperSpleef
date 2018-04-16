@@ -47,8 +47,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.bson.Document;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -653,8 +655,17 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     }
 
     protected void saveGameHistory(SpleefPlayer winner, EndReason reason) {
-        GameHistory gh = new GameHistory(this, winner, reason);
-        Bukkit.getScheduler().runTaskAsynchronously(SuperSpleef.getInstance(), () -> EntityBuilder.save(gh, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory")));
+        Bukkit.getScheduler().runTaskAsynchronously(SuperSpleef.getInstance(), () -> {
+            GameHistory gh = new GameHistory(this, winner, reason);
+            try {
+                EntityBuilder.save(gh, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory"));
+            } catch(Exception e) {
+                SuperSpleef.LOG.log(Level.WARNING, "Could not save GameHistory!");
+                Document doc = EntityBuilder.serialize(gh).get("$set", Document.class);
+                SuperSpleef.LOG.log(Level.WARNING, doc.toJson());
+                e.printStackTrace();
+            }
+        });
     }
 
     public PlayerData getData(SpleefPlayer sp) {

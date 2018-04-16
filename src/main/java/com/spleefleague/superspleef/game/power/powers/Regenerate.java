@@ -13,6 +13,7 @@ import com.spleefleague.virtualworld.api.FakeWorld;
 import java.util.function.Function;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 
 /**
  *
@@ -31,6 +32,7 @@ public class Regenerate extends CooldownPower {
         SpleefPlayer sp = getPlayer();
         PowerSpleefBattle battle = getBattle();
         FakeWorld fw = battle.getFakeWorld();
+        fw.playSound(sp.getLocation(), Sound.ENTITY_EVOCATION_ILLAGER_PREPARE_SUMMON, 1.0f, 2.0f);
         battle.getFieldBlocks()
                 .stream()
                 .filter(fb -> fb.getType() == Material.AIR)

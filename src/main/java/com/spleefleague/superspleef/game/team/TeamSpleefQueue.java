@@ -95,6 +95,24 @@ public class TeamSpleefQueue extends RatedGameQueue<TeamSpleefArena, SpleefPlaye
         return queuedArenas;
     }
     
+    public Map<TeamSpleefArena, Set<SpleefPlayer>> getArenaQueues() {
+        return queues
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey(),
+                        e -> e.getValue()
+                            .values()
+                            .stream()
+                            .flatMap(s -> s.stream())
+                            .collect(Collectors.toSet())
+                ));
+    }
+    
+    public Map<TeamSpleefArena, Map<Integer, Set<SpleefPlayer>>> getTeamQueues() {
+        return queues;
+    }
+    
     @Override
     protected Match nextMatch(boolean forceFullTeam) {
         if(!forceFullTeam) return null;

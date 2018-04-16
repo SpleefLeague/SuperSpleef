@@ -34,6 +34,8 @@ public class Nuke extends CooldownPower {
 
     private BukkitTask activeTask;
     private final int range = 5;
+    private final int explotionDelay = 50;
+    private final int regenDelay = 40;
     
     public Nuke(SpleefPlayer sp, int cooldown) {
         super(sp, PowerType.NUKE, cooldown);
@@ -43,13 +45,14 @@ public class Nuke extends CooldownPower {
     public void execute() {
         cleanupRound();
         FakeWorld fworld = getBattle().getFakeWorld();
+        fworld.playSound(getPlayer().getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.4f);
         activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), () -> {
             getTargetedBlocks()
                 .stream()
                 .map(fb -> fb.getLocation().clone().add(new Vector(0.5, 1, 0.5)))
                 .forEach(v -> fworld.spawnParticle(Particle.FLAME, v, 1, 0, 0, 0, 0));
         }, 0, 5);
-        Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> explode(), 50);
+        Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> explode(), explotionDelay);
     }
     
     @Override
@@ -91,7 +94,7 @@ public class Nuke extends CooldownPower {
         Collections.sort(blocks, (f1, f2) -> Double.compare(
                         f2.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation()), 
                         f1.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation())));
-        activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), getRegenRunnable(blocks), 40, 1);
+        activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), getRegenRunnable(blocks), regenDelay, 1);
     }
     
     private Runnable getRegenRunnable(Collection<FakeBlock> regenBlocks) {

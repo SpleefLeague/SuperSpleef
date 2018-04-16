@@ -38,13 +38,18 @@ import org.bukkit.inventory.meta.SkullMeta;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.dialogButton;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuComponentFlag;
 import com.spleefleague.core.utils.inventorymenu.dialog.InventoryMenuDialogFlag;
+import com.spleefleague.gameapi.GamePlugin;
 import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.game.team.TeamSpleefArena;
 import com.spleefleague.superspleef.game.team.TeamSpleefBattle;
 import com.spleefleague.superspleef.game.team.TeamSpleefQueue;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.bukkit.Color;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 /**
  *
@@ -61,14 +66,18 @@ public class SpleefMenu {
                 .component(2, () -> createClassicSpleefMenu().build())
                 .component(3, () -> createPowerSpleefMenu().build())
                 .component(5, () -> createTeamSpleefMenu().build())
-//                .component(6, createPowerSpleefMenu())
+                .component(6, () -> createMultiSpleefMenu().build())
                 .flags(InventoryMenuFlag.MENU_CONTROL);
                 
     }
     
     public static InventoryMenuTemplateBuilder createTeamSpleefMenu() {
+        ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
+        LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
+        meta.setColor(Color.BLUE);
+        helmet.setItemMeta(meta);
         return menu()
-                .displayIcon(Material.LEATHER_BOOTS)
+                .displayItem(helmet)
                 .displayName("Team spleef")
                 .component(createTeamSpleefArenaMenu())
                 .flags(InventoryMenuFlag.SKIP_SINGLE_SUBMENU);
@@ -78,7 +87,7 @@ public class SpleefMenu {
     public static InventoryMenuTemplateBuilder createClassicSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getClassicSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayIcon(Material.DIAMOND_HOE)
+                .displayIcon(Material.DIAMOND_SPADE)
                 .displayName("Classic Spleef")
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
@@ -92,7 +101,7 @@ public class SpleefMenu {
     public static InventoryMenuTemplateBuilder createPowerSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getPowerSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayIcon(Material.DIAMOND_PICKAXE)
+                .displayIcon(Material.GOLD_SPADE)
                 .displayName("Power Spleef")
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
@@ -109,13 +118,12 @@ public class SpleefMenu {
                 );
     }
     
-//    public static InventoryMenuTemplateBuilder createTeamSpleefMenu() {
-//        
-//    }
-//    
-//    public static InventoryMenuTemplateBuilder createMultiSpleefMenu() {
-//        
-//    }
+    public static InventoryMenuTemplateBuilder createMultiSpleefMenu() {
+        return createArenaMenu(SuperSpleef.getInstance().getMultiSpleefBattleManager().getGameQueue(), true)
+                .title("Arenas")
+                .displayIcon(Material.COOKIE)
+                .displayName("Multi Spleef");
+    }
     
     private static void performChallenge(MenuChallenge builder, SpleefMode mode) {
         Collection<SLPlayer> targets = Arrays.asList(builder.getTarget());
@@ -197,25 +205,29 @@ public class SpleefMenu {
     
     private static <A extends Arena> InventoryMenuTemplateBuilder createArenaMenu(GameQueue<A, SpleefPlayer> queue, boolean includeRandom) {
         InventoryMenuTemplateBuilder builder = menu();
-        for(A arena : queue.getRegisteredArenas()) {
-            InventoryMenuItemTemplateBuilder itemBuilder = item()
-                    .displayIcon(Material.MAP)
-                    .displayName(arena.getName())
-                    .onClick(e -> {
-                            SpleefPlayer sp = getSP(e.getPlayer());
-                            queue.queuePlayer(sp, arena);
-                            sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You have been added to the queue for: " + org.bukkit.ChatColor.GREEN + arena.getName());
-                            sp.closeInventory();
-                    });
-            int queueSize = Optional
-                    .ofNullable(queue.getQueues().get(arena))
-                    .map(s -> s.size())
-                    .orElse(0);
-            List<String> description = new ArrayList<>(arena.getDescription());
-            description.add(ChatColor.GRAY + "Players in queue: " + queueSize);
-            itemBuilder.description(x -> description);
-            builder.component(itemBuilder);
-        }
+        queue.getRegisteredArenas()
+                .stream()
+                .sorted((a1, a2) -> a1.getName().compareTo(a2.getName()))
+                .forEach(arena -> {
+                    InventoryMenuItemTemplateBuilder itemBuilder = item()
+                            .displayIcon(Material.MAP)
+                            .displayName(arena.getName())
+                            .onClick(e -> {
+                                    SpleefPlayer sp = getSP(e.getPlayer());
+                                    GamePlugin.dequeueGlobal(sp);
+                                    queue.queuePlayer(sp, arena);
+                                    sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You have been added to the queue for: " + org.bukkit.ChatColor.GREEN + arena.getName());
+                                    sp.closeInventory();
+                            });
+                    int queueSize = Optional
+                            .ofNullable(queue.getQueues().get(arena))
+                            .map(s -> s.size())
+                            .orElse(0);
+                    List<String> description = new ArrayList<>(arena.getDescription());
+                    description.add(ChatColor.GRAY + "Players in queue: " + queueSize);
+                    itemBuilder.description(x -> description);
+                    builder.component(itemBuilder);
+                });
         if(!includeRandom) {
             return builder;
         }
@@ -224,6 +236,7 @@ public class SpleefMenu {
                 .displayName("Random")
                 .onClick(e -> {
                         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(e.getPlayer());
+                        GamePlugin.dequeueGlobal(sp);
                         queue.queuePlayer(sp);
                         sp.sendMessage(SuperSpleef.getInstance().getChatPrefix() + ChatColor.GREEN + " You have been added to the queue.");
                         sp.closeInventory();
@@ -308,7 +321,7 @@ public class SpleefMenu {
                     .displayName(arena.getName())
                     .onClick(e -> e.getBuilder().setArena(arena));
             int queueSize = Optional
-                    .ofNullable(queue.getQueues().get(arena))
+                    .ofNullable(queue.getArenaQueues().get(arena))
                     .map(s -> s.size())
                     .orElse(0);
             List<String> description = new ArrayList<>(arena.getDescription());
@@ -322,7 +335,7 @@ public class SpleefMenu {
                 .displayIcon(Material.EMPTY_MAP)
                 .displayName("Random");
         int queueSize = Optional
-                .ofNullable(queue.getQueues().get(null))
+                .ofNullable(queue.getArenaQueues().get(null))
                 .map(s -> s.size())
                 .orElse(0);
         List<String> description = new ArrayList<>(Arrays.asList("Queue up for", "a random, rated", "Spleef match."));
@@ -334,6 +347,7 @@ public class SpleefMenu {
                 .builder(slp -> new TeamspleefQueueElement(getSP(slp)))
                 .flags(InventoryMenuDialogFlag.EXIT_ON_COMPLETE_DIALOG)
                 .onDone((slp, tqe) -> {
+                    GamePlugin.dequeueGlobal(slp);
                     if(tqe.getTeam() == null) {
                         queue.queuePlayer(tqe.getPlayer(), tqe.getArena());
                     }
@@ -346,13 +360,23 @@ public class SpleefMenu {
     private static InventoryMenuDialogHolderTemplateBuilder<TeamspleefQueueElement> generateTeamSelector(TeamSpleefArena arena) {
         InventoryMenuDialogHolderTemplateBuilder<TeamspleefQueueElement> teamHolder = dialogMenu();
         teamHolder.title("Teams");
+        Map<Integer, Set<SpleefPlayer>> teams = ((TeamSpleefQueue)SuperSpleef
+                .getInstance()
+                .getTeamSpleefBattleManager()
+                .getGameQueue())
+                .getTeamQueues()
+                .get(arena);
         for(int i = 0; i < arena.getTeamSizes().length; i++) {
             int teamId = i;
-            teamHolder.component(dialogButton(TeamspleefQueueElement.class)
+            InventoryMenuDialogButtonTemplateBuilder<TeamspleefQueueElement> button = dialogButton(TeamspleefQueueElement.class)
                     .displayItem(TeamSpleefBattle.teamBlocks[i])
                     .displayName(TeamSpleefBattle.names[i] + " team")
-                    .onClick(e -> e.getBuilder().setTeam(teamId))
-            );
+                    .onClick(e -> e.getBuilder().setTeam(teamId));
+            teams.get(i)
+                    .stream()
+                    .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+                    .forEach(p -> button.description(p.getName()));
+            teamHolder.component(button);
         }
         return teamHolder;
     }
@@ -363,26 +387,19 @@ public class SpleefMenu {
             InventoryMenuItemTemplateBuilder button = item();
             button
                     .displayItem(powerType.getItem())
-                    .description((slp) -> {
+                    .displayName((slp) -> {
                         SpleefPlayer sp = getSP(slp);
-                        List<String> description = powerType.getDescription();
+                        String name = powerType.getDisplayName();
                         if(sp.getPowerType() == powerType) {
-                            description.add(ChatColor.GREEN + "Enabled");
+                            return powerType.getDisplayName() + ChatColor.GREEN + " [Selected]";
                         }
-                        else {   
-                            description.add(ChatColor.RED + "Disabled");
-                        }
-                        return description;
+                        return powerType.getDisplayName();
                     })
+                    .description((slp) -> powerType.getDescription())
                     .visibilityController((slp) -> {
-//                            SpleefPlayer sp = playerManager.get(slp);
-//                            if(sp != null) {
-//                                return sp.getAvailablePowers().contains(powerType);
-//                            }
-//                            return false;
-                        return true;
+                        PowerType pt = getSP(slp).getPowerType();
+                        return powerType != PowerType.EMPTY_POWER || pt == PowerType.EMPTY_POWER;
                     })
-
                     .onClick((e) -> {
                         getSP(e.getPlayer()).setActivePower(powerType);
                         e.getItem().getParent().update();

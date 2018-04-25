@@ -12,7 +12,10 @@ import com.spleefleague.core.chat.Theme;
 import com.spleefleague.gameapi.events.BattleEndEvent;
 import com.spleefleague.gameapi.events.BattleEndEvent.EndReason;
 import com.spleefleague.core.player.SLPlayer;
+import com.spleefleague.gameapi.queue.Battle;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.GameHistory;
+import com.spleefleague.superspleef.game.GameHistoryPlayerData;
 import com.spleefleague.superspleef.game.RemoveReason;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -201,6 +204,14 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
     }
 
     private void end(Team winner, EndReason reason) {
+        SpleefPlayer winnerPlayer = playerTeams
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue() == winner)
+                .map(Entry::getKey)
+                .findAny()
+                .orElse(null);
+        saveGameHistory(winnerPlayer, reason);
         if (reason == EndReason.CANCEL) {
             ChatManager.sendMessage(
                     getSpleefMode().getChatPrefix(),
@@ -242,8 +253,29 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
                 ChatColor.GREEN + "Game in arena " + ChatColor.WHITE + getArena().getName() + ChatColor.GREEN +
                 " is over. " + wStr, SuperSpleef.getInstance().getEndMessageChannel()
         );
-
+        if(reason == EndReason.NORMAL) {
+            applyRatingChange(winner);
+        }
         cleanup();
+    }
+    
+    @Override
+    protected GameHistory modifyGameHistory(GameHistory history) {
+        Optional<Team> winner = Arrays
+                .stream(history.getPlayers())
+                .filter(ghpd -> ghpd.isWinner())
+                .map(ghpd -> ghpd.getPlayer())
+                .findAny()
+                .map(sp -> playerTeams.get(sp));
+        if(winner.isPresent()) {
+            Team team = winner.get();
+            for(GameHistoryPlayerData ghpd : history.getPlayers()) {
+                if(playerTeams.get(ghpd.getPlayer()) == team) {
+                    ghpd.setWinner(true);
+                }
+            }
+        }
+        return history;
     }
 
     @Override
@@ -403,7 +435,45 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
 
     @Override
     protected void applyRatingChange(SpleefPlayer winner) {
-        System.out.println("Not implemented yet!");
+        applyRatingChange(playerTeams.get(winner));
+    }
+    
+    protected void applyRatingChange(Team winner) {
+        double[] teamElo = new double[teams.length];
+        for (int i = 0; i < teams.length; i++) {
+            Team team = teams[i];
+            teamElo[i] = playerTeams.entrySet()
+                    .stream()
+                    .filter(e -> e.getValue() == team)
+                    .mapToInt(e -> e.getKey().getRating(this.getSpleefMode()))
+                    .average()
+                    .getAsDouble();
+        }
+        double[] teamRatingChanges = new double[teams.length];
+        for (int i = 0; i < teamElo.length; i++) {
+            for (int j = i + 1; j < teamElo.length; j++) {
+                double t1 = teamElo[i];
+                double t2 = teamElo[j];
+                int compare = Integer.compare(teams[j].points, teams[i].points);
+                double ratingChange = Battle.calculateEloRatingChange(t1, t2, compare);
+                teamRatingChanges[i] += ratingChange;
+                teamRatingChanges[j] += ratingChange;
+            }
+        }
+        for (int i = 0; i < teams.length; i++) {
+            teamRatingChanges[i] /= teamRatingChanges.length;
+            Team team = teams[i];
+            int ratingChange = (int)Math.ceil(teamRatingChanges[i]);
+            playerTeams
+                    .entrySet()
+                    .stream()
+                    .filter(e -> e.getValue() == team)
+                    .map(e -> e.getKey())
+                    .forEach(sp -> {
+                        sp.setRating(getSpleefMode(), sp.getRating(getSpleefMode()) + ratingChange);
+                        sp.sendMessage(getSpleefMode().getChatPrefix() + ChatColor.GREEN + " You got " + ChatColor.WHITE + ratingChange + " points.");
+                    });
+        }
     }
 
     private class Team {

@@ -55,7 +55,7 @@ public class EnvironmentListener implements Listener {
                     if(!arena.isDefaultArena()) {
                         String title = ChatColor.GREEN + "You have discovered " + ChatColor.RED + arena.getName() + ChatColor.GREEN + "!";
                         String subtitle = ChatColor.GRAY + String.valueOf(Arena.getAll().stream().filter(a -> a.isAvailable(sp)).count()) + "/" + String.valueOf(Arena.getAll().size()) + ChatColor.GOLD + " Spleef arenas found!";
-                        PlayerUtil.sendTitle(event.getPlayer(), title, subtitle, 10, 40, 10);
+                        PlayerUtil.title(event.getPlayer(), title, subtitle, 10, 40, 10);
                         event.getPlayer().playSound(event.getTo(), Sound.ENTITY_FIREWORK_BLAST, 1, 0);
                     }
                     break;

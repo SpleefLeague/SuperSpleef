@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -33,9 +34,10 @@ import org.bukkit.util.Vector;
 public class Nuke extends CooldownPower {
 
     private BukkitTask activeTask;
-    private final int range = 5;
-    private final int explotionDelay = 50;
-    private final int regenDelay = 40;
+    private final double outerRange = 5.5;
+    private final double innerRange = 1.5;
+    private final int explotionDelay = 30;
+    private final int regenDelay = 25;
     
     public Nuke(SpleefPlayer sp, int cooldown) {
         super(sp, PowerType.NUKE, cooldown);
@@ -43,7 +45,7 @@ public class Nuke extends CooldownPower {
 
     @Override
     public void execute() {
-        cleanupRound();
+        resetTask();
         FakeWorld fworld = getBattle().getFakeWorld();
         fworld.playSound(getPlayer().getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.4f);
         activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), () -> {
@@ -52,13 +54,20 @@ public class Nuke extends CooldownPower {
                 .map(fb -> fb.getLocation().clone().add(new Vector(0.5, 1, 0.5)))
                 .forEach(v -> fworld.spawnParticle(Particle.FLAME, v, 1, 0, 0, 0, 0));
         }, 0, 5);
+        this.showDuration("Fuse", explotionDelay);
         Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> explode(), explotionDelay);
     }
     
     @Override
     public void cleanupRound() {
+        super.cleanupRound();
+        resetTask();
+    }
+    
+    private void resetTask() {
         if(activeTask != null) {
             activeTask.cancel();
+            activeTask = null;
         }
     }
     
@@ -68,32 +77,36 @@ public class Nuke extends CooldownPower {
                 .stream()
                 .filter(fb -> fb.getType() == Material.SNOW_BLOCK)
                 .filter(fb -> {
-                    int bx = sp.getLocation().getBlockX();
-                    int bz = sp.getLocation().getBlockZ();
-                    return fb.getX() != bx || fb.getZ() != bz;
+                        Location fbl = fb.getLocation().clone();
+                        fbl.setY(0);
+                        Location spl = sp.getLocation().getBlock().getLocation();
+                        spl.setY(0);
+                        //Horizontal distance
+                        double distance = fbl.distanceSquared(spl);
+                        return distance <= outerRange * outerRange && distance >= innerRange * innerRange;
                 })
-                .filter(fb -> fb
-                        .getLocation()
-                        .clone()
-                        .distanceSquared(sp.getLocation().getBlock().getLocation()) <= range * range)
                 .collect(Collectors.toList());
     }
     
     private void explode() {
         if(activeTask != null) {
-            activeTask.cancel();
+            resetTask();
+        }
+        else {
+            //Flame task was cancelled, no more explotion pls
+            return;
         }
         SpleefPlayer sp = getPlayer();
         SpleefBattle battle = getBattle();
         List<FakeBlock> blocks = getTargetedBlocks();
         blocks.forEach(fb -> fb.setType(Material.AIR));
         FakeWorld fworld = battle.getFakeWorld();
-        fworld.spawnParticle(Particle.EXPLOSION_LARGE, sp.getLocation(), 10, range / 2, range / 2, range / 2);
+        fworld.spawnParticle(Particle.EXPLOSION_LARGE, sp.getLocation(), 10, outerRange / 2, outerRange / 2, outerRange / 2);
         fworld.playSound(sp.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
         Collections.shuffle(blocks);
         Collections.sort(blocks, (f1, f2) -> Double.compare(
-                        f2.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation()), 
-                        f1.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation())));
+                        f1.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation()), 
+                        f2.getLocation().distanceSquared(sp.getLocation().getBlock().getLocation())));
         activeTask = Bukkit.getScheduler().runTaskTimer(SuperSpleef.getInstance(), getRegenRunnable(blocks), regenDelay, 1);
     }
     

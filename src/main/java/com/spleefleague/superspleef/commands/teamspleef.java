@@ -7,6 +7,7 @@ package com.spleefleague.superspleef.commands;
 
 import com.spleefleague.core.plugin.CorePlugin;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.SpleefMode;
 import com.spleefleague.superspleef.game.team.TeamSpleefArena;
 
 /**
@@ -16,6 +17,6 @@ import com.spleefleague.superspleef.game.team.TeamSpleefArena;
 public class teamspleef extends spleefCommand<TeamSpleefArena> {
     
     public teamspleef(CorePlugin plugin, String name, String usage) {
-        super(plugin, name, usage, arena -> TeamSpleefArena.byName(arena), SuperSpleef.getInstance().getTeamSpleefBattleManager());
+        super(plugin, SpleefMode.TEAM.getChatPrefix(), name, usage, arena -> TeamSpleefArena.byName(arena), SuperSpleef.getInstance().getTeamSpleefBattleManager());
     }
 }

@@ -5,6 +5,7 @@ import com.spleefleague.superspleef.game.power.powers.Invisibility;
 import com.spleefleague.superspleef.game.power.powers.Dash;
 import com.spleefleague.superspleef.game.power.powers.Nuke;
 import com.spleefleague.superspleef.game.power.powers.Regenerate;
+import com.spleefleague.superspleef.game.power.powers.SpeedBoost;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,16 +30,16 @@ public enum PowerType {
     
     INVISIBILITY("Frost Cloak", new String[]{
         ChatColor.GOLD + "You vanish from your opponent's sight,",
-        ChatColor.GOLD + "but you lose the ability to break blocks",
+        ChatColor.GOLD + "you become visible if you break a block",
         ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "20s",
-        ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "3.5s",
+        ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "5s",
     }, Material.DIAMOND_AXE, 303, Invisibility.getSupplier()),
     
     DASH("Dash", new String[]{
         ChatColor.GOLD + "Quickly dashes you forward",
         ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "2s",
         ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "3",
-        ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "10s"
+        ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "20s"
     }, Material.DIAMOND_AXE, 301, Dash.getSupplier()),
     
     NUKE("Melting Burst", new String[]{
@@ -46,7 +47,7 @@ public enum PowerType {
         ChatColor.GOLD + "after a short delay. The blocks ",
         ChatColor.GOLD + "regenerate right afterwards",
         ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "30s",
-        ChatColor.AQUA + "Delay: " + ChatColor.GRAY + "2.5s"
+        ChatColor.AQUA + "Delay: " + ChatColor.GRAY + "1.5s"
     }, Material.DIAMOND_AXE, 304, Nuke.getSupplier()),
     
     REGENERATE("Regeneration", new String[]{
@@ -54,12 +55,20 @@ public enum PowerType {
         ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "17.5s",
     }, Material.DIAMOND_AXE, 305, Regenerate.getSupplier()),
     
+    SPEED_BOOST("Speedboost", new String[]{
+        ChatColor.GOLD + "Gives you a speedboost. Activate",
+        ChatColor.GOLD + "again to increase the speed, and",
+        ChatColor.GOLD + "shorten its duration",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "17.5s",
+        ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "10s",
+    }, Material.DIAMOND_AXE, 306, SpeedBoost.getSupplier()),
+    
     INTO_THE_SHADOWS("Into the Shadows", new String[]{
         ChatColor.GOLD + "Conceals you from your opponent",
         ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "2s",
         ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "1s",
-        ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "5",
-        ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "10s"
+        ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "3",
+        ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "20s"
     }, Material.DIAMOND_AXE, 302, IntoTheShadows.getSupplier());
     
     private final String name;

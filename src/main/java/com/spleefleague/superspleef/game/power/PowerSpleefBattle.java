@@ -8,6 +8,8 @@ package com.spleefleague.superspleef.game.power;
 import com.spleefleague.core.chat.ChatManager;
 import static com.spleefleague.gameapi.queue.Battle.calculateEloRatingChange;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.GameHistory;
+import com.spleefleague.superspleef.game.GameHistoryPlayerData;
 import com.spleefleague.superspleef.game.RemoveReason;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.SpleefMode;
@@ -60,6 +62,12 @@ public class PowerSpleefBattle extends SpleefBattle<PowerSpleefArena> {
     }
     
     @Override
+    public void startRound() {
+        super.startRound();
+        powers.values().forEach(Power::cleanupRound);
+    }
+    
+    @Override
     public void removePlayer(SpleefPlayer sp, RemoveReason reason) {
         super.removePlayer(sp, reason);
         powers.remove(sp);
@@ -69,6 +77,15 @@ public class PowerSpleefBattle extends SpleefBattle<PowerSpleefArena> {
     public void onRoundStart() {
         super.onRoundStart();
         powers.values().forEach(Power::initRound);
+    }
+    
+    @Override
+    protected GameHistory modifyGameHistory(GameHistory history) {
+        for(GameHistoryPlayerData ghpd : history.getPlayers()) {
+            SpleefPlayer sp = ghpd.getPlayer();
+            ghpd.getMetadata().put("power", powers.get(sp).getPowerType().name());
+        }
+       return history;
     }
     
     @Override

@@ -11,38 +11,29 @@ import com.spleefleague.superspleef.game.power.CooldownPower;
 import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.api.FakeWorld;
-import java.util.HashMap;
-import java.util.Map;
+import com.spleefleague.virtualworld.event.FakeBlockBreakEvent;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_12_R1.ChatMessage;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagList;
-import net.minecraft.server.v1_12_R1.PacketPlayOutTitle.EnumTitleAction;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
  *
  * @author jonas
  */
-public class Invisibility extends CooldownPower {
+public class Invisibility extends CooldownPower implements Listener {
 
     private final int duration;
-    private final Map<ItemStack, NBTTagList> oldCanDestroy;
     private BukkitTask activeTask;
     
     private Invisibility(SpleefPlayer sp, int cooldown, int duration) {
         super(sp, PowerType.INVISIBILITY, cooldown);
         this.duration = duration;
-        this.oldCanDestroy = new HashMap<>();
     }
 
     @Override
@@ -53,8 +44,7 @@ public class Invisibility extends CooldownPower {
         SpleefPlayer player = getPlayer();
         FakeWorld fw = getBattle().getFakeWorld();
         fw.playSound(player.getLocation(), Sound.ENTITY_ILLUSION_ILLAGER_CAST_SPELL, 1.0f, 0.5f);
-        IChatBaseComponent chatBase = new ChatMessage(ChatColor.ITALIC + "" + ChatColor.GOLD + "Invisible");
-        PlayerUtil.title(player, EnumTitleAction.ACTIONBAR, chatBase, 0, duration, 0);
+        this.showDuration("Invisible", duration);
         Stream.of(
                 getBattle().getActivePlayers().stream(), 
                 getBattle().getSpectators().stream())
@@ -63,53 +53,42 @@ public class Invisibility extends CooldownPower {
                 .forEach(sp -> {
                     sp.hidePlayer(player.getPlayer());
                 });
-        setItemsEnabled(player, false);
+        Bukkit.getPluginManager().registerEvents(this, SuperSpleef.getInstance());
         activeTask = Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
-            cleanupRound();
+            resetTask();
         }, duration);
     }
 
     @Override
     public void cleanupRound() {
+        super.cleanupRound();
+        resetTask();
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onFakeBreak(FakeBlockBreakEvent event) {
+        resetTask();
+    }
+    
+    private void resetTask() {
         if(activeTask != null) {
             activeTask.cancel();
             activeTask = null;
-            getBattle().setVisibility(getPlayer());
-            setItemsEnabled(getPlayer(), true);
-            PlayerUtil.title(getPlayer(), EnumTitleAction.ACTIONBAR, new ChatMessage(""), 0, 0, 0);
-            PlayerUtil.title(getPlayer(), EnumTitleAction.CLEAR, new ChatMessage(""), 0, 0, 0);
-            PlayerUtil.title(getPlayer(), EnumTitleAction.RESET, new ChatMessage(""), 0, 0, 0);
-        }
-        oldCanDestroy.clear();
-    }
-    
-    private void setItemsEnabled(SpleefPlayer sp, boolean enabled) {
-        Inventory inventory = sp.getInventory();
-        for (int i = 0; i < inventory.getSize(); i++) {
-            ItemStack item = inventory.getItem(i);
-            if(item == null || item.getType() == Material.AIR) continue;
-            net.minecraft.server.v1_12_R1.ItemStack stack = CraftItemStack.asNMSCopy(item);
-            NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
-            if(enabled) {
-                if(!oldCanDestroy.containsKey(item)) continue;
-                tag.set("CanDestroy", oldCanDestroy.get(item));
-                oldCanDestroy.remove(item);
-                item = CraftItemStack.asBukkitCopy(stack);
-                sp.setCooldown(item.getType(), 0);
-            }
-            else {
-                if(!tag.hasKey("CanDestroy")) continue;
-                NBTTagList current = (NBTTagList)tag.get("CanDestroy");
-                tag.remove("CanDestroy");
-                item = CraftItemStack.asBukkitCopy(stack);
-                sp.setCooldown(item.getType(), duration);
-                oldCanDestroy.put(item, current);
-            }
-            inventory.setItem(i, item);
+            FakeBlockBreakEvent.getHandlerList().unregister(this);
+            Stream.of(
+                    getBattle().getActivePlayers().stream(), 
+                    getBattle().getSpectators().stream())
+                    .flatMap(Function.identity())
+                    .filter(sp -> sp != getPlayer())
+                    .forEach(sp -> {
+                        sp.showPlayer(getPlayer().getPlayer());
+                    });
+            cancelDuration();
+            PlayerUtil.actionbar(getPlayer(), new ChatMessage(""));
         }
     }
     
     public static Function<SpleefPlayer, Invisibility> getSupplier() {
-        return sp -> new Invisibility(sp, 400, 70);
+        return sp -> new Invisibility(sp, 400, 100);
     }
 }

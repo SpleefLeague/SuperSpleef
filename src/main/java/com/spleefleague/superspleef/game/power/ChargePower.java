@@ -49,6 +49,17 @@ public abstract class ChargePower extends Power {
     }
     
     @Override
+    public void cleanupRound() {
+        super.cleanupRound();
+        refilling.remove(this);
+        charges = maxCharges;
+        currentChargeRefillProgess = 0;
+        currentCooldown = 0;
+        getPlayer().setExp(1);
+        getPlayer().setLevel(charges);
+    }
+    
+    @Override
     public boolean tryExecute() {
         if(currentCooldown > 0) {
             return false;

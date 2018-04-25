@@ -266,7 +266,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
             sj.add(mode.getChatPrefix() + ChatColor.GRAY + " Rating: " + ChatColor.YELLOW + rating + ChatColor.GRAY + " (" + ChatColor.GOLD + "#" + rank + ChatColor.GRAY + ")");
         }
         if(print) {
-            target.sendMessage(sj.toString());
+            p.sendMessage(sj.toString());
         }
     }
 
@@ -351,46 +351,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
 //                        }
 //                    }));
 //        });
-//        InventoryMenuTemplateBuilder shovelMenu = menu()
-//                .displayName("Shovels")
-//                .displayIcon(Material.GOLD_SPADE)
-//                .staticComponent(4, 5, item()
-//                        .displayItem((slp) -> {
-//                            SpleefPlayer sp = playerManager.get(slp);
-//                            return sp.getActiveShovel().toItemStack();
-//                        })
-//                );
-//                
-//        InventoryMenuTemplateBuilder powerMenu = menu()
-//                .displayName("Powers")
-//                .displayIcon(Material.BOOK)
-//                .visibilityController((slp) -> SpleefLeague.getInstance().getServerType() == ServerType.TEST);
-//        Shovel.getAll()
-//                .stream()
-//                .sorted((s1, s2) -> Short.compare(s1.getDamage(), s2.getDamage()))
-//                .forEach((shovel) -> {
-//                    shovelMenu.component(item()
-//                            .displayItem((slp) -> {
-//                                SpleefPlayer sp = playerManager.get(slp);
-//                                if(shovel.isIsDefault() || sp.getAvailableShovels().contains(shovel)) {
-//                                    return shovel.toItemStack();
-//                                }
-//                                ItemStack lock = new ItemStack(Material.DIAMOND_AXE, 1, (short)12);
-//                                ItemMeta meta = lock.getItemMeta();
-//                                meta.setDisplayName(ChatColor.GRAY + "" + ChatColor.ITALIC + "Locked");
-//                                lock.setItemMeta(meta);
-//                                return lock;
-//                            })
-//                            .onClick((event) -> {
-//                                SpleefPlayer sp = playerManager.get(event.getPlayer());
-//                                if(!shovel.isIsDefault() && !sp.getAvailableShovels().contains(shovel)) {
-//                                    return;
-//                                }
-//                                sp.setActiveShovel(shovel);
-//                                event.getItem().getParent().update();
-//                            })
-//                    );
-//                });
+
 //        for(PowerType powerType : PowerType.values()) {
 //            powerMenu.component(item()
 //                    .displayItem(powerType.getItem())

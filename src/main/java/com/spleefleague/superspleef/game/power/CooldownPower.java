@@ -29,10 +29,13 @@ public abstract class CooldownPower extends Power {
     @Override
     public void initRound() {
         super.initRound();
-        onCooldown.remove(this);
-        currentCooldown = 0;
-        getPlayer().setLevel(0);
-        getPlayer().setExp(1);
+        unsetCooldown();
+    }
+    
+    @Override
+    public void cleanupRound() {
+        super.cleanupRound();
+        unsetCooldown();
     }
     
     @Override
@@ -53,6 +56,13 @@ public abstract class CooldownPower extends Power {
         onCooldown.remove(this);
         getPlayer().setExp(0);
         getPlayer().setLevel(0);
+    }
+    
+    protected void unsetCooldown() {
+        onCooldown.remove(this);
+        currentCooldown = 0;
+        getPlayer().setLevel(0);
+        getPlayer().setExp(1);
     }
     
     public abstract void execute();

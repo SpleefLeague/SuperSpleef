@@ -9,10 +9,9 @@ import com.spleefleague.gameapi.events.BattleEndEvent.EndReason;
 import com.spleefleague.entitybuilder.DBEntity;
 import com.spleefleague.entitybuilder.DBSave;
 import com.spleefleague.entitybuilder.DBSaveable;
-import com.spleefleague.entitybuilder.TypeConverter;
-import java.util.Collection;
+import com.spleefleague.superspleef.game.GameHistoryPlayerData.GameHistoryPlayerDataTypeConverter;
+import com.spleefleague.superspleef.game.SpleefBattle.PlayerData;
 import java.util.Date;
-import java.util.UUID;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
 /**
@@ -21,8 +20,8 @@ import com.spleefleague.superspleef.player.SpleefPlayer;
  */
 public class GameHistory extends DBEntity implements DBSaveable {
 
-    @DBSave(fieldName = "players")
-    private final PlayerData[] players;
+    @DBSave(fieldName = "players", typeConverter = GameHistoryPlayerDataTypeConverter.class)
+    private final GameHistoryPlayerData[] players;
     @DBSave(fieldName = "date")
     private final Date startDate;
     @DBSave(fieldName = "duration")
@@ -36,11 +35,11 @@ public class GameHistory extends DBEntity implements DBSaveable {
 
     protected GameHistory(SpleefBattle<?> battle, SpleefPlayer winner, EndReason endReason) {
         this.endReason = endReason;
-        players = new PlayerData[battle.getPlayers().size()];
-        Collection<SpleefPlayer> activePlayers = battle.getActivePlayers();
+        players = new GameHistoryPlayerData[battle.getPlayers().size()];
         int i = 0;
         for (SpleefPlayer sp : battle.getPlayers()) {
-            players[i++] = new PlayerData(sp.getUniqueId(), battle.getData(sp).getPoints(), sp == winner, !activePlayers.contains(sp));
+            PlayerData playerData = battle.getData(sp);
+            players[i++] = new GameHistoryPlayerData(sp, battle.getData(sp).getPoints(), sp == winner, playerData.getRemoveReason());
         }
         this.duration = battle.getDuration();
         startDate = new Date(System.currentTimeMillis() - this.duration * 50);
@@ -48,22 +47,29 @@ public class GameHistory extends DBEntity implements DBSaveable {
         this.spleefMode = battle.getArena().getSpleefMode();
     }
 
-    public static class PlayerData extends DBEntity implements DBSaveable {
-
-        @DBSave(fieldName = "uuid", typeConverter = TypeConverter.UUIDStringConverter.class)
-        private final UUID uuid;
-        @DBSave(fieldName = "points")
-        private final int points;
-        @DBSave(fieldName = "winner")
-        private final Boolean winner;
-        @DBSave(fieldName = "surrendered")
-        private final Boolean surrendered;
-
-        public PlayerData(UUID uuid, int points, boolean winner, boolean surrendered) {
-            this.uuid = uuid;
-            this.points = points;
-            this.winner = winner;
-            this.surrendered = surrendered;
-        }
+    public GameHistoryPlayerData[] getPlayers() {
+        return players;
     }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public EndReason getEndReason() {
+        return endReason;
+    }
+
+    public SpleefMode getSpleefMode() {
+        return spleefMode;
+    }
+
+    public String getArena() {
+        return arena;
+    }
+    
+    
 }

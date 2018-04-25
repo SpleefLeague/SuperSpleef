@@ -115,10 +115,11 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
                 pl.sendMessage(spleefMode.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");
             }
         }
+        getData(sp).setRemoveReason(reason);
         resetPlayer(sp);
         List<SpleefPlayer> activePlayers = getActivePlayers();
         if (activePlayers.size() == 1) {
-            end(activePlayers.get(0), EndReason.valueOf(reason.name()));
+            end(activePlayers.get(0), EndReason.NORMAL);
         }
     }
     
@@ -463,7 +464,6 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     }
 
     public void cleanup() {
-        players.clear();
         clock.cancel();
         resetField();
         arena.registerGameEnd();
@@ -654,18 +654,22 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         return inCountdown;
     }
 
-    protected void saveGameHistory(SpleefPlayer winner, EndReason reason) {
+    protected final void saveGameHistory(SpleefPlayer winner, EndReason reason) {
+        GameHistory history = modifyGameHistory(new GameHistory(this, winner, reason));
         Bukkit.getScheduler().runTaskAsynchronously(SuperSpleef.getInstance(), () -> {
-            GameHistory gh = new GameHistory(this, winner, reason);
             try {
-                EntityBuilder.save(gh, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory"));
+                EntityBuilder.save(history, SuperSpleef.getInstance().getPluginDB().getCollection("GameHistory"));
             } catch(Exception e) {
                 SuperSpleef.LOG.log(Level.WARNING, "Could not save GameHistory!");
-                Document doc = EntityBuilder.serialize(gh).get("$set", Document.class);
+                Document doc = EntityBuilder.serialize(history).get("$set", Document.class);
                 SuperSpleef.LOG.log(Level.WARNING, doc.toJson());
                 e.printStackTrace();
             }
         });
+    }
+    
+    protected GameHistory modifyGameHistory(GameHistory gameHistory) {
+        return gameHistory;
     }
 
     public PlayerData getData(SpleefPlayer sp) {
@@ -719,6 +723,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         private final GameMode oldGamemode;
         private final ItemStack[] oldInventory;
         private final ItemStack[] oldArmor;
+        private RemoveReason removeReason;
 
         public PlayerData(SpleefPlayer sp, Location spawn) {
             this.sp = sp;
@@ -728,6 +733,14 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             oldGamemode = p.getGameMode();
             oldInventory = p.getInventory().getContents();
             oldArmor = p.getInventory().getArmorContents();
+        }
+
+        public RemoveReason getRemoveReason() {
+            return removeReason;
+        }
+
+        public void setRemoveReason(RemoveReason removeReason) {
+            this.removeReason = removeReason;
         }
         
         public void markAsLeft() {

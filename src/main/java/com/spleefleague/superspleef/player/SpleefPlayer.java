@@ -148,7 +148,7 @@ public class SpleefPlayer extends RatedPlayer<SpleefMode> {
     private List<Document> saveVisitedArenas() {
         List<Document> arenaNames = new ArrayList<>();
         for (Arena arena : visitedArenas) {
-            arenaNames.add(new Document("name", arena.getName()).append("type", arena.getSpleefMode().name()));
+            arenaNames.add(new Document("name", arena.getName()).append("mode", arena.getSpleefMode().name()));
         }
         return arenaNames;
     }
@@ -157,7 +157,7 @@ public class SpleefPlayer extends RatedPlayer<SpleefMode> {
     private void loadVisitedArenas(List<Document> arenas) {
         for (Document arenaDoc : arenas) {
             try {
-                SpleefMode mode = SpleefMode.valueOf(arenaDoc.get("type", String.class));
+                SpleefMode mode = SpleefMode.valueOf(arenaDoc.get("mode", String.class));
                 Arena arena = Arena.byName(arenaDoc.get("name", String.class), mode);
                 if (arena != null) {
                     visitedArenas.add(arena);

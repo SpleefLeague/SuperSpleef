@@ -45,8 +45,8 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
     private final Function<String, A> getByName;
     private final BattleManager<A, SpleefPlayer, ? extends SpleefBattle> battleManager;
     
-    protected spleefCommand(CorePlugin plugin, String name, String usage, Function<String, A> getByName, BattleManager<A, SpleefPlayer, ? extends SpleefBattle> battleManager) {
-        super(SuperSpleef.getInstance(), new spleefCommandDispatcher(), name, usage);
+    protected spleefCommand(CorePlugin plugin, String prefix, String name, String usage, Function<String, A> getByName, BattleManager<A, SpleefPlayer, ? extends SpleefBattle> battleManager) {
+        super(SuperSpleef.getInstance(), prefix, new spleefCommandDispatcher(), name, usage);
         this.getByName = getByName;
         this.battleManager = battleManager;
     }
@@ -218,7 +218,7 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
                 arena.startBattle(accepted, StartReason.CHALLENGE);
             }
         };
-        challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), arena.getName(), Arrays.asList(players));
+        challenge.sendMessages(arena.getSpleefMode().getChatPrefix(), arena.getName(), Arrays.asList(players));
         success(sender, "The players have been challenged.");
     }
 

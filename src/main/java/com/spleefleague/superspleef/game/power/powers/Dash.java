@@ -52,6 +52,6 @@ public class Dash extends ChargePower {
     }
     
     public static Function<SpleefPlayer, Dash> getSupplier() {
-        return sp -> new Dash(sp, 40, 3, 200);
+        return sp -> new Dash(sp, 40, 3, 400);
     }
 }

@@ -13,8 +13,6 @@ import com.spleefleague.gameapi.queue.Challenge;
 import com.spleefleague.gameapi.queue.GameQueue;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.dialog;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.dialogMenu;
-import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
-import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuComponentAlignment;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuFlag;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuItemTemplateBuilder;
@@ -36,9 +34,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.dialogButton;
+import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.item;
+import static com.spleefleague.core.utils.inventorymenu.InventoryMenuAPI.menu;
 import com.spleefleague.core.utils.inventorymenu.InventoryMenuComponentFlag;
 import com.spleefleague.core.utils.inventorymenu.dialog.InventoryMenuDialogFlag;
 import com.spleefleague.gameapi.GamePlugin;
+import com.spleefleague.superspleef.cosmetics.Shovel;
 import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.game.team.TeamSpleefArena;
 import com.spleefleague.superspleef.game.team.TeamSpleefBattle;
@@ -49,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bukkit.Color;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 /**
@@ -67,12 +69,13 @@ public class SpleefMenu {
                 .component(3, () -> createPowerSpleefMenu().build())
                 .component(5, () -> createTeamSpleefMenu().build())
                 .component(6, () -> createMultiSpleefMenu().build())
+                .component(8, () -> createShovelMenu().build())
                 .flags(InventoryMenuFlag.MENU_CONTROL);
                 
     }
     
     public static InventoryMenuTemplateBuilder createTeamSpleefMenu() {
-        ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
+        ItemStack helmet = new ItemStack(Material.LEATHER_HELMET, 1/*, (short)55*/);
         LeatherArmorMeta meta = (LeatherArmorMeta) helmet.getItemMeta();
         meta.setColor(Color.BLUE);
         helmet.setItemMeta(meta);
@@ -87,12 +90,12 @@ public class SpleefMenu {
     public static InventoryMenuTemplateBuilder createClassicSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getClassicSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayIcon(Material.DIAMOND_SPADE)
+                .displayItem(new ItemStack(Material.DIAMOND_SPADE, 1/*, (short)1561*/))
                 .displayName("Classic Spleef")
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
                         createChallengeDialog(createArenaChallengeDialog(SpleefMode.CLASSIC, true), SpleefMode.CLASSIC)
-                    .displayIcon(Material.GOLD_SPADE)
+                    .displayItem(new ItemStack(Material.GOLD_HOE, 1, (short)32))
                     .displayName("Challenge")
                     .onDone((slp, builder) -> performChallenge(builder, SpleefMode.CLASSIC))
                 );
@@ -101,27 +104,38 @@ public class SpleefMenu {
     public static InventoryMenuTemplateBuilder createPowerSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getPowerSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayIcon(Material.GOLD_SPADE)
+                .displayItem(new ItemStack(Material.GOLD_SPADE, 1/*, (short)32*/))
                 .displayName("Power Spleef")
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
                         createChallengeDialog(createArenaChallengeDialog(SpleefMode.POWER, true), SpleefMode.POWER)
-                    .displayIcon(Material.GOLD_SPADE)
-                    .displayName("Challenge")
-                    .onDone((slp, builder) -> performChallenge(builder, SpleefMode.POWER))
+                                .displayItem(new ItemStack(Material.GOLD_HOE, 1, (short)32))
+                                .displayName("Challenge")
+                                .unsetFlags(InventoryMenuComponentFlag.EXIT_ON_NO_PERMISSION)
+                                .accessController(slp -> getSP(slp).getPowerType() != PowerType.EMPTY_POWER)
+                                .description(slp -> {
+                                    if(getSP(slp).getPowerType() == PowerType.EMPTY_POWER) {
+                                        return Arrays.asList(ChatColor.RED + "Please select a power first");
+                                    }
+                                    else {
+                                        return new ArrayList<>();
+                                    }
+                                })
+                                .onDone((slp, builder) -> performChallenge(builder, SpleefMode.POWER))
                 )
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
                         createPowerSelectMenu()
-                            .displayIcon(Material.GOLD_HOE)
+                            .displayItem(slp -> getSP(slp).getPowerType().getItem())
                             .displayName("Powers")
+                            .description(slp -> Collections.emptyList())
                 );
     }
     
     public static InventoryMenuTemplateBuilder createMultiSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getMultiSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayIcon(Material.COOKIE)
+                .displayItem(new ItemStack(Material.SHEARS, 1/*, (short)238*/))
                 .displayName("Multi Spleef");
     }
     
@@ -157,7 +171,7 @@ public class SpleefMenu {
                 arena.startBattle(players, BattleStartEvent.StartReason.CHALLENGE);
             }
         };
-        challenge.sendMessages(SuperSpleef.getInstance().getChatPrefix(), builder.getArena() == null ? null : builder.getArena().getName(), targets);
+        challenge.sendMessages(mode.getChatPrefix(), builder.getArena() == null ? "a random arena" : builder.getArena().getName(), targets);
     }
     
     private static InventoryMenuDialogTemplateBuilder<MenuChallenge> createChallengeDialog(InventoryMenuDialogHolderTemplateBuilder<MenuChallenge> arenaSelector, SpleefMode mode) {
@@ -407,6 +421,49 @@ public class SpleefMenu {
             powerDialog.component(button);
         }
         return powerDialog;
+    }
+    
+    private static InventoryMenuTemplateBuilder createShovelMenu() {
+        InventoryMenuTemplateBuilder shovelMenu = menu()
+        .displayName("Shovels")
+        .displayItem((slp) -> {
+            SpleefPlayer sp = getSP(slp);
+            return sp.getActiveShovel().toItemStack();
+        })
+        .staticComponent(4, 5, item()
+                .displayItem((slp) -> {
+                    SpleefPlayer sp = getSP(slp);
+                    return sp.getActiveShovel().toItemStack();
+                })
+        );
+
+        Shovel.getAll()
+                .stream()
+                .sorted((s1, s2) -> Short.compare(s1.getDamage(), s2.getDamage()))
+                .forEach((shovel) -> {
+                    shovelMenu.component(item()
+                            .displayItem((slp) -> {
+                                SpleefPlayer sp = getSP(slp);
+                                if(shovel.isIsDefault() || sp.getAvailableShovels().contains(shovel)) {
+                                    return shovel.toItemStack();
+                                }
+                                ItemStack lock = new ItemStack(Material.DIAMOND_AXE, 1, (short)12);
+                                ItemMeta meta = lock.getItemMeta();
+                                meta.setDisplayName(org.bukkit.ChatColor.GRAY + "" + org.bukkit.ChatColor.ITALIC + "Locked");
+                                lock.setItemMeta(meta);
+                                return lock;
+                            })
+                            .onClick((event) -> {
+                                SpleefPlayer sp = getSP(event.getPlayer());
+                                if(!shovel.isIsDefault() && !sp.getAvailableShovels().contains(shovel)) {
+                                    return;
+                                }
+                                sp.setActiveShovel(shovel);
+                                event.getItem().getParent().update();
+                            })
+                    );
+                });
+        return shovelMenu;
     }
     
     private static SpleefPlayer getSP(Player p) {

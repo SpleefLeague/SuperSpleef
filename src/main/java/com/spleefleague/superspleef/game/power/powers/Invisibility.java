@@ -67,7 +67,9 @@ public class Invisibility extends CooldownPower implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFakeBreak(FakeBlockBreakEvent event) {
-        resetTask();
+        if(event.getPlayer().getUniqueId().equals(getPlayer().getUniqueId())) {
+            resetTask();
+        }
     }
     
     private void resetTask() {

@@ -81,6 +81,6 @@ public class IntoTheShadows extends ChargePower {
     }
     
     public static Function<SpleefPlayer, IntoTheShadows> getSupplier() {
-        return sp -> new IntoTheShadows(sp, 40, 3, 400, 20);
+        return sp -> new IntoTheShadows(sp, 30, 3, 400, 20);
     }
 }

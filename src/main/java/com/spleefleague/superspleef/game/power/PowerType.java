@@ -65,7 +65,7 @@ public enum PowerType {
     
     INTO_THE_SHADOWS("Into the Shadows", new String[]{
         ChatColor.GOLD + "Conceals you from your opponent",
-        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "2s",
+        ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "1.5s",
         ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "1s",
         ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "3",
         ChatColor.AQUA + "Recharge Delay: " + ChatColor.GRAY + "20s"

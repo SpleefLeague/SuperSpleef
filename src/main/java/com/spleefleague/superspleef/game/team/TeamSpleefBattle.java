@@ -438,7 +438,7 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
         applyRatingChange(playerTeams.get(winner));
     }
     
-    protected void applyRatingChange(Team winner) {
+    private void applyRatingChange(Team winner) {
         double[] teamElo = new double[teams.length];
         for (int i = 0; i < teams.length; i++) {
             Team team = teams[i];
@@ -457,7 +457,7 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
                 int compare = Integer.compare(teams[j].points, teams[i].points);
                 double ratingChange = Battle.calculateEloRatingChange(t1, t2, compare);
                 teamRatingChanges[i] += ratingChange;
-                teamRatingChanges[j] += ratingChange;
+                teamRatingChanges[j] -= ratingChange;
             }
         }
         for (int i = 0; i < teams.length; i++) {

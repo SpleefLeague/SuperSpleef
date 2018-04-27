@@ -40,8 +40,8 @@ import com.spleefleague.superspleef.game.multi.MultiSpleefBattle;
 import com.spleefleague.superspleef.game.power.Power;
 import com.spleefleague.superspleef.game.power.PowerSpleefArena;
 import com.spleefleague.superspleef.game.power.PowerSpleefBattle;
-import com.spleefleague.superspleef.game.classic.NormalSpleefArena;
-import com.spleefleague.superspleef.game.classic.NormalSpleefBattle;
+import com.spleefleague.superspleef.game.classic.ClassicSpleefArena;
+import com.spleefleague.superspleef.game.classic.ClassicSpleefBattle;
 import com.spleefleague.superspleef.game.team.TeamSpleefBattle;
 import com.spleefleague.superspleef.game.team.TeamSpleefQueue;
 import com.spleefleague.superspleef.menu.SpleefMenu;
@@ -56,7 +56,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
 
     private static SuperSpleef instance;
     private DBPlayerManager<SpleefPlayer> playerManager;
-    private BattleManager<NormalSpleefArena, SpleefPlayer, NormalSpleefBattle> battleManagerClassicSpleef;
+    private BattleManager<ClassicSpleefArena, SpleefPlayer, ClassicSpleefBattle> battleManagerClassicSpleef;
     private BattleManager<MultiSpleefArena, SpleefPlayer, MultiSpleefBattle> battleManagerMultiSpleef;
     private BattleManager<TeamSpleefArena, SpleefPlayer, TeamSpleefBattle> battleManagerTeamSpleef;
     private BattleManager<PowerSpleefArena, SpleefPlayer, PowerSpleefBattle> battleManagerPowerSpleef;
@@ -118,7 +118,7 @@ public class SuperSpleef extends GamePlugin implements PlayerHandling {
         return playerManager;
     }
 
-    public BattleManager<NormalSpleefArena, SpleefPlayer, NormalSpleefBattle> getClassicSpleefBattleManager() {
+    public BattleManager<ClassicSpleefArena, SpleefPlayer, ClassicSpleefBattle> getClassicSpleefBattleManager() {
         return battleManagerClassicSpleef;
     }
 

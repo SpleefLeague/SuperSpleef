@@ -19,7 +19,7 @@ import com.spleefleague.superspleef.SuperSpleef;
 import com.spleefleague.superspleef.game.multi.MultiSpleefArena;
 import com.spleefleague.superspleef.game.power.PowerSpleefArena;
 import com.spleefleague.superspleef.game.scoreboards.Scoreboard;
-import com.spleefleague.superspleef.game.classic.NormalSpleefArena;
+import com.spleefleague.superspleef.game.classic.ClassicSpleefArena;
 import com.spleefleague.superspleef.game.team.TeamSpleefArena;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 
@@ -243,7 +243,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
     public static Arena byName(String name, SpleefMode mode) {
         switch(mode) {
             case CLASSIC: {
-                return NormalSpleefArena.byName(name);
+                return ClassicSpleefArena.byName(name);
             }
             case MULTI: {
                 return MultiSpleefArena.byName(name);
@@ -259,8 +259,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
     }
 
     public static Collection<? extends Arena<?>> getAll() {
-        return Stream.of(
-                NormalSpleefArena.getAll(),
+        return Stream.of(ClassicSpleefArena.getAll(),
                 MultiSpleefArena.getAll(),
                 TeamSpleefArena.getAll(),
                 PowerSpleefArena.getAll()
@@ -301,7 +300,7 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
                 int amount;
                 switch(mode) {
                     case CLASSIC: {
-                        amount = loadArenas(arenaInstances, NormalSpleefArena::loadArena);
+                        amount = loadArenas(arenaInstances, ClassicSpleefArena::loadArena);
                         break;
                     }
                     case MULTI: {

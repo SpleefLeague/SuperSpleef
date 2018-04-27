@@ -19,9 +19,9 @@ import org.bukkit.ChatColor;
  *
  * @author Jonas
  */
-public class NormalSpleefBattle extends SpleefBattle<NormalSpleefArena> {
+public class ClassicSpleefBattle extends SpleefBattle<ClassicSpleefArena> {
     
-    public NormalSpleefBattle(NormalSpleefArena arena, List<SpleefPlayer> players) {
+    public ClassicSpleefBattle(ClassicSpleefArena arena, List<SpleefPlayer> players) {
         super(arena, players);
     }
 

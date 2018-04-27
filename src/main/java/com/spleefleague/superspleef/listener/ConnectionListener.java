@@ -19,7 +19,7 @@ import com.spleefleague.superspleef.game.Arena;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.multi.MultiSpleefBattle;
 import com.spleefleague.superspleef.game.power.PowerSpleefBattle;
-import com.spleefleague.superspleef.game.classic.NormalSpleefBattle;
+import com.spleefleague.superspleef.game.classic.ClassicSpleefBattle;
 import com.spleefleague.superspleef.game.team.TeamSpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
 import org.bukkit.Bukkit;
@@ -92,8 +92,8 @@ public class ConnectionListener implements Listener {
                     p.kickPlayer("An error has occured. Please reconnect");
                 }
             }
-            if(battle instanceof NormalSpleefBattle) {
-                SuperSpleef.getInstance().getClassicSpleefBattleManager().remove((NormalSpleefBattle)battle);
+            if(battle instanceof ClassicSpleefBattle) {
+                SuperSpleef.getInstance().getClassicSpleefBattleManager().remove((ClassicSpleefBattle)battle);
             }
             else if(battle instanceof MultiSpleefBattle) {
                 SuperSpleef.getInstance().getMultiSpleefBattleManager().remove((MultiSpleefBattle)battle);

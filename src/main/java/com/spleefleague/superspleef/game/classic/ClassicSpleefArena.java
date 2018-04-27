@@ -20,30 +20,30 @@ import org.bson.Document;
  *
  * @author jonas
  */
-public class NormalSpleefArena extends Arena<NormalSpleefBattle> {
+public class ClassicSpleefArena extends Arena<ClassicSpleefBattle> {
 
     @Override
-    public NormalSpleefBattle startBattle(List<SpleefPlayer> players, BattleStartEvent.StartReason reason) {
+    public ClassicSpleefBattle startBattle(List<SpleefPlayer> players, BattleStartEvent.StartReason reason) {
         if (!isOccupied()) { //Shouldn't be necessary
-            NormalSpleefBattle battle = new NormalSpleefBattle(this, players);
+            ClassicSpleefBattle battle = new ClassicSpleefBattle(this, players);
             battle.start(reason);
             return battle;
         }
         return null;
     }
     
-    private static final Map<String, NormalSpleefArena> arenas = new HashMap<>();
+    private static final Map<String, ClassicSpleefArena> arenas = new HashMap<>();
     
-    public static Collection<NormalSpleefArena> getAll() {
+    public static Collection<ClassicSpleefArena> getAll() {
         return arenas.values();
     }
     
-    public static NormalSpleefArena byName(String arena) {
+    public static ClassicSpleefArena byName(String arena) {
         return arenas.get(arena.toLowerCase());
     }
     
     public static void loadArena(Document document) {
-        NormalSpleefArena arena = EntityBuilder.load(document, NormalSpleefArena.class);
+        ClassicSpleefArena arena = EntityBuilder.load(document, ClassicSpleefArena.class);
         if(arenas.containsKey(arena.getName().toLowerCase())) {
             Arena.recursiveCopy(arena, byName(arena.getName()), Arena.class);
         }

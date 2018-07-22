@@ -14,7 +14,7 @@ import com.spleefleague.annotations.PlayerArg;
 import com.spleefleague.annotations.StringArg;
 import com.spleefleague.commands.command.BasicCommand;
 import com.spleefleague.gameapi.events.BattleStartEvent.StartReason;
-import com.spleefleague.core.player.DBPlayerManager;
+import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.player.PlayerState;
 import com.spleefleague.core.player.Rank;
 import com.spleefleague.core.player.SLPlayer;
@@ -146,7 +146,32 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
             }
             return;
         }
-        DBPlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        List<SpleefPlayer> SpleefPlayers = Arrays.stream(players)
+                .map(pm::get)
+                .collect(Collectors.toList());
+        arena.startBattle(SpleefPlayers, StartReason.FORCE);
+        success(sender, "You started a battle on the arena " + arena.getName());
+    }
+    
+    @Endpoint(target = {PLAYER, CONSOLE})
+    public void forcestartIgnoreIssues(CommandSender sender, @LiteralArg(value = "force", aliases = {"f"}) String l, @StringArg String arenaName, @PlayerArg Player[] players) {
+        if (checkIngame(sender)) {
+            return;
+        }
+        if(sender instanceof SLPlayer) {
+            SLPlayer slp = (SLPlayer)sender;
+            if (!slp.getRank().hasPermission(Rank.MODERATOR) && slp.getRank() != Rank.ORGANIZER) {
+                sendUsage(sender);
+                return;
+            }
+        }
+        A arena = getByName.apply(arenaName);
+        if (arena == null) {
+            error(sender, "This arena does not exist.");
+            return;
+        }
+        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
         List<SpleefPlayer> SpleefPlayers = Arrays.stream(players)
                 .map(pm::get)
                 .collect(Collectors.toList());
@@ -183,7 +208,7 @@ public abstract class spleefCommand<A extends Arena> extends BasicCommand {
             }
             return;
         }
-        DBPlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
+        PlayerManager<SpleefPlayer> pm = SuperSpleef.getInstance().getPlayerManager();
         SpleefPlayer challenger = pm.get(sender);
         if (sender.getState() == PlayerState.INGAME) {
             error(sender, "You are currently ingame.");

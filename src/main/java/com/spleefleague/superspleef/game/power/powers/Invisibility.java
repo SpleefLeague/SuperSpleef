@@ -7,6 +7,7 @@ package com.spleefleague.superspleef.game.power.powers;
 
 import com.spleefleague.core.utils.PlayerUtil;
 import com.spleefleague.superspleef.SuperSpleef;
+import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.game.power.CooldownPower;
 import com.spleefleague.superspleef.game.power.PowerType;
 import com.spleefleague.superspleef.player.SpleefPlayer;
@@ -65,6 +66,12 @@ public class Invisibility extends CooldownPower implements Listener {
         resetTask();
     }
     
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        resetTask();
+    }
+    
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFakeBreak(FakeBlockBreakEvent event) {
         if(event.getPlayer().getUniqueId().equals(getPlayer().getUniqueId())) {
@@ -76,16 +83,19 @@ public class Invisibility extends CooldownPower implements Listener {
         if(activeTask != null) {
             activeTask.cancel();
             activeTask = null;
-            FakeBlockBreakEvent.getHandlerList().unregister(this);
-            Stream.of(
-                    getBattle().getActivePlayers().stream(), 
-                    getBattle().getSpectators().stream())
-                    .flatMap(Function.identity())
-                    .filter(sp -> sp != getPlayer())
-                    .forEach(sp -> {
-                        sp.showPlayer(getPlayer().getPlayer());
-                    });
-            cancelDuration();
+            SpleefBattle<?> battle = getBattle();
+            if(battle != null) {
+                FakeBlockBreakEvent.getHandlerList().unregister(this);
+                Stream.of(
+                        battle.getActivePlayers().stream(), 
+                        battle.getSpectators().stream())
+                        .flatMap(Function.identity())
+                        .filter(sp -> sp != getPlayer())
+                        .forEach(sp -> {
+                            sp.showPlayer(getPlayer().getPlayer());
+                        });
+                cancelDuration();
+            }
             PlayerUtil.actionbar(getPlayer(), new ChatMessage(""));
         }
     }

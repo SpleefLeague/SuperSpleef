@@ -107,6 +107,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     
     
     public void removePlayer(SpleefPlayer sp, RemoveReason reason) {
+        onArenaLeave(sp);
         if (reason == RemoveReason.QUIT) {
             for (SpleefPlayer pl : getActivePlayers()) {
                 pl.sendMessage(spleefMode.getChatPrefix() + " " + Theme.ERROR.buildTheme(false) + sp.getName() + " has left the game!");

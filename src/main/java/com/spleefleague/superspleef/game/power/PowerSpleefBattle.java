@@ -56,7 +56,6 @@ public class PowerSpleefBattle extends SpleefBattle<PowerSpleefArena> {
         //Spectators don't have powers
         Power power = powers.get(sp);
         if(power != null) {
-            power.cleanupRound();
             power.cleanup();
         }
     }

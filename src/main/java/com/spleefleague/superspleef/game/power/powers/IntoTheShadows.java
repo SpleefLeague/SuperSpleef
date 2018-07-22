@@ -61,6 +61,12 @@ public class IntoTheShadows extends ChargePower {
         resetTask();
     }
     
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        resetTask();
+    }
+    
     private void resetTask() {
         if(activeTask != null) {
             activeTask.cancel();

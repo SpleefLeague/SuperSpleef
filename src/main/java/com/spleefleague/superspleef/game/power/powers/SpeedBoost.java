@@ -26,11 +26,6 @@ public class SpeedBoost extends CooldownPower {
     }
     
     @Override
-    public void cleanupRound() {
-        super.cleanupRound();
-    }
-    
-    @Override
     public boolean tryExecute() {
         int currentSpeed = -1;
         PotionEffect pe = getPlayer().getPotionEffect(PotionEffectType.SPEED);

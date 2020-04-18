@@ -34,7 +34,7 @@ public class Regenerate extends CooldownPower {
         SpleefPlayer sp = getPlayer();
         PowerSpleefBattle battle = getBattle();
         FakeWorld fw = battle.getFakeWorld();
-        fw.playSound(sp.getLocation(), Sound.ENTITY_EVOCATION_ILLAGER_PREPARE_SUMMON, 1.0f, 2.0f);
+        fw.playSound(sp.getLocation(), Sound.ENTITY_EVOKER_PREPARE_SUMMON, 1.0f, 2.0f);
         int lowest = battle.getFieldBlocks()
                 .stream()
                 .mapToInt(fb -> fb.getY())

@@ -72,8 +72,6 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
     private boolean defaultArena = false;
     @DBLoad(fieldName = "maxRating")
     private int maxRating = -1;
-    @DBLoad(fieldName = "area")
-    private Area area;
     @DBLoad(fieldName = "spleefMode")
     private SpleefMode spleefMode = SpleefMode.CLASSIC;
     private int runningGames = 0;
@@ -138,10 +136,6 @@ public abstract class Arena<B extends SpleefBattle> extends DBEntity implements 
 
     public void registerGameEnd() {
         runningGames--;
-    }
-
-    public Area getArea() {
-        return area;
     }
 
     public boolean isRated() {

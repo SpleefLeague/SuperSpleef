@@ -57,13 +57,13 @@ public class Field extends DBEntity implements DBLoadable {
     public void done() {
         double minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
         double maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
-        for (int i = 0; i < areas.length; i++) {
-            minX = Math.min(minX, areas[i].getLow().getX());
-            minY = Math.min(minY, areas[i].getLow().getY());
-            minZ = Math.min(minZ, areas[i].getLow().getZ());
-            maxX = Math.max(maxX, areas[i].getHigh().getX());
-            maxY = Math.max(maxY, areas[i].getHigh().getY());
-            maxZ = Math.max(maxZ, areas[i].getHigh().getZ());
+        for (Area area : areas) {
+            minX = Math.min(minX, area.getLow().getX());
+            minY = Math.min(minY, area.getLow().getY());
+            minZ = Math.min(minZ, area.getLow().getZ());
+            maxX = Math.max(maxX, area.getHigh().getX());
+            maxY = Math.max(maxY, area.getHigh().getY());
+            maxZ = Math.max(maxZ, area.getHigh().getZ());
         }
         this.high = new Location(areas[0].getHigh().getWorld(), maxX, maxY, maxZ);
         this.low = new Location(areas[0].getLow().getWorld(), minX, minY, minZ);

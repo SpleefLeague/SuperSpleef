@@ -19,7 +19,6 @@ import com.spleefleague.superspleef.game.GameHistoryPlayerData;
 import com.spleefleague.superspleef.game.RemoveReason;
 import com.spleefleague.superspleef.game.SpleefBattle;
 import com.spleefleague.superspleef.player.SpleefPlayer;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +29,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 import java.util.Map.Entry;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.time.DurationFormatUtils;
 
 /**
  * @author Jonas
@@ -45,12 +45,12 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
             Color.ORANGE
     };
     public static final ItemStack[] teamBlocks = {
-            new ItemStack(Material.WOOL, 1, (byte)11),
-            new ItemStack(Material.WOOL, 1, (byte)14),
-            new ItemStack(Material.WOOL, 1, (byte)4),
-            new ItemStack(Material.WOOL, 1, (byte)13),
-            new ItemStack(Material.WOOL, 1, (byte)10),
-            new ItemStack(Material.WOOL, 1, (byte)1)
+            new ItemStack(Material.BLUE_WOOL),
+            new ItemStack(Material.RED_WOOL),
+            new ItemStack(Material.YELLOW_WOOL),
+            new ItemStack(Material.GREEN_WOOL),
+            new ItemStack(Material.PURPLE_WOOL),
+            new ItemStack(Material.ORANGE_WOOL)
     };
     private static final ChatColor[] chatColors = {
             ChatColor.BLUE,

@@ -31,16 +31,16 @@ public class Shovel extends DBEntity implements DBLoadable, DBSaveable {
     
     @DBLoad(fieldName = "name")
     @DBSave(fieldName = "name")
-    private String name;
+    private String name = "";
     @DBLoad(fieldName = "text")
     @DBSave(fieldName = "text")
     private String[] text;
     @DBLoad(fieldName = "damage")
     @DBSave(fieldName = "damage")
-    private short damage;
+    private short damage = 0;
     @DBLoad(fieldName = "material")
     @DBSave(fieldName = "material")
-    private Material type;
+    private Material type = Material.DIAMOND_SHOVEL;
     @DBLoad(fieldName = "default")
     @DBSave(fieldName = "default")
     private boolean isDefault = false;
@@ -61,7 +61,8 @@ public class Shovel extends DBEntity implements DBLoadable, DBSaveable {
         ItemStack is = new ItemStack(type, 1, damage);
         ItemMeta im = is.getItemMeta();
         im.setDisplayName(name);
-        im.setLore(Arrays.asList(text));
+        if (text != null)
+            im.setLore(Arrays.asList(text));
         im.setUnbreakable(true);
         im.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS);
         is.setItemMeta(im);
@@ -92,7 +93,7 @@ public class Shovel extends DBEntity implements DBLoadable, DBSaveable {
     public static final Shovel DEFAULT_SHOVEL;
     
     static {
-        DEFAULT_SHOVEL = new Shovel(Material.DIAMOND_SPADE, (byte)0, "Default Shovel", new String[0], true);
+        DEFAULT_SHOVEL = new Shovel(Material.DIAMOND_SHOVEL, (byte)0, "Default Shovel", new String[0], true);
     }
     
     public static Shovel byDamageValue(short damage) {

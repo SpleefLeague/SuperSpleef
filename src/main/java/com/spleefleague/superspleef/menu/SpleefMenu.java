@@ -64,7 +64,7 @@ public class SpleefMenu {
                 .title("Spleef Menu")
                 .displayName("Spleef Menu")
                 //.flags(InventoryMenuFlag.SKIP_SINGLE_SUBMENU)
-                .displayIcon(Material.DIAMOND_SPADE)
+                .displayIcon(Material.DIAMOND_SHOVEL)
                 .component(2, () -> createClassicSpleefMenu().build())
                 .component(3, () -> createPowerSpleefMenu().build())
                 .component(5, () -> createTeamSpleefMenu().build())
@@ -90,12 +90,12 @@ public class SpleefMenu {
     public static InventoryMenuTemplateBuilder createClassicSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getClassicSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayItem(new ItemStack(Material.DIAMOND_SPADE, 1/*, (short)1561*/))
+                .displayItem(new ItemStack(Material.DIAMOND_SHOVEL, 1/*, (short)1561*/))
                 .displayName("Classic Spleef")
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
                         createChallengeDialog(createArenaChallengeDialog(SpleefMode.CLASSIC, true), SpleefMode.CLASSIC)
-                    .displayItem(new ItemStack(Material.GOLD_HOE, 1, (short)32))
+                    .displayItem(new ItemStack(Material.GOLDEN_HOE, 1, (short)32))
                     .displayName("Challenge")
                     .onDone((slp, builder) -> performChallenge(builder, SpleefMode.CLASSIC))
                 );
@@ -104,12 +104,12 @@ public class SpleefMenu {
     public static InventoryMenuTemplateBuilder createPowerSpleefMenu() {
         return createArenaMenu(SuperSpleef.getInstance().getPowerSpleefBattleManager().getGameQueue(), true)
                 .title("Arenas")
-                .displayItem(new ItemStack(Material.GOLD_SPADE, 1/*, (short)32*/))
+                .displayItem(new ItemStack(Material.GOLDEN_SHOVEL, 1/*, (short)32*/))
                 .displayName("Power Spleef")
                 .component(
                         new InventoryMenuComponentAlignment(InventoryMenuComponentAlignment.Direction.LEFT, InventoryMenuComponentAlignment.Direction.UP), 
                         createChallengeDialog(createArenaChallengeDialog(SpleefMode.POWER, true), SpleefMode.POWER)
-                                .displayItem(new ItemStack(Material.GOLD_HOE, 1, (short)32))
+                                .displayItem(new ItemStack(Material.GOLDEN_HOE, 1, (short)32))
                                 .displayName("Challenge")
                                 .unsetFlags(InventoryMenuComponentFlag.EXIT_ON_NO_PERMISSION)
                                 .accessController(slp -> getSP(slp).getPowerType() != PowerType.EMPTY_POWER)
@@ -183,7 +183,7 @@ public class SpleefMenu {
                 .stream()
                 .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
                 .forEach(p -> {
-                    ItemStack skull = new ItemStack(Material.SKULL_ITEM);
+                    ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
                     skull.setDurability((short) 3);
                     SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
                     skullMeta.setOwner(p.getName());
@@ -246,7 +246,7 @@ public class SpleefMenu {
             return builder;
         }
         InventoryMenuItemTemplateBuilder itemBuilder = item()
-                .displayIcon(Material.EMPTY_MAP)
+                .displayIcon(Material.MAP)
                 .displayName("Random")
                 .onClick(e -> {
                         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(e.getPlayer());
@@ -308,7 +308,7 @@ public class SpleefMenu {
             return builder;
         }
         InventoryMenuDialogButtonTemplateBuilder<MenuChallenge> itemBuilder = dialogButton(MenuChallenge.class)
-                        .displayIcon(Material.EMPTY_MAP)
+                        .displayIcon(Material.MAP)
                         .displayName("Random")
                         .description(x -> Arrays.asList("Queue up for", "a random, rated", "Spleef match."))
                         .onClick(b -> b.getBuilder().setArena(null));
@@ -346,7 +346,7 @@ public class SpleefMenu {
             arenaHolder.component(itemBuilder);
         }
         InventoryMenuDialogButtonTemplateBuilder<TeamspleefQueueElement> itemBuilder = dialogButton(TeamspleefQueueElement.class)
-                .displayIcon(Material.EMPTY_MAP)
+                .displayIcon(Material.MAP)
                 .displayName("Random");
         int queueSize = Optional
                 .ofNullable(queue.getArenaQueues().get(null))
@@ -380,17 +380,19 @@ public class SpleefMenu {
                 .getGameQueue())
                 .getTeamQueues()
                 .get(arena);
-        for(int i = 0; i < arena.getTeamSizes().length; i++) {
-            int teamId = i;
-            InventoryMenuDialogButtonTemplateBuilder<TeamspleefQueueElement> button = dialogButton(TeamspleefQueueElement.class)
-                    .displayItem(TeamSpleefBattle.teamBlocks[i])
-                    .displayName(TeamSpleefBattle.names[i] + " team")
-                    .onClick(e -> e.getBuilder().setTeam(teamId));
-            teams.get(i)
-                    .stream()
-                    .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
-                    .forEach(p -> button.description(p.getName()));
-            teamHolder.component(button);
+        if (arena.getTeamSizes() != null) {
+            for(int i = 0; i < arena.getTeamSizes().length; i++) {
+                int teamId = i;
+                InventoryMenuDialogButtonTemplateBuilder<TeamspleefQueueElement> button = dialogButton(TeamspleefQueueElement.class)
+                        .displayItem(TeamSpleefBattle.teamBlocks[i])
+                        .displayName(TeamSpleefBattle.names[i] + " team")
+                        .onClick(e -> e.getBuilder().setTeam(teamId));
+                teams.get(i)
+                        .stream()
+                        .sorted((p1, p2) -> p1.getName().compareTo(p2.getName()))
+                        .forEach(p -> button.description(p.getName()));
+                teamHolder.component(button);
+            }
         }
         return teamHolder;
     }

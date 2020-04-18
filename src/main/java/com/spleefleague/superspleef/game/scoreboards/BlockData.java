@@ -17,6 +17,7 @@ import org.bukkit.block.Block;
  *
  * @author Jonas
  */
+@Deprecated
 public class BlockData extends DBEntity implements DBLoadable, DBSaveable {
 
     @DBLoad(fieldName = "material")
@@ -32,9 +33,10 @@ public class BlockData extends DBEntity implements DBLoadable, DBSaveable {
         return (byte) data;
     }
 
+    @Deprecated
     public void setBlockAt(Location loc) {
         Block b = loc.getBlock();
         b.setType(getType());
-        b.setData(getData());
+        //b.setData(getData());
     }
 }

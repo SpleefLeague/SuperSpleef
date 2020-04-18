@@ -39,11 +39,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class shovel extends BasicCommand {
 
     private final List<Material> allowedTypes = Arrays.asList(new Material[]{
-        Material.DIAMOND_SPADE, 
-        Material.GOLD_SPADE, 
-        Material.IRON_SPADE, 
-        Material.STONE_SPADE, 
-        Material.WOOD_SPADE
+        Material.DIAMOND_SHOVEL, 
+        Material.GOLDEN_SHOVEL, 
+        Material.IRON_SHOVEL, 
+        Material.STONE_SHOVEL, 
+        Material.WOODEN_SHOVEL
     });
     
     public shovel(CorePlugin plugin, String name, String usage) {

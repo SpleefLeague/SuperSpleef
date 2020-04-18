@@ -5,7 +5,9 @@
  */
 package com.spleefleague.superspleef.game;
 
-import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
@@ -32,14 +34,10 @@ import com.spleefleague.superspleef.player.SpleefPlayer;
 import com.spleefleague.virtualworld.VirtualWorld;
 import com.spleefleague.virtualworld.api.FakeBlock;
 import com.spleefleague.virtualworld.api.FakeWorld;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagList;
-import net.minecraft.server.v1_12_R1.NBTTagString;
+import java.lang.reflect.InvocationTargetException;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -48,9 +46,15 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.time.DurationFormatUtils;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagList;
+import net.minecraft.server.v1_15_R1.NBTTagString;
 import org.bson.Document;
+import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.time.DurationFormatUtils;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -407,18 +411,28 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             }
             List<PlayerInfoData> list = new ArrayList<>();
             SpleefLeague.getInstance().getPlayerManager().getAll().forEach((SLPlayer slPlayer) -> list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(slPlayer.getPlayer()), ((CraftPlayer) slPlayer.getPlayer()).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(slPlayer.getRank().getColor() + slPlayer.getName()))));
-            WrapperPlayServerPlayerInfo packet = new WrapperPlayServerPlayerInfo();
-            packet.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
-            packet.setData(list);
-            ingamePlayers.forEach((Player p) -> packet.sendPacket(p));
+            PacketContainer packetContainer = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
+            packetContainer.getPlayerInfoAction().write(0, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
+            packetContainer.getPlayerInfoDataLists().write(0, list);
+            for (Player p : ingamePlayers) {
+                try {
+                    ProtocolLibrary.getProtocolManager().sendServerPacket(p, packetContainer);
+                } catch (InvocationTargetException ex) {
+                    Logger.getLogger(SpleefBattle.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
 
             list.clear();
             ingamePlayers.forEach((Player p) -> {
                 SLPlayer generalPlayer = SpleefLeague.getInstance().getPlayerManager().get(p);
                 list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p), ((CraftPlayer) p).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
             });
-            packet.setData(list);
-            packet.sendPacket(sp.getPlayer());
+            packetContainer.getPlayerInfoDataLists().write(0, list);
+            try {
+                ProtocolLibrary.getProtocolManager().sendServerPacket(sp.getPlayer(), packetContainer);
+            } catch (InvocationTargetException ex) {
+                Logger.getLogger(SpleefBattle.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }, 10);
         resetPlayer(sp);
     }
@@ -572,7 +586,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         setSpawnCageBlock(Material.GLASS);
         for (SpleefPlayer sp : getActivePlayers()) {
             sp.setFrozen(true);
-            sp.setGameMode(GameMode.ADVENTURE);
+            sp.setGameMode(GameMode.SURVIVAL);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
             sp.setDead(false);
@@ -700,10 +714,10 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
 
     private static ItemStack getShovel(SpleefPlayer sp) {
         Shovel shovel = sp.getActiveShovel();
-        net.minecraft.server.v1_12_R1.ItemStack stack = CraftItemStack.asNMSCopy(shovel.toItemStack());
+        net.minecraft.server.v1_15_R1.ItemStack stack = CraftItemStack.asNMSCopy(shovel.toItemStack());
         NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
         NBTTagList list = new NBTTagList();
-        list.add(new NBTTagString("minecraft:snow"));
+        list.add(NBTTagString.a("minecraft:snow"));
         tag.set("CanDestroy", list);
         stack.setTag(tag);
         ItemStack is = CraftItemStack.asBukkitCopy(stack);

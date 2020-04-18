@@ -95,7 +95,10 @@ public class GameListener implements Listener {
             } else {
                 SpleefBattle battle = sp.getCurrentBattle();
                 Arena arena = battle.getArena();
-                if (event.getPlayer().getGameMode() != GameMode.SPECTATOR && PlayerUtil.isInLava(event.getPlayer()) || PlayerUtil.isInWater(event.getPlayer()) || !arena.getBorder().isInArea(sp.getLocation())) {
+                if (event.getPlayer().getGameMode() != GameMode.SPECTATOR
+                        && (PlayerUtil.isInLava(event.getPlayer())
+                        || PlayerUtil.isInWater(event.getPlayer())
+                        || !arena.getBorder().isInArea(sp.getLocation()))) {
                     battle.onArenaLeave(sp);
                 }
             }
@@ -202,7 +205,7 @@ public class GameListener implements Listener {
     public void onDrop(PlayerDropItemEvent event) {
         SpleefPlayer sp = SuperSpleef.getInstance().getPlayerManager().get(event.getPlayer());
         if (sp.isIngame()) {
-            event.setCancelled(event.getItemDrop().getItemStack().getType() == Material.DIAMOND_SPADE);
+            event.setCancelled(event.getItemDrop().getItemStack().getType() == Material.DIAMOND_SHOVEL);
         }
     }
 

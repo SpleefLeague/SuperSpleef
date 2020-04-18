@@ -42,8 +42,10 @@ public class TeamSpleefQueue extends RatedGameQueue<TeamSpleefArena, SpleefPlaye
             this.queuedArenas.add(arena);
         }
         Map<Integer, Set<SpleefPlayer>> slots = new HashMap<>();
-        for (int i = 0; i < arena.getTeamSizes().length; i++) {
-            slots.put(i, new HashSet<>());
+        if (arena.getTeamSizes() != null) {
+            for (int i = 0; i < arena.getTeamSizes().length; i++) {
+                slots.put(i, new HashSet<>());
+            }
         }
         slots.put(null, new HashSet<>());
         this.queues.put(arena, slots);
@@ -128,8 +130,10 @@ public class TeamSpleefQueue extends RatedGameQueue<TeamSpleefArena, SpleefPlaye
     
     private Match findMatchInArenaQueue(TeamSpleefArena arena) {
         if(arena == null) return null;
+        if (!queues.containsKey(arena)) return null;
         int freePlayers = queues.get(arena).get(null).size() + queues.get(null).get(null).size();
         int[] required = arena.getTeamSizes();
+        if (required == null) return null;
         for (int i = 0; freePlayers >= 0 && i < required.length; i++) {
             int queued = queues.get(arena).getOrDefault(i, Collections.emptySet()).size();
             if(required[i] > queued) {

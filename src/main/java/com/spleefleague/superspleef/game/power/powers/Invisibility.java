@@ -15,7 +15,7 @@ import com.spleefleague.virtualworld.api.FakeWorld;
 import com.spleefleague.virtualworld.event.FakeBlockBreakEvent;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import net.minecraft.server.v1_12_R1.ChatMessage;
+import net.minecraft.server.v1_15_R1.ChatMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -44,7 +44,7 @@ public class Invisibility extends CooldownPower implements Listener {
         }
         SpleefPlayer player = getPlayer();
         FakeWorld fw = getBattle().getFakeWorld();
-        fw.playSound(player.getLocation(), Sound.ENTITY_ILLUSION_ILLAGER_CAST_SPELL, 1.0f, 0.5f);
+        fw.playSound(player.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.0f, 0.5f);
         this.showDuration("Invisible", duration);
         Stream.of(
                 getBattle().getActivePlayers().stream(), 

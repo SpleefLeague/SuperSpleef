@@ -42,12 +42,13 @@ public class reset extends BasicCommand {
             return;
         }
         SpleefBattle<?> battle = sp.getCurrentBattle();
-        battle.resetField();
+        //battle.resetField();
+        battle.startRound();
 
         for (SpleefPlayer spleefplayer : battle.getAlivePlayers()) {
             spleefplayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false)
                     + "Your battle has been reset by a moderator.");
-            spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());
+            //spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());
         }
         success(slp, "The battle has been reset.");
 
@@ -60,8 +61,9 @@ public class reset extends BasicCommand {
             return;
         }
         SpleefBattle<?> battle = SuperSpleef.getInstance().getPlayerManager().get(target).getCurrentBattle();
-        battle.resetField();
-
+        //battle.resetField();
+        battle.startRound();
+        
         for (SpleefPlayer spleefplayer : battle.getAlivePlayers()) {
             spleefplayer.sendMessage(SuperSpleef.getInstance().getChatPrefix() + " " + Theme.WARNING.buildTheme(false)
                     + "Your battle has been reset by a moderator.");
@@ -88,7 +90,8 @@ public class reset extends BasicCommand {
             total++;
         }
         if ((double) requesting / (double) total > 0.65) {
-            battle.resetField();
+            //battle.resetField();
+            battle.startRound();
             for (SpleefPlayer spleefplayer : battle.getAlivePlayers()) {
                 spleefplayer.setRequestingReset(false);
                 spleefplayer.teleport(battle.getData(spleefplayer).getSpawn());

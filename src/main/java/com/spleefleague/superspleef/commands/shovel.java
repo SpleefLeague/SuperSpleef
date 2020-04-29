@@ -76,6 +76,7 @@ public class shovel extends BasicCommand {
     
     @Endpoint(target = {PLAYER, CONSOLE, COMMAND_BLOCK})
     public void addShovel(CommandSender sender, @LiteralArg(value = "add") String l, @SLPlayerArg SLPlayer target, @IntArg(min = 0, max = Short.MAX_VALUE) int shovelId) {
+        System.out.println("This is working!");
         Shovel shovel = Shovel.byDamageValue((short)shovelId);
         if(shovel == null) {
             error(sender, "This shovel does not exist.");

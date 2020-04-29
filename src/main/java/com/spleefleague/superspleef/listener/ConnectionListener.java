@@ -85,10 +85,11 @@ public class ConnectionListener implements Listener {
                         p.getPlayer().hidePlayer(event.getPlayer());
                         ingamePlayers.add(p.getPlayer());
                     } else {
-                        toCancel.add(battle);
+                        //toCancel.add(battle);
                         break;
                     }
                 }
+                battle.onJoinFix();
             }
         }
         for (SpleefBattle<?> battle : toCancel) {
@@ -112,7 +113,11 @@ public class ConnectionListener implements Listener {
         }
         Bukkit.getScheduler().runTaskLater(SuperSpleef.getInstance(), () -> {
             List<PlayerInfoData> list = new ArrayList<>();
-            SpleefLeague.getInstance().getPlayerManager().getAll().forEach((SLPlayer slPlayer) -> list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(slPlayer.getPlayer()), ((CraftPlayer) slPlayer.getPlayer()).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(slPlayer.getRank().getColor() + slPlayer.getName()))));
+            SpleefLeague.getInstance().getPlayerManager().getAll().forEach((SLPlayer slPlayer) -> list.add(new PlayerInfoData(
+                    WrappedGameProfile.fromPlayer(slPlayer.getPlayer()),
+                    ((CraftPlayer) slPlayer.getPlayer()).getHandle().ping,
+                    EnumWrappers.NativeGameMode.SURVIVAL,
+                    WrappedChatComponent.fromText(slPlayer.getRank().getColor() + slPlayer.getName()))));
             PacketContainer packetContainer = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
             packetContainer.getPlayerInfoAction().write(0, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
             packetContainer.getPlayerInfoDataLists().write(0, list);
@@ -127,7 +132,10 @@ public class ConnectionListener implements Listener {
             list.clear();
             ingamePlayers.forEach((Player p) -> {
                 SLPlayer generalPlayer = SpleefLeague.getInstance().getPlayerManager().get(p);
-                list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p), ((CraftPlayer) p).getHandle().ping, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
+                list.add(new PlayerInfoData(WrappedGameProfile.fromPlayer(p),
+                        ((CraftPlayer) p).getHandle().ping,
+                        EnumWrappers.NativeGameMode.SURVIVAL,
+                        WrappedChatComponent.fromText(generalPlayer.getRank().getColor() + generalPlayer.getName())));
             });
             packetContainer.getPlayerInfoDataLists().write(0, list);
             try {

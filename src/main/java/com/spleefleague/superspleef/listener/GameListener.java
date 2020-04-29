@@ -37,6 +37,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 
@@ -96,6 +97,7 @@ public class GameListener implements Listener {
                 SpleefBattle battle = sp.getCurrentBattle();
                 Arena arena = battle.getArena();
                 if (event.getPlayer().getGameMode() != GameMode.SPECTATOR
+                        && !battle.isInCountdown()
                         && (PlayerUtil.isInLava(event.getPlayer())
                         || PlayerUtil.isInWater(event.getPlayer())
                         || !arena.getBorder().isInArea(sp.getLocation()))) {
@@ -156,6 +158,13 @@ public class GameListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
         if(slp.getState().equals(PlayerState.SPECTATING)) {
+            event.setCancelled(true);
+        }
+    }
+    
+    public void onSlotChange(PlayerItemHeldEvent event) {
+        SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(event.getPlayer());
+        if (slp.getState().equals(PlayerState.INGAME)) {
             event.setCancelled(true);
         }
     }

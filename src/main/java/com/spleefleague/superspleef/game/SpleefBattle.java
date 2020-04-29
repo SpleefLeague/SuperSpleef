@@ -55,7 +55,9 @@ import org.bson.Document;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -378,7 +380,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         }
         sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
-        VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
+        VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer().getUniqueId(), fakeWorld, FAKE_WORLD_PRIORITY);
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);
@@ -454,7 +456,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
 
     protected void resetPlayer(SpleefPlayer sp) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
-        VirtualWorld.getInstance().getFakeWorldManager().removeWorld(sp.getPlayer(), fakeWorld);
+        VirtualWorld.getInstance().getFakeWorldManager().removeWorld(sp.getPlayer().getUniqueId(), fakeWorld);
         if (spectators.contains(sp)) {
             spectators.remove(sp);
         } else {
@@ -513,7 +515,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             String playerNames = "";
             for (int i = 0; i < players.size(); i++) {
                 SpleefPlayer sp = players.get(i);
-                VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
+                VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer().getUniqueId(), fakeWorld, FAKE_WORLD_PRIORITY);
                 if (i == 0) {
                     playerNames = ChatColor.RED + sp.getName();
                 } else if (i == players.size() - 1) {
@@ -586,7 +588,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         setSpawnCageBlock(Material.GLASS);
         for (SpleefPlayer sp : getActivePlayers()) {
             sp.setFrozen(true);
-            sp.setGameMode(GameMode.SURVIVAL);
+            sp.setGameMode(GameMode.ADVENTURE);
             sp.setRequestingReset(false);
             sp.setRequestingEndgame(false);
             sp.setDead(false);
@@ -711,6 +713,16 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         }
         reInitScoreboard();
     }
+    
+    /**
+     * TODO: Temporary fix for players joining and fields bugging
+     */
+    public void onJoinFix() {
+        for (int i = 0; i < players.size(); i++) {
+            SpleefPlayer sp = players.get(i);
+            VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer().getUniqueId(), fakeWorld, FAKE_WORLD_PRIORITY);
+        }
+    }
 
     private static ItemStack getShovel(SpleefPlayer sp) {
         Shovel shovel = sp.getActiveShovel();
@@ -718,13 +730,15 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         NBTTagCompound tag = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
         NBTTagList list = new NBTTagList();
         list.add(NBTTagString.a("minecraft:snow"));
+        list.add(NBTTagString.a("minecraft:snow_block"));
         tag.set("CanDestroy", list);
         stack.setTag(tag);
         ItemStack is = CraftItemStack.asBukkitCopy(stack);
-        is.setDurability(shovel.getDamage());
         ItemMeta im = is.getItemMeta();
+        ((Damageable) im).setDamage(shovel.getDamage());
         im.setUnbreakable(true);
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_UNBREAKABLE);
+        im.addEnchant(Enchantment.DIG_SPEED, 5, true);
+        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
         is.setItemMeta(im);
         return is;
     }

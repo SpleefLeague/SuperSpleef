@@ -264,6 +264,11 @@ public class SpleefPlayer extends RatedPlayer<SpleefMode> {
     public PersistentDataContainer getPersistentDataContainer() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public float getAttackCooldown() {
+        return getPlayer().getAttackCooldown();
+    }
     
     public static class Rating {
         

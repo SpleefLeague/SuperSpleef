@@ -43,8 +43,7 @@ public class MultiSpleefBattle extends SpleefBattle<MultiSpleefArena> {
     public void onArenaLeave(SpleefPlayer player) {
         super.onArenaLeave(player);
         if(player.isDead() && player.getSpectatorTarget() == null && !isInCountdown()) {
-            List<SpleefPlayer> alive = getAlivePlayers();
-            giveTempSpectator(player, alive.get(new Random().nextInt(alive.size())).getPlayer());
+            giveTempSpectator(player);
         }
     }
     

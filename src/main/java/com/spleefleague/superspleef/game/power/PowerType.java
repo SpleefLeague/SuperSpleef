@@ -35,7 +35,7 @@ public enum PowerType {
         ChatColor.AQUA + "Duration: " + ChatColor.GRAY + "5s",
     }, Material.DIAMOND_AXE, 303, Invisibility.getSupplier()),
     
-    DASH("Dash", new String[]{
+    DASH("Air Dash", new String[]{
         ChatColor.GOLD + "Quickly dashes you forward",
         ChatColor.AQUA + "Cooldown: " + ChatColor.GRAY + "2s",
         ChatColor.AQUA + "Charges: " + ChatColor.GRAY + "3",

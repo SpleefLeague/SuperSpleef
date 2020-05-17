@@ -358,29 +358,6 @@ public class TeamSpleefBattle extends SpleefBattle<TeamSpleefArena> {
         super.startRound();
     }
 
-    private void giveTempSpectator(SpleefPlayer sp) {
-        Optional<SpleefPlayer> o = playerTeams.get(sp).getAlivePlayers().stream().findAny();
-        Player target = null;
-        if (o.isPresent()) {
-            target = o.get().getPlayer();
-        } else {
-            for (Team team : teams) {
-                if (team.isAlive()) {
-                    target = team.getAlivePlayers().stream().findAny().get().getPlayer();
-                }
-            }
-        }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getSpectatorTarget() != null &&
-                player.getSpectatorTarget().getUniqueId().equals(sp.getUniqueId())) {
-                player.setSpectatorTarget(target);
-            }
-        }
-        sp.getInventory().setArmorContents(new ItemStack[4]);
-        sp.setGameMode(GameMode.SPECTATOR);
-        sp.setSpectatorTarget(target);
-    }
-
     @Override
     protected void updateScoreboardTime() {
         if (getScoreboard() == null) {

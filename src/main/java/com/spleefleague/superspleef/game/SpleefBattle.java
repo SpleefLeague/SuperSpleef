@@ -380,7 +380,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         }
         sp.setScoreboard(scoreboard);
         sp.sendMessage(Theme.INCOGNITO + "You are now spectating the battle on " + ChatColor.GREEN + arena.getName());
-        VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer().getUniqueId(), fakeWorld, FAKE_WORLD_PRIORITY);
+        VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
         slp.setState(PlayerState.SPECTATING);
         slp.addChatChannel(cc);
@@ -456,7 +456,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
 
     protected void resetPlayer(SpleefPlayer sp) {
         SLPlayer slp = SpleefLeague.getInstance().getPlayerManager().get(sp.getPlayer());
-        VirtualWorld.getInstance().getFakeWorldManager().removeWorld(sp.getPlayer().getUniqueId(), fakeWorld);
+        VirtualWorld.getInstance().getFakeWorldManager().removeWorld(sp.getPlayer(), fakeWorld);
         if (spectators.contains(sp)) {
             spectators.remove(sp);
         } else {
@@ -515,7 +515,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
             String playerNames = "";
             for (int i = 0; i < players.size(); i++) {
                 SpleefPlayer sp = players.get(i);
-                VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer().getUniqueId(), fakeWorld, FAKE_WORLD_PRIORITY);
+                VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
                 if (i == 0) {
                     playerNames = ChatColor.RED + sp.getName();
                 } else if (i == players.size() - 1) {
@@ -720,7 +720,7 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
     public void onJoinFix() {
         for (int i = 0; i < players.size(); i++) {
             SpleefPlayer sp = players.get(i);
-            VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer().getUniqueId(), fakeWorld, FAKE_WORLD_PRIORITY);
+            VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
         }
     }
 

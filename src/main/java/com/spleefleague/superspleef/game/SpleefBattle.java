@@ -269,16 +269,9 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         reInitScoreboard();
     }
     
-    protected void giveTempSpectator(SpleefPlayer sp, Player target) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.getSpectatorTarget() != null &&
-                player.getSpectatorTarget().getUniqueId().equals(sp.getUniqueId())) {
-                player.setSpectatorTarget(target);
-            }
-        }
+    protected void giveTempSpectator(SpleefPlayer sp) {
         sp.getInventory().setArmorContents(new ItemStack[4]);
-        sp.setGameMode(GameMode.SPECTATOR);
-        sp.setSpectatorTarget(target);
+        sp.getPlayer().teleport(arena.getSpectatorSpawn());
     }
     
     protected void updateScoreboardTime() {

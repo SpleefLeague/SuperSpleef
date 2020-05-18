@@ -706,16 +706,6 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         }
         reInitScoreboard();
     }
-    
-    /**
-     * TODO: Temporary fix for players joining and fields bugging
-     */
-    public void onJoinFix() {
-        for (int i = 0; i < players.size(); i++) {
-            SpleefPlayer sp = players.get(i);
-            VirtualWorld.getInstance().getFakeWorldManager().addWorld(sp.getPlayer(), fakeWorld, FAKE_WORLD_PRIORITY);
-        }
-    }
 
     private static ItemStack getShovel(SpleefPlayer sp) {
         Shovel shovel = sp.getActiveShovel();

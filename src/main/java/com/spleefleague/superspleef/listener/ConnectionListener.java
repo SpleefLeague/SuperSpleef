@@ -89,7 +89,6 @@ public class ConnectionListener implements Listener {
                         break;
                     }
                 }
-                battle.onJoinFix();
             }
         }
         for (SpleefBattle<?> battle : toCancel) {

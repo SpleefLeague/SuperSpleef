@@ -75,7 +75,7 @@ public class EnvironmentListener implements Listener {
             .stream()
             .map(f -> f.getDefaultWorld())
             .forEach(fw -> {
-                VirtualWorld.getInstance().getFakeWorldManager().addWorld(event.getPlayer().getUniqueId(), fw, 0);
+                VirtualWorld.getInstance().getFakeWorldManager().addWorld(event.getPlayer(), fw, 0);
             });
     }
 }

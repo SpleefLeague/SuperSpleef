@@ -227,6 +227,7 @@ public class SpleefMenu {
                             .displayIcon(Material.MAP)
                             .displayName(arena.getName())
                             .onClick(e -> {
+                                if(!SuperSpleef.getInstance().queuesOpen()) return;
                                     SpleefPlayer sp = getSP(e.getPlayer());
                                     GamePlugin.dequeueGlobal(sp);
                                     queue.queuePlayer(sp, arena);

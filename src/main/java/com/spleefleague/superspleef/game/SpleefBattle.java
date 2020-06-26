@@ -146,8 +146,8 @@ public abstract class SpleefBattle<A extends Arena> implements Battle<A, SpleefP
         objective.setDisplayName(ChatColor.GRAY.toString() + s + " | " + ChatColor.RED + "Score:");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.getScore(getPlayToString()).setScore(getPlayTo());
-        Set<String> requestingReset = new HashSet();
-        Set<String> requestingEnd = new HashSet();
+        Set<String> requestingReset = new HashSet<>();
+        Set<String> requestingEnd = new HashSet<>();
         for (SpleefPlayer sp : this.getPlayers()) {
             if (sp.isRequestingReset()) {
                 requestingReset.add(sp.getName());

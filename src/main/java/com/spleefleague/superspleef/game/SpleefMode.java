@@ -16,6 +16,7 @@ public enum SpleefMode {
     TEAM("TeamSpleef"),
     MULTI("MultiSpleef"),
     POWER("PowerSpleef"),
+    POWER_TEAM("PowerTeamSpleef"),
     SWC("SWC");
     
     private final String chatPrefixName;

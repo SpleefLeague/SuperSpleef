@@ -62,7 +62,7 @@ public class GameHistoryPlayerData extends DBEntity implements DBSaveable {
     }
 
     public boolean isWinner() {
-        return winner == true;
+        return winner != null && winner == true;
     }
 
     public void setWinner(Boolean winner) {
@@ -70,7 +70,7 @@ public class GameHistoryPlayerData extends DBEntity implements DBSaveable {
     }
 
     public boolean hasSurrenderd() {
-        return surrendered == true;
+        return surrendered != null && surrendered == true;
     }
 
     public void setSurrendered(Boolean surrendered) {
@@ -78,7 +78,7 @@ public class GameHistoryPlayerData extends DBEntity implements DBSaveable {
     }
 
     public boolean hasQuit() {
-        return quit == null;
+        return quit != null && quit == true;
     }
 
     public SpleefPlayer getPlayer() {
